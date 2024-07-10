@@ -27,7 +27,7 @@ if args["TARGET_ENV"] == "tests":
     env_cpy = env.Clone()
 
     # Append on the global robot target build flag
-    env_cpy.AppendUnique(CCFLAGS=["-D " + args["ROBOT_TYPE"]])
+    # env_cpy.AppendUnique(CCFLAGS=["-D " + args["ROBOT_TYPE"]])
 
     rawSrcs = env_cpy.FindSourceFiles(".")
 

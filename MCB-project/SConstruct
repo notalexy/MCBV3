@@ -27,25 +27,25 @@ args = parse_args.parse_args()
 
 #==============================================ADDED BY Jason Heflinger @Thornbots=============================================
 # Grab robot type and modify src path
-valid_types = ["ROBOTS", "SENTRY", "HERO", "TESTING", "TESTBENCHES"]
-robot_type = args["ROBOT_TYPE"]
-if robot_type == None:
-    print("|======================================================================================|")
-    print("|          !!!WARNING!!!: No robot type was specified, defaulting to ROBOTS          |") 
-    print("|======================================================================================|")
-    robot_type = valid_types[0]
-    args["ROBOT_TYPE"] = robot_type
-if robot_type not in valid_types:
-    raise Exception("Please specify a valid robot type. The current valid robot types include: " + str(valid_types))
-SRC_PATH = "Code/" + robot_type + "/src"
-print("Building for " + robot_type)
+# valid_types = ["ROBOTS", "SENTRY", "HERO", "TESTING", "TESTBENCHES"]
+# robot_type = args["ROBOT_TYPE"]
+# if robot_type == None:
+#     print("|======================================================================================|")
+#     print("|          !!!WARNING!!!: No robot type was specified, defaulting to ROBOTS          |") 
+#     print("|======================================================================================|")
+#     robot_type = valid_types[0]
+#     args["ROBOT_TYPE"] = robot_type
+# if robot_type not in valid_types:
+#     raise Exception("Please specify a valid robot type. The current valid robot types include: " + str(valid_types))
+# SRC_PATH = "Code/" + robot_type + "/src"
+# print("Building for " + robot_type)
 #=============================================================================================================================
 
 # Define project settings and build paths
 PROJECT_NAME         = "MCB-project"
 BUILD_PATH           = "build"
 TAPROOT_PATH         = "taproot"
-#SRC_PATH             = "src"
+SRC_PATH             = "src"
 TEST_PATH            = "test"
 
 TAPROOT_SCRIPTS_TOOLPATH = abspath("../taproot-scripts/scons-tools")
@@ -111,7 +111,7 @@ if args["TARGET_ENV"] == "hardware":
     # Add target environment-specific SCons aliases
     # WARNING: all aliases must be checked during argument validation
     env.Alias("build", program)
-    env.Alias("size", env.Size(program))
+  #  env.Alias("size", env.Size(program))
     env.Alias("gdb", env.DebugGdbRemote(program))
     env.Alias("run", [env.ProgramOpenOcd(program)])
     env.Alias("all", ["build", "size"])
