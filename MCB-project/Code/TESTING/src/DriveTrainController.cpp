@@ -1,318 +1,178 @@
 #include "DriveTrainController.h"
 
-#include <cmath>
-#include <iostream>
-#include <string>
+namespace ThornBots
+{
+static double motorOneSpeed, motorTwoSpeed, motorThreeSpeed, motorFourSpeed = 0;
+double motorOneRPM, motorTwoRPM, motorThreeRPM, motorFourRPM = 0.0;
+DriveTrainController::DriveTrainController(tap::Drivers* driver) { this->drivers = driver; }
 
-#include "tap/algorithms/smooth_pid.hpp"
-#include "tap/architecture/periodic_timer.hpp"
-#include "tap/board/board.hpp"
-#include "tap/motor/dji_motor.hpp"
-
-#include "drivers_singleton.hpp"
-
-
-namespace ThornBots {
-DriveTrainController::DriveTrainController(tap::Drivers* m_driver) {
-    // TODO
-    this->drivers = m_driver;
+void DriveTrainController::initialize()
+{
     motor_one.initialize();
     motor_two.initialize();
     motor_three.initialize();
     motor_four.initialize();
-    // power_limit = drivers->refSerial.getRobotData().chassis.powerConsumptionLimit;
+    // Nothing needs to be done to drivers
+    // Nothing needs to be done to PID controllers
 }
 
-DriveTrainController::~DriveTrainController() {}  
-
-void DriveTrainController::DriveTrainMovesTurretFollow(double turnSpeed, double translationSpeed, double translationAngle) {
-    convertTranslationSpeedToMotorSpeeds(translationSpeed, translationAngle);
+// static double TRANS_ACCEL_LIM = 360, ROT_ACCEL_LIM = 72;
+// double pastX = 0, pastY = 0, pastR, errX, errY, errR, errMag, errorAngle;
+void DriveTrainController::moveDriveTrain(
+    double turnSpeed,
+    double translationSpeed,
+    double translationAngle)
+{
+    double angularOffset = (motor_one.getShaftRPM()+motor_three.getShaftRPM())/2/14000.0;
+    // errX = translationSpeed * cos(translationAngle) - pastX;
+    // errY = translationSpeed * sin(translationAngle) - pastY;
+    // errMag = sqrt(errY * errY + errX * errX);
+    // if (errMag > TRANS_ACCEL_LIM) errMag = TRANS_ACCEL_LIM;
+    // errorAngle = atan2(errY, errX);
+    // pastX += errMag * cos(errorAngle);
+    // pastY += errMag * sin(errorAngle);
+    // convertTranslationSpeedToMotorSpeeds(sqrt(pastX * pastX + pastY * pastY), atan2(pastY, pastX));
+    convertTranslationSpeedToMotorSpeeds(translationSpeed, translationAngle+angularOffset);
+    // errR = turnSpeed - pastR;
+    // errR = errR > ROT_ACCEL_LIM ? ROT_ACCEL_LIM : errR < -ROT_ACCEL_LIM ? -ROT_ACCEL_LIM : errR;
+    // pastR += errR;
     adjustMotorSpeedWithTurnSpeed(turnSpeed);
 }
 
-void DriveTrainController::TurretMovesDriveTrainFollow(double translationSpeed, double translationAngle, double driveTrainAngleFromTurret) {
-    //TODO: Check that this works
-    convertTranslationSpeedToMotorSpeeds(translationSpeed, translationAngle);
+// void DriveTrainController::setMotorSpeeds() {
+//     if (robotDisabled) return stopMotors();
+//     drivers->canRxHandler.pollCanData();
+//     motorOneRPM = motor_one.getShaftRPM();
+//     motorTwoRPM = motor_two.getShaftRPM();
+//     motorThreeRPM = motor_three.getShaftRPM();
+//     motorFourRPM = motor_four.getShaftRPM();
 
-    pidControllerDTFollowsT.runControllerDerivateError(driveTrainAngleFromTurret, 1); //TODO: TUNE THE PID CONSTANTS!!!
-    double turnSpeed = ((double)pidController.getOutput());
-    
-    adjustMotorSpeedWithTurnSpeed(turnSpeed);
-}
+//     // Motor1 (The driver's front wheel)
+//     // pidController.runControllerDerivateError(motorOneSpeed - motor_one.getShaftRPM(), 1);
+//     pidController.runControllerDerivateError(motorOneSpeed - motor_one.getShaftRPM(), 1);
+//     motor_one.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
 
-//Only worrying about translating in this state
-void DriveTrainController::TurretMovesDriveTrainIndependent(double translationSpeed, double translationAngle, double driveTrainAngleFromTurret) {
-    convertTranslationSpeedToMotorSpeeds(translationSpeed, translationAngle);
-}
+//     // Motor2 (The passenger's front wheel)
+//     pidController.runControllerDerivateError(motorTwoSpeed - motor_two.getShaftRPM(), 1);
+//     motor_two.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
 
-void DriveTrainController::setMotorSpeeds(bool sendMotorTimeout) {
-    if (sendMotorTimeout) {
-        // Motor1 (The driver's front wheel)
-        pidController.runControllerDerivateError(motor_one_speed - motor_one.getShaftRPM(), 1);
-        motor_one.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+//     // Motor3 (The driver's back wheel)
+//     pidController.runControllerDerivateError(motorThreeSpeed - motor_three.getShaftRPM(), 1);
+//     motor_three.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
 
-        // Motor2 (The passenger's front wheel)
-        pidController.runControllerDerivateError(motor_two_speed - motor_two.getShaftRPM(), 1);
-        motor_two.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+//     // Motor4 (The passenger's back wheel)
+//     pidController.runControllerDerivateError(motorFourSpeed - motor_four.getShaftRPM(), 1);
+//     motor_four.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
 
-        // Motor3 (The driver's back wheel)
-        pidController.runControllerDerivateError(motor_three_speed - motor_three.getShaftRPM(), 1);
-        motor_three.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
+//     drivers->djiMotorTxHandler.encodeAndSendCanData(); //Processes these motor speed changes into
+//     can signal
+// }
+double voltMax = 24; //Volts
+double ra = 0.194-0.01;  //ohms //was 1.03 or 0.194
+double kb = 0.35/19.2; //volt-rad/s  //0.39
+double powerLimit = 0;
+double veloPower = 0.42; //magic number representing loss from high rpm
+double idlePowerDraw = 3; //watts, measured
+void DriveTrainController::setMotorSpeeds(){
+    if (robotDisabled) return stopMotors();
+    drivers->canRxHandler.pollCanData();
+    powerLimit = 100;
+    if(drivers->refSerial.getRefSerialReceivingData()) //check for uart disconnected
+        powerLimit = drivers->refSerial.getRobotData().chassis.powerConsumptionLimit;
+    powerLimit += limitIncrease;
+    motorOneRPM = motor_one.getShaftRPM();
+    motorTwoRPM = motor_two.getShaftRPM();
+    motorThreeRPM = motor_three.getShaftRPM();
+    motorFourRPM = motor_four.getShaftRPM();
 
-        // Motor4 (The passenger's back wheel)
-        pidController.runControllerDerivateError(motor_four_speed - motor_four.getShaftRPM(), 1);
-        motor_four.setDesiredOutput(static_cast<int32_t>(pidController.getOutput()));
-    } // STOP Updating motor speeds
-}
+    double w1 = motorOneRPM * (2 * M_PI / 60);    // Convert RPM to rad/s
+    double w2 = motorTwoRPM * (2 * M_PI / 60);    // Convert RPM to rad/s
+    double w3 = motorThreeRPM * (2 * M_PI / 60);  // Convert RPM to rad/s
+    double w4 = motorFourRPM * (2 * M_PI / 60);   // Convert RPM to rad/s
 
-void DriveTrainController::stopMotors(bool sendMotorTimeout) {
-    motor_one_speed = 0;
-    motor_two_speed = 0;
-    motor_three_speed = 0;
-    motor_four_speed = 0;
-    setMotorSpeeds(sendMotorTimeout);
-}
+    pidController.runControllerDerivateError(motorOneSpeed - motorOneRPM, 1);
+    double I1t = pidController.getOutput()/819.2;
+    pidController.runControllerDerivateError(motorTwoSpeed - motorTwoRPM, 1);
+    double I2t = pidController.getOutput()/819.2;
+    pidController.runControllerDerivateError(motorThreeSpeed - motorThreeRPM, 1);
+    double I3t = pidController.getOutput()/819.2;
+    pidController.runControllerDerivateError(motorFourSpeed - motorFourRPM, 1);
+    double I4t = pidController.getOutput()/819.2;
 
-void DriveTrainController::convertTranslationSpeedToMotorSpeeds(double translationSpeed, double translationAngle) {
-    motor_one_speed = translationSpeed * sin(translationAngle + (PI / 4));
-    motor_two_speed = translationSpeed * sin(translationAngle - (PI / 4));
-    motor_three_speed = translationSpeed * sin(translationAngle - (PI / 4));
-    motor_four_speed = translationSpeed * sin(translationAngle + (PI / 4));
-}
+    // Saturation check
+    I1t = std::min(std::max(I1t, -abs(voltMax - kb * w1) / ra), abs(voltMax - kb * w1) / ra);
+    I2t = std::min(std::max(I2t, -abs(voltMax - kb * w2) / ra), abs(voltMax - kb * w2) / ra);
+    I3t = std::min(std::max(I3t, -abs(voltMax - kb * w3) / ra), abs(voltMax - kb * w3) / ra);
+    I4t = std::min(std::max(I4t, -abs(voltMax - kb * w4) / ra), abs(voltMax - kb * w4) / ra);
 
-void DriveTrainController::adjustMotorSpeedWithTurnSpeed(double turnSpeed) {
-    motor_one_speed += turnSpeed;
-    motor_two_speed -= turnSpeed;
-    motor_three_speed += turnSpeed;
-    motor_four_speed -= turnSpeed;
-}
+    // Adjust current for reversing direction
+    double I1sourcet = I1t;// - w1 * kb / ra;
+    double I2sourcet = I2t;// - w2 * kb / ra;
+    double I3sourcet = I3t;// - w3 * kb / ra;
+    double I4sourcet = I4t;// - w4 * kb / ra;
 
-//-------------------------------------------------------------------------------------------------
-//Everything below this point should hopefully get Redone
-//-------------------------------------------------------------------------------------------------
+    // Calculate total power requested
+    double totalPowerRequested = 0.8*((I1sourcet * I1sourcet * ra) + (I2sourcet * I2sourcet * ra) +
+                                 (I3sourcet * I3sourcet * ra) + (I4sourcet * I4sourcet * ra)) + veloPower*(abs(w1) + abs(w2) + abs(w3) + abs(w4));
 
-/** TODO REMOVE THIS!!!!
- * Returns the angle, in radians, that the vector defined by the
- * given x and y coordinates make from the positive x axis. (Ranging from 0 to 2*Pi in the CCW
- * direction)
- */
-double DriveTrainController::getAngle(double xPosition, double yPosition) {
-    double angle = 0;
-    if(xPosition == 0) {
-        if(yPosition == 0) {
-            return angle;
-        }
-        if(yPosition > 0) {
-            return angle;
-        }
-        return (double)(PI/2);
-    }
-    if(yPosition == 0) {
-        if(xPosition > 0) {
-            return angle;
-        }
-        return (double)(3*PI/2);
-    }
-
-    angle += atan(yPosition / xPosition);
-
-    if (xPosition > 0 && yPosition > 0)  // Quadrant 1
-        return (double)(angle);
-
-    if (xPosition > 0 && yPosition < 0)  // Quadrant 2
-        return (double)(angle);
-
-    if (xPosition < 0 && yPosition < 0)  // Quadrant 3
-        return (double)(angle + PI);
-
-    if (xPosition < 0 && yPosition > 0)  // Quadrant 4
-        return (double)(angle + PI);
-
-    return (double)(angle);
-}
-
-/** TODO REMOVE THIS!!!!
- * Returns the hypotenuse gives two sides to a right triangle
- */
-double DriveTrainController::getMagnitude(double xPosition, double yPosition) {
-    return sqrt((xPosition * xPosition) + (yPosition * yPosition));
-}
-
-/**
- * Given: A double ranging from [-1, 1]
- * Returns: A scaled version of the input.
- * To be used for changing the controlls from a linear control (using just the getMagnitude()) to a
- * quadratic control This simply returns the input squared (to make the small changes even smaller
- * and the values closer to one relatively unchanged) To increase this effect increase two: Look at
- * the following link to see the differences in the different exponent levels
- * https://www.desmos.com/calculator/smghtoozgk
- */
-double DriveTrainController::getScaledQuadratic(double magnitude) { return pow(magnitude, 2); }
-
-/**
- * Calls all the necessary methods to set the drive train motors to their appropiate speeds. (Taking
- * into acount turning, WASD or conroller input,  beyblading, and translating)
- */
-void DriveTrainController::setMotorValues(double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz, float yaw_angle, int rightSwitchState, int leftSwitchValue) {
-    yaw_motor_angle = yaw_angle;
-    if(rightSwitchState == 2) {
-        lockRotation = true;
-    } else {
-        lockRotation = false;
-    }
-    lockDrivetrain = false;  // (rightSwitchState == 2);
-
-    bool beyBladeEnabled = false;
-    int slew_rate = 4;
-
-    //Check to see if beyblading is enabled and set the beyblading factor
-    if (leftSwitchValue == 2 || leftSwitchValue == 1) {
-        beyBladeEnabled = true;
-        if (leftSwitchValue == 1) {
-            beyblading_factor = 0.3;
-        } else {
-            beyblading_factor = 0.7;
-        }
+    // Scale currents if power limit is exceeded
+    if (totalPowerRequested + idlePowerDraw > powerLimit)
+    {
+        double scale = powerLimit / (totalPowerRequested + idlePowerDraw) ;
+        I1t *= scale;
+        I2t *= scale;
+        I3t *= scale;
+        I4t *= scale;
     }
 
-    int motor_one_new_speed =   getMotorOneSpeedWithCont( beyBladeEnabled, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
-    int motor_two_new_speed =   getMotorTwoSpeedWithCont( beyBladeEnabled, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
-    int motor_three_new_speed = getMotorThreeSpeedWithCont( beyBladeEnabled, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
-    int motor_four_new_speed =  getMotorFourSpeedWithCont( beyBladeEnabled, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
+    motor_one.setDesiredOutput(static_cast<int32_t>(I1t*819.2));
+    motor_two.setDesiredOutput(static_cast<int32_t>(I2t*819.2));
+    motor_three.setDesiredOutput(static_cast<int32_t>(I3t*819.2));
+    motor_four.setDesiredOutput(static_cast<int32_t>(I4t*819.2));
 
-    motor_one_speed =   updateMotorSpeeds(motor_one_new_speed, motor_one_speed, slew_rate);
-    motor_two_speed =   updateMotorSpeeds(motor_two_new_speed, motor_two_speed, slew_rate);
-    motor_three_speed = updateMotorSpeeds(motor_three_new_speed, motor_three_speed, slew_rate);
-    motor_four_speed =  updateMotorSpeeds(motor_four_new_speed, motor_four_speed, slew_rate);
-
-    
-    // // Power Limiting w/Receiver
-    // power_limit = drivers->refSerial.getRobotData().chassis.powerConsumptionLimit;
-    // float current_power = drivers->refSerial.getRobotData().chassis.power;
-    // if(current_power + (.05 * power_limit) > power_limit){
-    //     motor_one_speed = power_limit/(current_power + (.05 * power_limit)) * motor_one_speed;
-    //     motor_two_speed = power_limit/(current_power + (.05 * power_limit)) * motor_two_speed;
-    //     motor_three_speed = power_limit/(current_power + (.05 * power_limit)) * motor_three_speed;
-    //     motor_four_speed = power_limit/(current_power + (.05 * power_limit)) * motor_four_speed;
-    // }else if(current_power < power_limit){
-    //     motor_one_speed = getMotorOneSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz); 
-    //     motor_two_speed = getMotorTwoSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz); 
-    //     motor_three_speed = getMotorThreeSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz); 
-    //     motor_four_speed = getMotorFourSpeedWithCont(doBeyblading, right_stick_vert, right_stick_horz, left_stick_vert, left_stick_horz);
-    // }
-    
+    drivers->djiMotorTxHandler
+        .encodeAndSendCanData();  // Processes these motor speed changes into CAN signal
 }
 
-/* 
-* Updates the motor speed by the slew rate
-* If the difference between the new speed and the current speed is greater than the slew rate
-* then the motor speed is updated by the slew rate
-* Otherwise the motor speed is updated to the new speed
-*/
-double DriveTrainController::updateMotorSpeeds(double MotorNewSpeed, double MotorCurrentSpeed, int slewRate) {
-    // if (abs(MotorNewSpeed - MotorCurrentSpeed) > slewRate)
-    // {
-    //     if (MotorNewSpeed > MotorCurrentSpeed) {
-    //         return MotorCurrentSpeed += slewRate;
-    //     }
-    //     else {
-    //         return MotorCurrentSpeed -= slewRate;
-    //     }
-    // }
-        return MotorNewSpeed;
+void DriveTrainController::stopMotors()
+{
+    motor_one.setDesiredOutput(0);
+    motor_two.setDesiredOutput(0);
+    motor_three.setDesiredOutput(0);
+    motor_four.setDesiredOutput(0);
+    drivers->djiMotorTxHandler.encodeAndSendCanData();
 }
 
-/**
- * Returns the speed that the first motor set should go to (the first motor set
- * is the first and fourth motor. Or in other words, the driver's front wheel and the passenger's
- * back wheel) If you want a visual check, it's the blue wheels at
- * https://seamonsters-2605.github.io/archive/mecanum/
- *
- * To move in relation to the front of the vechile (motors 1 and 2 are in the front), the equation
- * for the speed of the MotorSetOne is sin(angle + pi/4) * MaxSpeed * magnitude
- */
-int DriveTrainController::getMotorSetOneTranslatingSpeed(double xPosition, double yPosition) {
-    float refined_angle = yaw_motor_angle + REFINED_ANGLE_OFFSET;
-    if (refined_angle < 0) refined_angle += 360.0f;
-    double angle = getAngle(xPosition, yPosition) + (PI * refined_angle / 180.0f);
-    if (lockDrivetrain) angle = yaw_motor_angle;
-    double magnitude = getMagnitude(xPosition, yPosition);
-    // if (lockDrivetrain) magnitude = 0.5;
-    return (MAX_SPEED * magnitude * sin(angle + (PI / (double)4.0)));
+void DriveTrainController::disable() { robotDisabled = true; }
+void DriveTrainController::enable() { robotDisabled = false; }
+
+void DriveTrainController::convertTranslationSpeedToMotorSpeeds(
+    double translationSpeed,
+    double translationAngle)
+{
+    motorOneSpeed = translationSpeed * sin(translationAngle + (PI / 4));
+    motorTwoSpeed = translationSpeed * sin(translationAngle - (PI / 4));
+    motorThreeSpeed = translationSpeed * sin(translationAngle - (PI / 4));
+    motorFourSpeed = translationSpeed * sin(translationAngle + (PI / 4));
 }
 
-/**
- * Returns the speed that the second motor set should go to (the second motor set
- * is the second and third motor. Or in other words, the driver's back wheel and the passenger's
- * front wheel) If you want a visual intrepretation, it's the red wheels at
- * https://seamonsters-2605.github.io/archive/mecanum/
- */
-int DriveTrainController::getMotorSetTwoTranslatingSpeed(double xPosition, double yPosition) {
-    float refined_angle = yaw_motor_angle + REFINED_ANGLE_OFFSET;
-    if (refined_angle < 0) refined_angle += 360.0f;
-    double angle = getAngle(xPosition, yPosition) + (PI * refined_angle / 180.0f);
-    if (lockDrivetrain) angle = yaw_motor_angle;
-    double magnitude = getMagnitude(xPosition, yPosition);
-    // if (lockDrivetrain) magnitude = 0.5;
-    return (MAX_SPEED * magnitude * sin(angle - (PI / (double)4.0)));
+void DriveTrainController::adjustMotorSpeedWithTurnSpeed(double turnSpeed)
+{
+    motorOneSpeed += turnSpeed;
+    motorTwoSpeed -= turnSpeed;
+    motorThreeSpeed += turnSpeed;
+    motorFourSpeed -= turnSpeed;
 }
 
-int DriveTrainController::getMotorOneSpeedWithCont(bool isBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz) {
-    if (isBeyblading) {
-        double tmp = beyblading_factor * MAX_SPEED + getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
-        return ((int)abs(tmp) <= MAX_SPEED) ? tmp : ((int)tmp > 0) ? MAX_SPEED : -1 * MAX_SPEED;
-    }
-    else {
-        double rotation_speed = right_stick_horz * MAX_SPEED;
-        if (lockRotation) rotation_speed = 0;
-        double tmp =
-            rotation_speed + getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
-        return ((int)abs(tmp) <= MAX_SPEED) ? tmp : ((int)tmp > 0) ? MAX_SPEED : -1 * MAX_SPEED;
-    }
+void DriveTrainController::setHigherPowerLimit() {
+    if(drivers->refSerial.getRobotData().chassis.powerBuffer>minBuffer)
+        limitIncrease = higherLimitIncrease;
+    else
+        setRegularPowerLimit();
 }
 
-int DriveTrainController::getMotorTwoSpeedWithCont(bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz) {
-    if (doBeyblading) {
-        double tmp = -1 * beyblading_factor * MAX_SPEED +
-                     getMotorSetTwoTranslatingSpeed(left_stick_horz, left_stick_vert);
-        return ((int)abs(tmp) <= MAX_SPEED) ? tmp : ((int)tmp > 0) ? MAX_SPEED : -1 * MAX_SPEED;
-    }
-    else {
-        double rotation_speed = -1 * right_stick_horz * MAX_SPEED;
-        if (lockRotation) rotation_speed = 0;
-        double tmp =
-            rotation_speed + getMotorSetTwoTranslatingSpeed(left_stick_horz, left_stick_vert);
-        return ((int)abs(tmp) <= MAX_SPEED) ? tmp : ((int)tmp > 0) ? MAX_SPEED : -1 * MAX_SPEED;
-    }
+void DriveTrainController::setRegularPowerLimit() {
+    limitIncrease = regularLimitIncrease;
 }
 
-int DriveTrainController::getMotorThreeSpeedWithCont(bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz) {
-    if (doBeyblading) {
-        double tmp = beyblading_factor * MAX_SPEED +
-                     getMotorSetTwoTranslatingSpeed(left_stick_horz, left_stick_vert);
-        return ((int)abs(tmp) <= MAX_SPEED) ? tmp : ((int)tmp > 0) ? MAX_SPEED : -1 * MAX_SPEED;
-    }
-    else {
-        double rotation_speed = right_stick_horz * MAX_SPEED;
-        if (lockRotation) rotation_speed = 0;
-        double tmp =
-            rotation_speed + getMotorSetTwoTranslatingSpeed(left_stick_horz, left_stick_vert);
-        return ((int)abs(tmp) <= MAX_SPEED) ? tmp : ((int)tmp > 0) ? MAX_SPEED : -1 * MAX_SPEED;
-    }
-}
-
-int DriveTrainController::getMotorFourSpeedWithCont(bool doBeyblading, double right_stick_vert, double right_stick_horz, double left_stick_vert, double left_stick_horz) {
-    if (doBeyblading) {
-        double tmp = -1.0 * beyblading_factor * MAX_SPEED +
-                     getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
-        return ((int)abs(tmp) <= MAX_SPEED) ? tmp : ((int)tmp > 0) ? MAX_SPEED : -1 * MAX_SPEED;
-    }
-    else {
-        double rotation_speed = -1 * right_stick_horz * MAX_SPEED;
-        if (lockRotation) rotation_speed = 0;
-        double tmp =
-            rotation_speed + getMotorSetOneTranslatingSpeed(left_stick_horz, left_stick_vert);
-        return ((int)abs(tmp) <= MAX_SPEED) ? tmp : ((int)tmp > 0) ? MAX_SPEED : -1 * MAX_SPEED;
-    }
-}
 }  // namespace ThornBots

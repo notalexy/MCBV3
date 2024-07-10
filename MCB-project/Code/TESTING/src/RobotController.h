@@ -3,89 +3,75 @@
 #include "tap/algorithms/smooth_pid.hpp"
 #include <cmath>
 #include "drivers_singleton.hpp"
-
 #include "DriveTrainController.h"
 #include "TurretController.h"
+#include "ShooterController.h"
+
 
 namespace ThornBots {
+    //Don't ask me why. Timers only work when global. #Certified taproot Moment
+    static tap::arch::PeriodicMilliTimer motorsTimer(2);
+    static tap::arch::PeriodicMilliTimer IMUTimer(2);
+    static tap::arch::PeriodicMilliTimer updateInputTimer(2);
+
     class RobotController {
-    public:
-        //Constructor
-        RobotController(tap::Drivers* m_driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController);
-        //Destructor
-        ~RobotController();
+        public: //Public Variables
+            //static constexpr double PI = 3.14159;
+            // static constexpr double MAX_SPEED = 7000; //controller //7000
+            static constexpr double MAX_SPEED = 11000; //controller //7000
+            static constexpr double SLOW_SPEED = 4000;
+            static constexpr double MED_SPEED = 11000;
+            static constexpr double FAST_SPEED = 11000; //will allow power limit to be 50% higher
+            static constexpr double FAST_BEYBLADE_FACTOR = 0.55 * 10000 / MAX_SPEED; //0.7
+            static constexpr double SLOW_BEYBLADE_FACTOR = 0.3 * 10000 / MAX_SPEED; //0.35
+            static constexpr double TURNING_CONSTANT = 0.5;
+            static constexpr double dt = 0.002;
+            constexpr static double YAW_TURNING_PROPORTIONAL = -0.02;
+            // static constexpr double 
+        private: //Private Variables
+            tap::Drivers *drivers;
+            ThornBots::DriveTrainController *driveTrainController;
+            ThornBots::TurretController *turretController;
+            ThornBots::ShooterController *shooterController;
+            double left_stick_horz, left_stick_vert, right_stick_horz, right_stick_vert = 0;
+            double leftStickAngle, rightStickAngle, leftStickMagnitude, rightStickMagnitude = 0;
+            double wheelValue = 0;
+            double driveTrainRPM, yawRPM, yawAngleRelativeWorld = 0.0, imuOffset;
+            tap::communication::serial::Remote::SwitchState leftSwitchState, rightSwitchState = tap::communication::serial::Remote::SwitchState::MID;
+            bool useKeyboardMouse = false;
+            double yawEncoderCache = 0;
+            double desiredYawAngleWorld, desiredYawAngleWorld2, driveTrainEncoder = 0.0;
+            double stickAccumulator = 0, targetYawAngleWorld = PI, targetDTVelocityWorld = 0;  //changed targetYawAngleWorld from 0 to PI
+            bool robotDisabled = false;
 
-        /*
-        * Main function for the RobotController class. This function will be called in the main.cpp file.
-        * This function will get and read our inputs and determinie what DriveTrainController and TurretController do
-        * based on the inputs.
-        */
-        void update();
+        public: //Public Methods
+            RobotController(tap::Drivers* driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController, ThornBots::ShooterController* shooterController);
 
-        /*
-        * This function will call setMotorSpeeds with sendMotorTimeout.execute() as the parameter to DriveTrain 
-        * and Turret Controller.
-        */
-        void stopRobot();
+            void initialize();
 
-    private:
-        //Variables
-        static constexpr double MAXIMUM_BEYBLADE_FACTOR = 0.7; //Change this to change the maximum factor of speed of the beyblading from: [0, 1]
-        static constexpr int MAX_SPEED = 6000; //The abs(maximum speed) we want the drivetrain motors to go to
-        static constexpr double PI = 3.14159;
+            void update();
 
-        double beybladeFactor = 0;
-        bool keyboardAndMouseEnabled = false;
-        int leftSwitchValue = 0;
-        int rightSwitchValue = 0;
-        double distance = 0.0;
-        double turnSpeed = 0.0;
-        double translationAngle = 0.0;
-        double magnitude = 0.0;
-        double translationSpeed = 0.0;
-        double pitchMotorSpeed = 0.0;
-        double yawMotorSpeed = 0.0;
-        int16_t projectileMotorSpeed = 0;
+            void stopRobot();
+            void disableRobot();
+            void enableRobot();
 
-        int16_t wheel_value = 0;
+            bool toggleKeyboardAndMouse();
 
-        double right_stick_vert = 0.0;
-        double right_stick_horz = 0.0;
-        double left_stick_vert = 0.0;
-        double left_stick_horz = 0.0;
+        private: //Private Methods
+            void updateAllInputVariables();
 
-        tap::Drivers* drivers;
-        ThornBots::DriveTrainController *driveTrainController;
-        ThornBots::TurretController *turretController;
+            /*
+            * Returns the angle (in radians) x and y form with 0 being straight ahead. atan2(x/y).
+            * If x and y are both 0, this is typically undefined, so we assume it is 0.
+            * Positive 90 degrees is CCW 90 degrees from 0. Negative 90 degrees is CW 90 degrees from 0
+            * 90 degrees is joystick left, -90 is joystick right, and down is +-180 degrees
+            */
+            double getAngle(double x, double y);
 
-        //temp to be deleted
-        float temp_yaw_angle = 0.0;
+            double getMagnitude(double x, double y);
 
+            void updateWithController();
+            void updateWithMouseKeyboard();
 
-        //Functions
-
-        /*
-        * This function will find relation of a point to the orgin and return the angle in radians. Furthermore
-        * it will set the 0 reference angle to the front of the drivetrain.
-        */
-        double getAngle(double xPosition, double yPosition);
-        
-        /**
-        * Reads inputs from the keyboard and mouse and checks to see if KBM(keyboard and Mouse) mode should
-        * be enabled or not. It requires the pressing of CTRL + SHIFT + R to enable KBM mode.
-        */
-        bool toggleKeyboardAndMouse();
-
-        /*
-        * Reads the state of the left switch on the remote and sets leftSwitchValue to 2 if the switch is up,
-        * 1 if the switch is in the middle, and 0 if the switch is down.
-        */
-        void findLeftSwitchState();
-
-        /*
-        * Reads the state of the right switch on the remote and sets rightSwitchValue to 2 if the switch is up,
-        * 1 if the switch is in the middle, and 0 if the switch is down.
-        */
-        void findRightSwitchState();
     };
 }

@@ -1,237 +1,439 @@
+#include "RobotController.h"
+
 #include <cmath>
 
-#include "RobotController.h"
-#include "DriveTrainController.h"
-#include "TurretController.h"
+namespace ThornBots
+{
 
-tap::arch::PeriodicMilliTimer sendDrivetrainTimeout(2);
-tap::arch::PeriodicMilliTimer sendTurretTimeout(2);
+double currentHeat, maxHeat, theHeatRatio, theLevel = 0.0;
+double yawEncoderValue, IMUAngle = 0.0;
+/*
+ * Constructor for RobotController
+ */
+RobotController::RobotController(
+    tap::Drivers* driver,
+    ThornBots::DriveTrainController* driveTrainController,
+    ThornBots::TurretController* turretController,
+    ThornBots::ShooterController* shooterController)
+{
+    this->drivers = driver;
+    this->driveTrainController = driveTrainController;
+    this->turretController = turretController;
+    this->shooterController = shooterController;
+}
 
-namespace ThornBots {
-    RobotController::RobotController(tap::Drivers* m_driver, ThornBots::DriveTrainController* driveTrainController, ThornBots::TurretController* turretController) {
-        this->drivers = m_driver;
-        this->driveTrainController = driveTrainController;
-        this->turretController = turretController;
+void RobotController::initialize()
+{
+    Board::initialize();
+    drivers->can.initialize();
+    drivers->bmi088.initialize(500, 0.0, 0.0);
+    drivers->bmi088.requestRecalibration();
+    drivers->remote.initialize();
+    driveTrainController->initialize();
+    turretController->initialize();
+    shooterController->initialize();
+    drivers->refSerial.initialize();
 
-        //temp to be deleted
-        // bool KeyboardAndMouseEnabled = false;
-        // bool doBeyblading = false;
-        // float temp_yaw_angle = 0.0;
+    modm::delay_ms(
+        2500);  // Delay 2.5s to allow the IMU to turn on and get working before we move it around
+    // TODO: Finish this (Add creating timers, maybe some code to setup the IMU and make sure it's
+    // reading correctly, ect)
+    imuOffset = turretController->getYawEncoderValue();
+    targetYawAngleWorld += yawAngleRelativeWorld;
+}
+
+void RobotController::update()
+{
+
+    drivers->canRxHandler.pollCanData();
+    
+    drivers->refSerial.updateSerial();
+
+    updateAllInputVariables();
+
+    toggleKeyboardAndMouse();
+
+
+    if(drivers->remote.isConnected())
+        enableRobot();
+    else
+        disableRobot();
+        
+
+    if (useKeyboardMouse)
+    {
+        if(robotDisabled) 
+            return;
+        //shooterController->enableShooting(); 
+        updateWithMouseKeyboard();
+    }
+    else
+    {
+        if(robotDisabled) 
+            return;
+        //shooterController->enableShooting();
+        updateWithController();
     }
 
-    RobotController::~RobotController() {
-    }
 
-    void RobotController::update() {
-
-        //keyboardAndMouseEnabled = toggleKeyboardAndMouse();
-        keyboardAndMouseEnabled = false;
-
-        if (keyboardAndMouseEnabled) {
-            // We are using Keyboard and Mouse controls
-            // TODO : Make this work
-
-            if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::W)) {
-                //TODO: Make the robot move forward
-            }
-            if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::A)) {
-                //TODO: Make the robot move left
-            }
-            if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::S)) {
-                //TODO: Make the robot move backwards
-            }
-            if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::D)) {
-                //TODO: Make the robot move right
-            }
-
-        } else { //We are using the remote controls
-
-            //findLeftSwitchState();
-            leftSwitchValue = 0;
-            //findRightSwitchState();
-            rightSwitchValue = 0;
-
-            // Get Current state of the Right Stick on the remote and set the appropriate
-            right_stick_vert = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_VERTICAL);
-            right_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_HORIZONTAL);
-
-            // Get Current state of the Left Stick on the remote and set the appropriate
-            left_stick_vert = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_VERTICAL);
-            left_stick_horz = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_HORIZONTAL);
-
-            // Get Current state of the wheel on the remote and set the appropriate
-            projectileMotorSpeed = drivers->remote.getWheel();
-            
-            //temp_yaw_angle = turretController->getYawEncoderAngle(); //Figure out what this does
+    if (drivers->remote.isConnected())
+    {
+        if (motorsTimer.execute())
+        {
+            driveTrainController->setMotorSpeeds();
+            turretController->setMotorSpeeds();
+            shooterController->setMotorSpeeds();
         }
+    }
+    else
+    {
+        shooterController->disableShooting();
+        stopRobot();
+    }
 
-        //main logic for the robot
-        switch(rightSwitchValue) {
-            case 2: //Turret is locked to the drivebase (Turret moves drivetrain follows)
-                //left stick translates the robot with respect to the turret
-                //right stick handles the pitch and yaw of the turret
+    // drivers->djiMotorTxHandler.encodeAndSendCanData();  // Processes these motor speed changes
+    // into can signal
+}
 
-                //step 1 right stick inputs into yaw and pitch motor speeds.
-                yawMotorSpeed = right_stick_horz * MAX_SPEED;
-                pitchMotorSpeed = right_stick_vert * MAX_SPEED;
+void RobotController::stopRobot()
+{
+    driveTrainController->stopMotors();
+    turretController->stopMotors();
+    shooterController->stopMotors();
+    robotDisabled = true;
+}
 
-                //step2 find angle and speed of left stick
-                translationAngle = getAngle(left_stick_horz, left_stick_vert);
-                magnitude = hypot(left_stick_horz, left_stick_vert);
-                translationSpeed = MAX_SPEED * magnitude;
+void RobotController::disableRobot()
+{
+    stopRobot();
+    driveTrainController->disable();
+    turretController->disable();
+    shooterController->disable();
+}
 
-                //Turret moves first
-                turretController->TurretMovesDriveTrainFollows(yawMotorSpeed, pitchMotorSpeed, projectileMotorSpeed);
-                turretController->setMotorSpeeds(sendTurretTimeout.execute());
+void RobotController::enableRobot()
+{
+    robotDisabled = false;
+    driveTrainController->enable();
+    turretController->enable();
+    shooterController->enable();
+}
 
-                //Drive train needs translation speed, and translation angle to know how to move
-                driveTrainController->TurretMovesDriveTrainFollow( translationSpeed, translationAngle, temp_yaw_angle);
-                driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
+void RobotController::updateAllInputVariables()
+{
+    drivers->remote.read();  // Reading the remote before we check if it is connected yet or not.
+    if (IMUTimer.execute())
+    {
+        drivers->bmi088.periodicIMUUpdate();
+    }
 
+    // START Updating stick values
+    // Actually Reading from remote
+    rightSwitchState =
+        drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::RIGHT_SWITCH);
+    leftSwitchState =
+        drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH);
+    left_stick_horz =
+        drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_HORIZONTAL);
+    left_stick_vert =
+        drivers->remote.getChannel(tap::communication::serial::Remote::Channel::LEFT_VERTICAL);
+    right_stick_horz =
+        drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_HORIZONTAL);
+    right_stick_vert =
+        drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_VERTICAL);
+    // Turning the remote raw values into values we can use more easily (circular cordinates)
+    leftStickAngle = getAngle(left_stick_horz, left_stick_vert);
+    rightStickAngle = getAngle(right_stick_horz, right_stick_vert);
+    leftStickMagnitude = getMagnitude(left_stick_horz, left_stick_vert);
+    rightStickMagnitude = getMagnitude(right_stick_horz, right_stick_vert);
+    // STOP Updating stick values
 
+    driveTrainRPM = 0;  // TODO: get this. Either power from DT motors, using yaw encoder and IMU,
+                        // or something else
+    yawRPM = PI / 180 * drivers->bmi088.getGz();
+    yawAngleRelativeWorld = fmod(PI / 180 * drivers->bmi088.getYaw() - imuOffset, 2*PI);
+
+    wheelValue = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::WHEEL);
+
+}
+
+double RobotController::getAngle(double x, double y)
+{
+    // error handling to prevent runtime errors in atan2
+    if (x == 0 && y == 0)
+    {
+        return ((double)0.0);
+    }
+
+    return atan2(y, x);  // Return (double) [pi, pi] which we want. Doing x/y to rotate the unit
+                         // circle 90 degrees CCW (make 0 straight ahead)
+}
+
+double RobotController::getMagnitude(double x, double y) { return sqrt(pow(x, 2) + pow(y, 2)); }
+
+bool RobotController::toggleKeyboardAndMouse()
+{
+    // only gets set to false the first time this funtion is called
+    static bool hasBeenReleased = true;  
+
+    if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::B))
+    {  // B is furthest. Change later.
+        if (hasBeenReleased)
+        {
+            hasBeenReleased = false;
+            useKeyboardMouse = !useKeyboardMouse;
+        }
+    }
+    else
+    {
+        hasBeenReleased = true;
+    }
+
+    return useKeyboardMouse;
+}
+
+void RobotController::updateWithController()
+{
+    if (updateInputTimer.execute())
+    {
+        double temp = right_stick_horz * YAW_TURNING_PROPORTIONAL;
+        driveTrainEncoder = turretController->getYawEncoderValue();
+
+        switch (leftSwitchState)
+        {
+            case (tap::communication::serial::Remote::SwitchState::UP):
+                // Left Switch is up. So need to beyblade at fast speed, and let right stick control
+                // turret yaw and pitch
+                targetYawAngleWorld += temp;
+                targetDTVelocityWorld = (FAST_BEYBLADE_FACTOR * MAX_SPEED);
+                yawEncoderCache = driveTrainEncoder;
                 break;
-            case 1: //Turret is independent of the drivebase
-                //left stick translates the robot independently
-                //right stick handle pitch and yaw of the turret
-
-                //step 1 right stick inputs into yaw and pitch motor speeds.
-                yawMotorSpeed = right_stick_horz * MAX_SPEED;
-                pitchMotorSpeed = right_stick_vert * MAX_SPEED;
-
-                //step2 find angle and speed of left stick
-                translationAngle = getAngle(left_stick_horz, left_stick_vert);
-                magnitude = hypot(left_stick_horz, left_stick_vert);
-                translationSpeed = MAX_SPEED * magnitude;
-
-                //Turret moves first
-                turretController->TurretMovesDriveTrainFollows(yawMotorSpeed, pitchMotorSpeed, projectileMotorSpeed);
-                turretController->setMotorSpeeds(sendTurretTimeout.execute());
-
-                //Drive train needs translation speed, and translation angle to know how to move
-                driveTrainController->TurretMovesDriveTrainIndependent( translationSpeed, translationAngle, temp_yaw_angle);
-                driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
-
+            case (tap::communication::serial::Remote::SwitchState::MID):
+                targetYawAngleWorld += temp;
+                targetDTVelocityWorld = (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
+                yawEncoderCache = driveTrainEncoder;
+                // Left Switch is mid. So need to beyblade at slow speed, and let right stick
+                // control turret yaw and pitch
                 break;
-            case 0: //Turret is aligned with the drivebase (Drivetrain moves turret follows)
-                //left stick translates the robot
-                //right stick only rotates the robot horz values don't matter
+            case (tap::communication::serial::Remote::SwitchState::DOWN):
+                // Left Switch is down. So need to not beyblade, and let right stick be decided on
+                // the right switch value
+                switch (rightSwitchState)
+                {
+                    case (tap::communication::serial::Remote::SwitchState::MID):
+                        // Left switch is down, and right is mid. So move turret independently of
+                        // drivetrain
+                        targetYawAngleWorld += temp;
+                        targetDTVelocityWorld = 0;
+                        yawEncoderCache = driveTrainEncoder;
 
-                //step 1 find the turnspeed of the right stick
-                distance = right_stick_vert;
-                turnSpeed = MAX_SPEED * distance;   
-
-                //step2 find angle and speed of left stick
-                translationAngle = getAngle(left_stick_horz, left_stick_vert);
-                magnitude = hypot(left_stick_horz, left_stick_vert);               //may want to square this value, was done before to make values closer to 1 relatively unchanged, if needed we can add it back
-                translationSpeed = MAX_SPEED * magnitude;
-
-                //Drive train needs turn speed, translation speed, and translation angle to know how to move
-                driveTrainController->DriveTrainMovesTurretFollow(turnSpeed, translationSpeed, translationAngle);
-                driveTrainController->setMotorSpeeds(sendDrivetrainTimeout.execute());
-
-                //Turrets then follows DriveTrain
-                turretController->FollowDriveTrain();
-                turretController->setMotorSpeeds(sendTurretTimeout.execute());
-
+                        break;
+                    case (tap::communication::serial::Remote::SwitchState::DOWN):
+                        yawEncoderCache = 3 * PI / 4;
+                        // no break intentional so if in this case it also runs what is below 
+                    case (tap::communication::serial::Remote::SwitchState::UP):
+                        // Left switch is down, and right is up. So driveTrainFollows Turret
+                        targetYawAngleWorld =
+                            yawAngleRelativeWorld + (yawEncoderCache - driveTrainEncoder);
+                        targetDTVelocityWorld = right_stick_horz * MAX_SPEED * TURNING_CONSTANT;
+                        break;
+                    default:
+                        // Should not be in this state. So if we are, just tell robot to do nothing.
+                        stopRobot();
+                        break;
+                }
                 break;
             default:
+                // Should not be in this state. So if we are, just tell robot to do nothing.
+                stopRobot();
                 break;
         }
-    }
+        tap::communication::serial::RefSerialData::Rx::RobotData robotData = drivers->refSerial.getRobotData();
+        // drivers->refSerial.
+        tap::communication::serial::RefSerialData::Rx::TurretData turretData = robotData.turret;
+        double frequency = 15, latency = 0.4, remaining = turretData.heatLimit - turretData.heat17ID1;
+        // Check if the firing rate should be limited
+        if ((10.0 * frequency - turretData.coolingRate) * latency > remaining) {
+            // Set the firing speed to C/10 Hz
+            frequency = turretData.coolingRate / 10.0;
+        }    
+        if (frequency > 15 || !drivers->refSerial.getRefSerialReceivingData())
+            frequency = 15;
+        if(wheelValue < -0.5){
+            shooterController->enableShooting();
+            shooterController->setIndexer(frequency/20.0);
+        } else {
+            if(wheelValue > 0.5){
+                shooterController->disableShooting();
+                shooterController->setIndexer(-0.1);
+            } else 
+                shooterController->setIndexer(0);
+        }
+        targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
+        driveTrainController->moveDriveTrain(
+            targetDTVelocityWorld,
+            (leftStickMagnitude * MAX_SPEED),
+            driveTrainEncoder + leftStickAngle - 3 * PI / 4);
+        turretController->turretMove(
+            targetYawAngleWorld,
+            0.1 * PI * right_stick_vert - 0.48 * PI,  //was - 0.5 * PI
+            driveTrainRPM,
+            yawAngleRelativeWorld,
+            yawRPM,
+            temp/dt,
+            dt);
 
-    void RobotController::stopRobot() {
-        driveTrainController->stopMotors(sendDrivetrainTimeout.execute());
-        turretController->stopMotors(sendTurretTimeout.execute());
-    }
+        //idk if this should still work
+        // tap::communication::serial::RefSerialData::Rx::RobotData robotData = drivers->refSerial.getRobotData();
+        // auto& turretData = robotData.turret;
+        // uint8_t level = robotData.robotLevel;
+        // //turretData.h
+        // double heatRatio = (((double)turretData.heat17ID1)/turretData.heatLimit);
 
-    double RobotController::getAngle(double xPosition, double yPosition) {
-        //error handling to prevent runtime errors in atan2
-        if(xPosition == 0) {
-            if(yPosition == 0) {
-                return 0;
+        // currentHeat = turretData.heat17ID1;
+        // maxHeat = turretData.heatLimit;
+        // theHeatRatio = heatRatio;
+        // theLevel = level;
+            
+        //shooterController->enableShooting();
+        //shooterController->setIndexer(theLevel/10.0);
+
+    }
+}
+
+void RobotController::updateWithMouseKeyboard()
+{
+    if (updateInputTimer.execute())
+    {
+
+        tap::communication::serial::RefSerialData::Rx::RobotData robotData = drivers->refSerial.getRobotData();
+        tap::communication::serial::RefSerialData::Rx::TurretData turretData = robotData.turret;
+        uint8_t level = robotData.robotLevel;
+        double heatRatio = (((double)turretData.heat17ID1)/turretData.heatLimit);
+
+        currentHeat = turretData.heat17ID1;
+        maxHeat = turretData.heatLimit;
+        theHeatRatio = heatRatio;
+        theLevel = level;
+
+        //shooting
+        if(drivers->remote.getMouseL()&&heatRatio<0.5){
+            shooterController->setIndexer(0.5); //was 0.8
+            shooterController->enableShooting();
+        } else if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::Z)){
+            shooterController->disableShooting();
+            shooterController->setIndexer(-0.1);
+        } else {
+            shooterController->setIndexer(0);
+        }
+
+        //beyblade
+        static bool rHasBeenReleased = true; //r sets fast 
+        static bool fHasBeenReleased = true; //f sets slow 
+        static bool cHasBeenReleased = true; //c sets off 
+        static double currentBeybladeFactor = 0;
+
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::R)) { 
+            if (rHasBeenReleased){
+                rHasBeenReleased = false;
+                currentBeybladeFactor = FAST_BEYBLADE_FACTOR;
             }
-            if(yPosition > 0) {
-                return 0;
+        } else{
+            rHasBeenReleased = true;
+        }
+
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::F)){ 
+            if (fHasBeenReleased){
+                fHasBeenReleased = false;
+                currentBeybladeFactor = SLOW_BEYBLADE_FACTOR;
             }
-            return PI;
-        }
-        if(yPosition == 0) {
-            if(xPosition > 0) {
-                return -((double)PI/(double)2); //0 degrees in radians
-            }
-            return ((double)PI/(double)2); //180 degrees in radians
-        }
-
-        return -atan2(yPosition, xPosition);
-    }
-
-    bool RobotController::toggleKeyboardAndMouse() {
-        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::CTRL) &&
-            drivers->remote.keyPressed(tap::communication::serial::Remote::Key::SHIFT) &&
-            drivers->remote.keyPressed(tap::communication::serial::Remote::Key::R)) {
-
-            return true;
-        }
-        return false;
-    }
-
-    void RobotController::findLeftSwitchState() {
-        tap::communication::serial::Remote::SwitchState leftSwitchState = drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::LEFT_SWITCH);
-        switch (leftSwitchState) {
-            case tap::communication::serial::Remote::SwitchState::UP:
-                // isLeftStickDown = false;
-                // isLeftStickUp = true;
-                // doBeyblading = true;
-                // turretIndependent = false;
-                beybladeFactor = MAXIMUM_BEYBLADE_FACTOR;
-                break;
-
-            case tap::communication::serial::Remote::SwitchState::MID:
-                // isLeftStickUp = false;
-                // isLeftStickDown = false;
-                // doBeyblading = false;
-                // turretIndependent = true;
-                beybladeFactor = MAXIMUM_BEYBLADE_FACTOR / 2;
-                break;
-
-            case tap::communication::serial::Remote::SwitchState::DOWN:
-                // isLeftStickDown = true;
-                // isLeftStickUp = false;
-                // doBeyblading = false;
-                // turretIndependent = false;
-                beybladeFactor = 0;
-                break;
-
-            case tap::communication::serial::Remote::SwitchState::UNKNOWN:
-                //Do as little as possible (Don't beyblade) (Get's in this state from broken hardware on the controller)
-                beybladeFactor = 0;
-                break;
+        } else {
+            fHasBeenReleased = true;
         }
         
-    }
-
-    void RobotController::findRightSwitchState() {
-        tap::communication::serial::Remote::SwitchState rightSwitchState = drivers->remote.getSwitch(tap::communication::serial::Remote::Switch::RIGHT_SWITCH);
-        switch (rightSwitchState) {
-            case tap::communication::serial::Remote::SwitchState::UP:
-                // TODO: Make the drivebase align with the turret.
-                // i.e., if the angle offset is negative, make it spin CW or vice versa
-                rightSwitchValue = 2;
-                break;
-
-            case tap::communication::serial::Remote::SwitchState::MID:
-                rightSwitchValue = 1;
-                break;
-
-            case tap::communication::serial::Remote::SwitchState::DOWN:
-                //Lock the turret to the drivebase
-                //turretController->reZero();
-                rightSwitchValue = 0;
-                break;
-
-            case tap::communication::serial::Remote::SwitchState::UNKNOWN:
-                //Do as little as possible. (Gets in this state from broken hardware on the controller)
-                break;
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::C)){ 
+            if (cHasBeenReleased){
+                cHasBeenReleased = false;
+                currentBeybladeFactor = 0;
+            }
+        } else {
+            cHasBeenReleased = true;
         }
+
+        if(currentBeybladeFactor!=0)
+            targetDTVelocityWorld = (-currentBeybladeFactor * MAX_SPEED);
+        else{
+            targetDTVelocityWorld=0;
+            if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::Q)){ //rotate left
+                targetDTVelocityWorld -= (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
+            }
+            if(drivers->remote.keyPressed(tap::communication::serial::Remote::Key::E)){ //rotate right
+                targetDTVelocityWorld += (SLOW_BEYBLADE_FACTOR * MAX_SPEED);
+            }
+        }
+
+
+        //movement
+        int moveHorizonal = 0;
+        int moveVertical = 0;
+
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::W))
+            moveVertical++;
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::A))
+            moveHorizonal--;
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::S))
+            moveVertical--;
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::D))
+            moveHorizonal++;
+
+        double moveAngle = getAngle(moveHorizonal, moveVertical);
+        double moveMagnitude = getMagnitude(moveHorizonal, moveVertical);
+
+        if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::CTRL)) { // slow
+            moveMagnitude *= SLOW_SPEED;
+            driveTrainController->setRegularPowerLimit();
+        } else if (drivers->remote.keyPressed(tap::communication::serial::Remote::Key::SHIFT)){  // fast
+            moveMagnitude *= FAST_SPEED;
+            driveTrainController->setHigherPowerLimit();
+        } else  { // medium
+            moveMagnitude *= MED_SPEED;
+            driveTrainController->setRegularPowerLimit();
+        }
+    
+        driveTrainEncoder = turretController->getYawEncoderValue();
+        yawEncoderCache = driveTrainEncoder;
+
+        driveTrainController->moveDriveTrain(
+            targetDTVelocityWorld,
+            moveMagnitude,
+            driveTrainEncoder + moveAngle - 3 * PI / 4); //driveTrainEncoder + moveAngle - 3 * PI / 4);
+            //also try targetYawAngleWorld, yawEncoderCache
+
+
+        // mouse
+        static int mouseXOffset = drivers->remote.getMouseX();
+        static int mouseYOffset = drivers->remote.getMouseY();
+        int mouseX = drivers->remote.getMouseX() - mouseXOffset;
+        int mouseY = drivers->remote.getMouseY() - mouseYOffset;
+        static double accumulatedMouseY=0;
+        accumulatedMouseY+=mouseY / 10000.0;
+
+        if(accumulatedMouseY>0.4) accumulatedMouseY=0.4;
+        if(accumulatedMouseY<-0.3) accumulatedMouseY=-0.3;
+
+        targetYawAngleWorld -= mouseX / 15000.0;
+
+        targetYawAngleWorld = fmod(targetYawAngleWorld, 2 * PI);
+        turretController->turretMove(
+            targetYawAngleWorld,
+            (accumulatedMouseY) - 0.5 * PI,
+            driveTrainRPM,
+            yawAngleRelativeWorld,
+            yawRPM,
+            -mouseX / 15000.0 / dt,
+            dt);
+
+        
     }
-} //Namespace ThornBots
+}
+}  // namespace ThornBots
