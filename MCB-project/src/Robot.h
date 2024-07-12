@@ -1,63 +1,39 @@
-#pragma once
+#ifndef ROBOT_H_
+#define ROBOT_H_
 
 #include <cmath>
 
-#include "tap/algorithms/smooth_pid.hpp"
-
-#include "GimbalSubsystem.h"
 #include "drivers_singleton.hpp"
+#include "tap/algorithms/smooth_pid.hpp"
+#include "tap/board/board.hpp"
+#include "tap/motor/dji_motor.hpp"
 
-namespace ThornBots {
-    using namespace tap::communication::serial;
-
-    // Don't ask me why. Timers only work when global. #Certified taproot Moment
-    static tap::arch::PeriodicMilliTimer motorsTimer(2);
-    static tap::arch::PeriodicMilliTimer IMUTimer(2);
-    static tap::arch::PeriodicMilliTimer updateInputTimer(2);
-    class Robot {
-    public:  // Public Variables
-        static constexpr double YAW_TURNING_PROPORTIONAL = -0.02;
-        static constexpr double dt = 0.002;
-
-        // static constexpr double
-    private:  // Private Variables
-        tap::Drivers* drivers;
-        GimbalSubsystem* gimbalSubsystem;
-        double right_stick_horz, right_stick_vert = 0;
-        double driveTrainRPM, yawRPM, yawAngleRelativeWorld = 0.0, imuOffset;
-        bool useKeyboardMouse = false;
-        double yawEncoderCache = 0;
-        double desiredYawAngleWorld, desiredYawAngleWorld2, driveTrainEncoder = 0.0;
-        double stickAccumulator = 0, targetYawAngleWorld = PI,
-               targetDTVelocityWorld = 0;  // changed targetYawAngleWorld from 0 to PI
-        bool robotDisabled = false;
+#include "Gimbal/GimbalSubsystem.h"
 
 
-    public:  // Public Methods
-        Robot(tap::Drivers* driver, GimbalSubsystem* turretController);
+namespace ThornBots
+{
+using namespace tap::communication::serial;
 
-        void initialize();
+class Robot
+{
+private:  // Private Variables
+    tap::Drivers* drivers;
+    GimbalSubsystem* gimbalSubsystem;
 
-        void update();
+public:  // Public Methods
+    Robot(tap::Drivers* driver, GimbalSubsystem* gimbalSubsystem);
 
-        inline void stopRobot() {
-            gimbalSubsystem->stopMotors();
-            robotDisabled = true;
-        }
+    void initialize();
 
-        inline void disableRobot() {
-            stopRobot();
-            gimbalSubsystem->disable();
-        }
+    void update();
 
-        inline void enableRobot() {
-            robotDisabled = false;
-            gimbalSubsystem->enable();
-        }
-
-        bool toggleKeyboardAndMouse();
-
-    private:  // Private Methods
-   
-    };
+    inline void stopRobot()
+    {
+        // TODO: add motors
+        drivers->djiMotorTxHandler.encodeAndSendCanData();
+    }
+};
 }  // namespace ThornBots
+
+#endif  // ROBOT_H_

@@ -72,6 +72,30 @@
         "SConscript": "python",
         "typeindex": "cpp"
     },
+    "files.exclude": {
+        ".gitignore": true,
+        ".gitmodules": true,
+        ".github/": true,
+
+        "Pipfile": true,
+        "COPYING": true,
+        ".clang-format":true,
+        ".devcontainer.json":true,
+        ".gitlab-ci.yml": true,
+        "taproot-scripts": true,
+        "isolated-deploy": true,
+        "taproot": true,
+
+        "MCB-project/build": true,
+        "MCB-project/build_tools": true,
+        "MCB-project/robot-type": true,
+        "MCB-project/.sconsign.dblite": true,
+        "MCB-project/openocd.cfg": true,
+        "MCB-project/Pipfile": true,
+        "MCB-project/SConstruct": true,
+        "**/project.xml": true,
+        "**/SConscript": true
+    },
     "C_Cpp.errorSquiggles": "Enabled",
     "C_Cpp.default.includePath": [
         "MCB-project/taproot/src",

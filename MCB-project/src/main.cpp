@@ -1,15 +1,13 @@
-#include "GimbalSubsystem.h"
+#include "Gimbal/GimbalSubsystem.h"
 #include "Robot.h"
 #include "drivers_singleton.hpp"
 
-src::Drivers *drivers;
 static tap::arch::PeriodicMicroTimer RunTimer(10);  // Don't ask me why. This only works as a global. #Certified Taproot Moment
 
 int main() {
-    src::Drivers *drivers = src::DoNotUse_getDrivers();
-    ThornBots::GimbalSubsystem *gimbalSubsystem = new ThornBots::GimbalSubsystem(drivers);
-
-    ThornBots::Robot *robot = new ThornBots::Robot(drivers, gimbalSubsystem);
+    src::Drivers* drivers = src::DoNotUse_getDrivers();
+    ThornBots::GimbalSubsystem* gimbalSubsystem = new ThornBots::GimbalSubsystem(drivers);
+    ThornBots::Robot* robot = new ThornBots::Robot(drivers, gimbalSubsystem);
 
     robot->initialize();
     while (1) {
