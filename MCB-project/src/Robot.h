@@ -13,8 +13,6 @@
 
 namespace ThornBots
 {
-using namespace tap::communication::serial;
-
 class Robot
 {
 private:  // Private Variables
