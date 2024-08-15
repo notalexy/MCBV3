@@ -93,6 +93,7 @@
         "MCB-project/openocd.cfg": true,
         "MCB-project/Pipfile": true,
         "MCB-project/SConstruct": true,
+        "MCB-project/Pipfile.lock": true,
         "**/project.xml": true,
         "**/SConscript": true
     },
