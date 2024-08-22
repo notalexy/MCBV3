@@ -7,9 +7,9 @@
 #include "tap/board/board.hpp"
 #include "tap/motor/dji_motor.hpp"
 
-#include "Gimbal/GimbalSubsystem.h"
+#include "subsystems/gimbal/GimbalSubsystem.h"
 
-#include "drivers_singleton.hpp"
+#include "drivers/drivers_singleton.hpp"
 
 namespace ThornBots
 {
@@ -35,5 +35,3 @@ public:  // Public Methods
 }  // namespace ThornBots
 
 #endif  // ROBOT_H_
-
-//test

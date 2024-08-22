@@ -1,7 +1,7 @@
-#include "Gimbal/GimbalSubsystem.h"
+#include "subsystems/gimbal/GimbalSubsystem.h"
 
 #include "Robot.h"
-#include "drivers_singleton.hpp"
+#include "drivers/drivers_singleton.hpp"
 
 static tap::arch::PeriodicMicroTimer RunTimer(
     10);  // Don't ask me why. This only works as a global. #Certified Taproot Moment

@@ -11,7 +11,7 @@
 #include "tap/board/board.hpp"
 #include "tap/motor/dji_motor.hpp"
 
-#include "drivers_singleton.hpp"
+#include "drivers/drivers_singleton.hpp"
 
 namespace ThornBots
 {

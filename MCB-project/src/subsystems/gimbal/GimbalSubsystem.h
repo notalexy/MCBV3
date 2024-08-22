@@ -7,7 +7,7 @@
 
 #include "PitchController.h"
 #include "YawController.h"
-#include "drivers_singleton.hpp"
+#include "drivers/drivers_singleton.hpp"
 
 namespace ThornBots
 {
