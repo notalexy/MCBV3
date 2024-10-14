@@ -4,16 +4,18 @@
 #include "tap/board/board.hpp"
 #include "tap/communication/serial/remote.hpp"
 #include "tap/motor/dji_motor.hpp"
+#include "tap/control/subsystem.hpp"
 
 #include "PitchController.h"
 #include "YawController.h"
-#include "drivers/drivers_singleton.hpp"
 
-namespace ThornBots
+#include "drivers.hpp"
+
+namespace subsystems
 {
 
 static tap::arch::PeriodicMilliTimer turretControllerTimer(2);
-class GimbalSubsystem
+class GimbalSubsystem : public tap::control::Subsystem
 {
 public:  // Public Variables
     // constexpr static double PI = 3.14159;
@@ -31,8 +33,8 @@ private:  // Private Variables
     tap::motor::DjiMotor motor_Yaw;
     tap::motor::DjiMotor motor_Pitch;
 
-    ThornBots::YawController yawController = YawController();
-    ThornBots::PitchController pitchController = PitchController();
+    YawController yawController = YawController();
+    PitchController pitchController = PitchController();
 
     double pitchMotorVoltage, yawMotorVoltage;
 
@@ -47,29 +49,9 @@ private:  // Private Variables
            targetDTVelocityWorld = 0;  // changed targetYawAngleWorld from 0 to PI
 
 public:  // Public Methods
-    GimbalSubsystem(tap::Drivers* drivers)
-        : drivers(drivers),
-          motor_Yaw(
-              drivers,
-              tap::motor::MotorId::MOTOR7,
-              tap::can::CanBus::CAN_BUS1,
-              false,
-              "Yaw",
-              0,
-              0),
-          motor_Pitch(
-              drivers,
-              tap::motor::MotorId::MOTOR6,
-              tap::can::CanBus::CAN_BUS2,
-              false,
-              "Pitch",
-              0,
-              0)
-    {
-        // TODO: Complete this
-    }
-
-    ~GimbalSubsystem() {}  // Intentionally left blank
+    GimbalSubsystem(tap::Drivers* drivers);
+      
+    //~GimbalSubsystem() {}  // Intentionally left blank
 
     /*
      * Call this function once, outside of the main loop.
@@ -77,7 +59,7 @@ public:  // Public Methods
      * object. If you want to know what initializing actually does, ping Teaney in discord, or just
      * Google it. It's pretty cool.
      */
-    void initialize();
+void initialize();
 
     /*
      * reads the right joystick values and updates the internal values of where the gimbal needs to

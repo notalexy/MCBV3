@@ -1,9 +1,34 @@
-#include "GimbalSubsystem.h"
+#include "GimbalSubsystem.hpp"
 
-namespace ThornBots
+namespace subsystems
 {
+    
+GimbalSubsystem::GimbalSubsystem(tap::Drivers* drivers)
+   : tap::control::Subsystem(drivers),
+        drivers(drivers),
+          motor_Yaw(
+              drivers,
+              tap::motor::MotorId::MOTOR7,
+              tap::can::CanBus::CAN_BUS1,
+              false,
+              "Yaw",
+              0,
+              0),
+          motor_Pitch(
+              drivers,
+              tap::motor::MotorId::MOTOR6,
+              tap::can::CanBus::CAN_BUS2,
+              false,
+              "Pitch",
+              0,
+              0)
+    {
+        // TODO: Complete this
+    }
+
 void GimbalSubsystem::initialize()
 {
+    
     motor_Pitch.initialize();
     motor_Yaw.initialize();
     // Nothing needs to be done to drivers

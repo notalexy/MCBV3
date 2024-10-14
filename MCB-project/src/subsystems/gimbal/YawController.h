@@ -8,15 +8,13 @@
 #include "tap/board/board.hpp"
 #include "tap/motor/dji_motor.hpp"
 
-#include "drivers/drivers_singleton.hpp"
-
-namespace ThornBots
+namespace subsystems
 {
 class YawController
 {
 public:
     YawController();
-    ~YawController();
+    //~YawController();
     double calculate(
         double currentPosition,
         double currentVelocity,
