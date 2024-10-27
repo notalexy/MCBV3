@@ -54,14 +54,14 @@ int main()
     while (1)
     {
         // do this as fast as you can
-        PROFILE(drivers.profiler, updateIo, (&drivers));
+        updateIo(&drivers);
 
         if (refreshTimer.execute())
         {
-            PROFILE(drivers.profiler, drivers.bmi088.periodicIMUUpdate, ());
-            PROFILE(drivers.profiler, drivers.commandScheduler.run, ());
-            PROFILE(drivers.profiler, drivers.djiMotorTxHandler.encodeAndSendCanData, ());
-            PROFILE(drivers.profiler, drivers.terminalSerial.update, ());
+            drivers.bmi088.periodicIMUUpdate();
+            drivers.commandScheduler.run();
+            drivers.djiMotorTxHandler.encodeAndSendCanData();
+            drivers.terminalSerial.update();
         }
 
         // prevent looping too fast

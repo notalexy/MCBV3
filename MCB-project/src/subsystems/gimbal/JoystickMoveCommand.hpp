@@ -22,7 +22,7 @@ public:
         addSubsystemRequirement(gimbal);
     }
 
-    void initialize() override;
+    void initialize() override {};
 
     void execute() override;
 

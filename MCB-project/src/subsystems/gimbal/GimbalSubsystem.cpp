@@ -40,7 +40,7 @@ void GimbalSubsystem::initialize()
     targetYawAngleWorld += yawAngleRelativeWorld;
 }
 
-void GimbalSubsystem::update()
+void GimbalSubsystem::refresh()
 {
     right_stick_horz =
         drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_HORIZONTAL);

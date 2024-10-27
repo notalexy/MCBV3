@@ -65,7 +65,7 @@ void initialize();
      * reads the right joystick values and updates the internal values of where the gimbal needs to
      * go
      */
-    void update();
+    void refresh() override;
 
     /*
      * Should be called within the main loop, so called every time in the main loop when you want

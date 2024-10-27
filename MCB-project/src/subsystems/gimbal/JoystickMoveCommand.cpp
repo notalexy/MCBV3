@@ -2,19 +2,19 @@
 
 namespace commands
 {
-
+//void JoystickMoveCommand::initialize() {  }
 void JoystickMoveCommand::execute()
 {
 
-        Remote* remote = &drivers->remote;
-        float yawInput = 0.0f;
-        float pitchInput = 0.0f;
+        // Remote* remote = &drivers->remote;
+        // float yawInput = 0.0f;
+        // float pitchInput = 0.0f;
 
-        float h = remote->getChannel(Remote::Channel::LEFT_HORIZONTAL);
-        float v = remote->getChannel(Remote::Channel::LEFT_VERTICAL);
+        // float h = remote->getChannel(Remote::Channel::LEFT_HORIZONTAL);
+        // float v = remote->getChannel(Remote::Channel::LEFT_VERTICAL);
 
         //TODO this lmao
-        //gimbal->turretMove();
+        gimbal->updateMotors();
 
 }
 
