@@ -4,6 +4,7 @@
 #include "robots/standard/StandardConstants.hpp"
 #include "robots/standard/StandardControl.hpp"
 #include "drivers.hpp"
+#include "tap/communication/sensors/buzzer/buzzer.hpp"
 
 // Place any sort of input/output initialization here. For example, place
 // serial init stuff here.
@@ -48,6 +49,7 @@ int main()
     Board::initialize();
     initializeIo(&drivers);
     control.initialize();
+    tap::buzzer::silenceBuzzer(&(drivers.pwm));
 
     tap::arch::PeriodicMilliTimer refreshTimer(2);
 
@@ -58,6 +60,8 @@ int main()
 
         if (refreshTimer.execute())
         {
+            //tap::buzzer::playNote(&(drivers.pwm), 493);
+
             drivers.bmi088.periodicIMUUpdate();
             drivers.commandScheduler.run();
             drivers.djiMotorTxHandler.encodeAndSendCanData();

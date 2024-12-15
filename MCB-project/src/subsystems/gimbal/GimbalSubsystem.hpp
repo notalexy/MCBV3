@@ -8,6 +8,7 @@
 
 #include "PitchController.h"
 #include "YawController.h"
+#include "tap/communication/sensors/buzzer/buzzer.hpp"
 
 #include "drivers.hpp"
 
@@ -40,7 +41,6 @@ private:  // Private Variables
 
     bool robotDisabled = false;
 
-    double right_stick_horz, right_stick_vert = 0;
     double driveTrainRPM, yawRPM, yawAngleRelativeWorld = 0.0, imuOffset;
     bool useKeyboardMouse = false;
     double yawEncoderCache = 0;
@@ -59,7 +59,7 @@ public:  // Public Methods
      * object. If you want to know what initializing actually does, ping Teaney in discord, or just
      * Google it. It's pretty cool.
      */
-void initialize();
+    void initialize();
 
     /*
      * reads the right joystick values and updates the internal values of where the gimbal needs to
@@ -87,7 +87,7 @@ void initialize();
     /*
      * tells the motors to move the gimbal to its specified angle calculated in update();
      */
-    void updateMotors();
+    void updateMotors(double right_stick_horz, double right_stick_vert);
 
     /*
      * Call this function to convert the desired RPM for all of motors in the GimbalSubsystem to a

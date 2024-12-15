@@ -55,7 +55,7 @@ private:
 
     // Velocity feedback
     const double KPV = 1;                        // A-s/rad
-    const double KIV = 1.5;                      // A/rad
+    const double KIV = 1.5;//1.5                      // A/rad
     const double IV_MAX = 0.1;                   // units TBD
     const double INT_THRESH = VOLT_MAX * 0.85l;  // V
     const double TAKEBACK = 0.01;                // unitless

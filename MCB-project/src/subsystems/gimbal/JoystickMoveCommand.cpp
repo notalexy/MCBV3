@@ -2,19 +2,20 @@
 
 namespace commands
 {
-//void JoystickMoveCommand::initialize() {  }
+
+void JoystickMoveCommand::initialize() {  }
 void JoystickMoveCommand::execute()
 {
-
-        // Remote* remote = &drivers->remote;
-        // float yawInput = 0.0f;
-        // float pitchInput = 0.0f;
-
-        // float h = remote->getChannel(Remote::Channel::LEFT_HORIZONTAL);
-        // float v = remote->getChannel(Remote::Channel::LEFT_VERTICAL);
-
+        yaw = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_HORIZONTAL);
+        pitch = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_VERTICAL);
+  
         //TODO this lmao
-        gimbal->updateMotors();
+        if(drivers->remote.isConnected()){
+                gimbal->updateMotors(yaw, pitch);
+        } else {
+                gimbal->stopMotors();
+        }
+
 
 }
 

@@ -27,7 +27,7 @@ public:
         drivers->commandScheduler.registerSubsystem(&gimbal);
 
         // Run startup commands
-        gimbal.setDefaultCommand(&look);
+        gimbal.setDefaultCommand(&look); 
     }
 
     src::Drivers* drivers;
