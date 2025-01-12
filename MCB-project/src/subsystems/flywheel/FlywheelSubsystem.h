@@ -68,19 +68,9 @@ public:  // Public Methods
         * and packages this information for the motors TO BE SENT over CanBus
         */
     void stopMotors();
-    inline void enableShooting() { this->shootingSafety = true; }
-    inline void disableShooting() { this->shootingSafety = false; }
 
     inline void enable() { this->robotDisabled = false; }
     inline void disable() { this->robotDisabled = true; }
-
-    void shoot(double maxFrequency);
-    inline void idle() { setIndexer(0); }
-    inline void unjam() {
-        disableShooting();
-        openServo(); 
-        setIndexer(-0.1);
-    }
 
     private:  // Private Methods
         int getFlywheelVoltage();
