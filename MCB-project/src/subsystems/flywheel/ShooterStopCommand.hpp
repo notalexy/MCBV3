@@ -3,7 +3,7 @@
 #include "tap/communication/serial/remote.hpp"
 #include "tap/control/command.hpp"
 
-#include "subsystems/flywheel/FlywheelSubsystem.h"
+#include "subsystems/flywheel/FlywheelSubsystem.hpp"
 
 #include "drivers.hpp"
 
@@ -12,10 +12,10 @@ namespace commands
 using subsystems::FlyWheelSubsystem;
 using tap::communication::serial::Remote;
 
-class StopCommand : public tap::control::Command
+class ShooterStopCommand : public tap::control::Command
 {
 public:
-    StopCommand(src::Drivers* drivers, FlyWheelSubsystem* flywheel)
+    ShooterStopCommand(src::Drivers* drivers, FlyWheelSubsystem* flywheel)
         : drivers(drivers),
           flywheel(flywheel)
     {

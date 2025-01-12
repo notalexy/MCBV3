@@ -7,6 +7,10 @@
 #include "subsystems/gimbal/GimbalSubsystem.hpp"
 #include "subsystems/gimbal/JoystickMoveCommand.hpp"
 
+#include "subsystems/flywheel/FlywheelSubsystem.hpp"
+#include "subsystems/flywheel/ShooterStartCommand.hpp"
+#include "subsystems/flywheel/ShooterStopCommand.hpp"
+
 #include "drivers.hpp"
 
 using namespace tap::control;
@@ -21,12 +25,15 @@ public:
     {
         // Initialize subsystems
         gimbal.initialize();
+        flywheel.initialize();
 
         // Register subsystems
         drivers->commandScheduler.registerSubsystem(&gimbal);
+        drivers->commandScheduler.registerSubsystem(&flywheel);
 
         // Run startup commands
         gimbal.setDefaultCommand(&look);
+        flywheel.setDefaultCommand(&shooterStop);
     }
 
     src::Drivers* drivers;
@@ -35,4 +42,9 @@ public:
     subsystems::GimbalSubsystem gimbal{drivers};
 
     commands::JoystickMoveCommand look{drivers, &gimbal};
+
+    subsystems::FlyWheelSubsystem flywheel{drivers};
+
+    commands::ShooterStartCommand shooterStart{drivers, &flywheel};
+    commands::ShooterStopCommand shooterStop{drivers, &flywheel};
 };
