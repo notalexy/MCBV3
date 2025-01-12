@@ -4,6 +4,7 @@
 #include "tap/board/board.hpp"
 #include "tap/motor/dji_motor.hpp"
 #include "tap/motor/servo.hpp"
+#include "tap/control/subsystem.hpp"
 
 #include "drivers.hpp"
 
@@ -12,7 +13,7 @@ namespace subsystems {
     static tap::arch::PeriodicMilliTimer secondTimer(100);
     static tap::arch::PeriodicMilliTimer servoTimer(20);
 
-    class Indexer {
+    class IndexerSubsystem : public tap::control::Subsystem {
         public:  // Public Variables
             // constexpr static double PI = 3.14159;
             
@@ -31,6 +32,10 @@ namespace subsystems {
             double flyWheelVoltage, indexerVoltage = 0.0;
 
         public:  // Public Methods
+
+        IndexerSubsystem(tap::Drivers* drivers);
+
+        void refresh() override;
         
         void setIndexer(double val);
         
