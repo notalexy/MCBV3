@@ -12,7 +12,6 @@
 using namespace tap::control;
 using namespace tap::communication::serial;
 
-
 class StandardControl
 {
 public:
@@ -27,7 +26,7 @@ public:
         drivers->commandScheduler.registerSubsystem(&gimbal);
 
         // Run startup commands
-        gimbal.setDefaultCommand(&look); 
+        gimbal.setDefaultCommand(&look);
     }
 
     src::Drivers* drivers;
@@ -36,5 +35,4 @@ public:
     subsystems::GimbalSubsystem gimbal{drivers};
 
     commands::JoystickMoveCommand look{drivers, &gimbal};
-
 };
