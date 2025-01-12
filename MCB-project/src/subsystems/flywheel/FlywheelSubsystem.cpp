@@ -14,12 +14,12 @@ namespace subsystems {
     }
     
     /**
-     * sets the target velocity of the flywheels
+     * sets the target motor RPM of the flywheels
      */
-    void FlyWheelSubsystem::setTargetVelocity(int targetVelocity){
-        this->targetVelocity = targetVelocity;
-        flywheelPIDController1.runControllerDerivateError(targetVelocity - motor_Flywheel1.getShaftRPM(), 1);
-        flywheelPIDController2.runControllerDerivateError(targetVelocity - motor_Flywheel2.getShaftRPM(), 1);
+    void FlyWheelSubsystem::setTargetMotorRPM(int targetMotorRPM){
+        this->targetMotorRPM = targetMotorRPM;
+        flywheelPIDController1.runControllerDerivateError(targetMotorRPM - motor_Flywheel1.getShaftRPM(), 1);
+        flywheelPIDController2.runControllerDerivateError(targetMotorRPM - motor_Flywheel2.getShaftRPM(), 1);
 
         flyWheel1Voltage = static_cast<int32_t>(flywheelPIDController1.getOutput());
         flyWheel2Voltage = static_cast<int32_t>(flywheelPIDController2.getOutput());

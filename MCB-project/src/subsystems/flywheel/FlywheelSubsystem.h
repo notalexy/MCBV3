@@ -34,7 +34,7 @@ tap::algorithms::SmoothPid flywheelPIDController2 = tap::algorithms::SmoothPid(p
 int32_t flyWheel1Voltage = 0;
 int32_t flyWheel2Voltage = 0;
 
-int targetVelocity;
+int targetMotorRPM;
 
 bool robotDisabled = false;
 
@@ -57,7 +57,7 @@ public:  // Public Methods
      */
     void refresh() override;
 
-    void setTargetVelocity(int targetVelocity);
+    void setTargetMotorRPM(int targetMotorRPM);
     /*
         * Call this function to set all Turret motors to 0 desired RPM, calculate the voltage level in which to achieve this quickly
         * and packages this information for the motors TO BE SENT over CanBus
