@@ -17,7 +17,7 @@ class FlyWheelSubsystem : public tap::control::Subsystem
 {
 public:  // Public Variables
 // constexpr static double PI = 3.14159;
-constexpr static int FLYWHEEL_MOTOR_MAX_SPEED = 8333;  // We had 5000 last year, and we can go 30/18 times as fast. So 5000 * 30/18
+constexpr static int FLYWHEEL_MOTOR_MAX_RPM = 8333;  // We had 5000 last year, and we can go 30/18 times as fast. So 5000 * 30/18
 constexpr static tap::algorithms::SmoothPidConfig pid_conf_flywheel = {40, 0.1, 0, 10.0, 10000, 1, 0, 1, 0, 0, 0};
 
 private:  // Private Variables
@@ -31,9 +31,11 @@ tap::motor::DjiMotor motor_Flywheel2 =
 tap::algorithms::SmoothPid flywheelPIDController1 = tap::algorithms::SmoothPid(pid_conf_flywheel);
 tap::algorithms::SmoothPid flywheelPIDController2 = tap::algorithms::SmoothPid(pid_conf_flywheel);
 
-double flyWheelVoltage = 0.0;
+int32_t flyWheel1Voltage = 0;
+int32_t flyWheel2Voltage = 0;
 
-bool shootingSafety = false;
+int targetVelocity;
+
 bool robotDisabled = false;
 
 public:  // Public Methods 
@@ -55,14 +57,7 @@ public:  // Public Methods
      */
     void refresh() override;
 
-    /*
-    * Call this function to convert the desired RPM for all of motors in the GimbalSubsystem to a voltage level which
-    * would then be sent over CanBus to each of the motor controllers to actually set this voltage level on each of the motors.
-    * Should be placed inside of the main loop, and called every time through the loop, ONCE
-    */
-    void setMotorSpeeds();
-
-    void updateSpeeds();
+    void setTargetVelocity(int targetVelocity);
     /*
         * Call this function to set all Turret motors to 0 desired RPM, calculate the voltage level in which to achieve this quickly
         * and packages this information for the motors TO BE SENT over CanBus
@@ -73,6 +68,5 @@ public:  // Public Methods
     inline void disable() { this->robotDisabled = true; }
 
     private:  // Private Methods
-        int getFlywheelVoltage();
     };
 }  // namespace ThornBots

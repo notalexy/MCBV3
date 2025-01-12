@@ -9,40 +9,24 @@ namespace subsystems {
         motor_Flywheel1.initialize();
         motor_Flywheel2.initialize();
     }
-    void FlyWheelSubsystem::updateSpeeds(){
-        if(shooterControllerTimer.execute()) {
-            // indexerVoltage = getIndexerVoltage();
-            flyWheelVoltage = getFlywheelVoltage();
-        }
+
+    void FlyWheelSubsystem::setTargetVelocity(int targetVelocity){
+        this->targetVelocity = targetVelocity;
+        flywheelPIDController1.runControllerDerivateError(targetVelocity - motor_Flywheel1.getShaftRPM(), 1);
+        flywheelPIDController2.runControllerDerivateError(targetVelocity - motor_Flywheel2.getShaftRPM(), 1);
+
+        flyWheel1Voltage = static_cast<int32_t>(flywheelPIDController1.getOutput());
+        flyWheel2Voltage = static_cast<int32_t>(flywheelPIDController2.getOutput());
     }
 
-    void FlyWheelSubsystem::setMotorSpeeds() {
-        updateSpeeds();
-
-        flywheelPIDController1.runControllerDerivateError(flyWheelVoltage - motor_Flywheel1.getShaftRPM(), 1);
-        motor_Flywheel1.setDesiredOutput(static_cast<int32_t>(flywheelPIDController1.getOutput()));
-
-        flywheelPIDController2.runControllerDerivateError(flyWheelVoltage - motor_Flywheel2.getShaftRPM(), 1);
-        motor_Flywheel2.setDesiredOutput(static_cast<int32_t>(flywheelPIDController2.getOutput()));
+    void FlyWheelSubsystem::refresh() {
+        motor_Flywheel1.setDesiredOutput(flyWheel1Voltage);
+        motor_Flywheel2.setDesiredOutput(flyWheel2Voltage);
     }
 
     void FlyWheelSubsystem::stopMotors() {
-       // flywheelPIDController1.runControllerDerivateError(0 - motor_Flywheel1.getShaftRPM(), 1);
-        motor_Flywheel1.setDesiredOutput(0);//static_cast<int32_t>(flywheelPIDController1.getOutput()));
-
-       // flywheelPIDController2.runControllerDerivateError(0 - motor_Flywheel2.getShaftRPM(), 1);
-        motor_Flywheel2.setDesiredOutput(0);//static_cast<int32_t>(flywheelPIDController2.getOutput()));
-
-        drivers->djiMotorTxHandler.encodeAndSendCanData();
-    }
-
-    int FlyWheelSubsystem::getFlywheelVoltage() {
-        if (robotDisabled) return 0;
-        if(shootingSafety){
-            return FLYWHEEL_MOTOR_MAX_SPEED;
-        }else{
-            return 0;
-        }
+        flyWheel1Voltage = 0;
+        flyWheel2Voltage = 0;
     }
 
     void FlyWheelSubsystem::disable(){
