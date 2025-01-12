@@ -4,16 +4,17 @@
 #include "tap/board/board.hpp"
 #include "tap/motor/dji_motor.hpp"
 #include "tap/motor/servo.hpp"
+#include "tap/control/subsystem.hpp"
 
 #include "drivers.hpp"
 
-namespace ThornBots
+namespace subsystems
 {
 
 static tap::arch::PeriodicMilliTimer shooterControllerTimer(2);
 static tap::arch::PeriodicMilliTimer secondTimer(100);
 static tap::arch::PeriodicMilliTimer servoTimer(20);
-class FlyWheelSubsystem
+class FlyWheelSubsystem : public tap::control::Subsystem
 {
 public:  // Public Variables
 // constexpr static double PI = 3.14159;
@@ -62,7 +63,7 @@ public:  // Public Methods
      * reads the right joystick values and updates the internal values of where the gimbal needs to
      * go
      */
-    void refresh();
+    void refresh() override;
 
     /*
      * Should be called within the main loop, so called every time in the main loop when you want
@@ -87,44 +88,41 @@ public:  // Public Methods
     void updateMotors();
 
     /*
-     * Call this function to convert the desired RPM for all of motors in the GimbalSubsystem to a
-     * voltage level which would then be sent over CanBus to each of the motor controllers to
-     * actually set this voltage level on each of the motors. Should be placed inside of the main
-     * loop, and called every time through the loop, ONCE
-     */
-    void setMotorSpeeds();
+         * Call this function to convert the desired RPM for all of motors in the GimbalSubsystem to a voltage level which
+         * would then be sent over CanBus to each of the motor controllers to actually set this voltage level on each of the motors.
+         * Should be placed inside of the main loop, and called every time through the loop, ONCE
+         */
+        void setMotorSpeeds();
 
-    /*
-     * Call this function to set all Turret motors to 0 desired RPM, calculate the voltage level in
-     * which to achieve this quickly and packages this information for the motors TO BE SENT over
-     * CanBus
-     */
-    void stopMotors();
-    inline void disable() { robotDisabled = true; }
-    inline void enable() { robotDisabled = false; }
+        void updateSpeeds();
+        /*
+         * Call this function to set all Turret motors to 0 desired RPM, calculate the voltage level in which to achieve this quickly
+         * and packages this information for the motors TO BE SENT over CanBus
+         */
+        void stopMotors();
+        inline void enableShooting() { this->shootingSafety = true; }
+        inline void disableShooting() { this->shootingSafety = false; }
 
-    /*
-     * Call this function (any number of times) to reZero the yaw motor location. This will be used
-     * when first turning on the robot and setting the Turret to where the front of the DriveTrain
-     * is. This function should be called when either in the bootup sequence, or when some,
-     * undetermined button is pressed on the keyboard.
-     */
-    void reZeroYaw();
+        inline void enable() { this->robotDisabled = false; }
+        inline void disable() { this->robotDisabled = true; }
 
-    inline double getYawEncoderValue()
-    {
-        return tap::motor::DjiMotor::encoderToDegrees(motor_Yaw.getEncoderUnwrapped()) * PI / 180;
-    }
-    inline double getPitchEncoderValue()
-    {
-        return tap::motor::DjiMotor::encoderToDegrees(motor_Pitch.getEncoderUnwrapped()) * PI / 180;
-    }
-    inline double getYawVel() { return motor_Yaw.getShaftRPM() * PI / 30; }
-    inline double getPitchVel() { return motor_Pitch.getShaftRPM() * PI / 30; }
+        void setIndexer(double val);
 
-private:  // Private Methods
-    int getFlywheelVoltage();
-    int getIndexerVoltage();
-    int getServoPosition();
-};
+        void setServo(float val);
+        inline void openServo() { setServo(SERVO_MIN); }
+        inline void closeServo() { setServo(SERVO_MAX); }
+
+        void shoot(double maxFrequency);
+        inline void idle() { setIndexer(0); }
+        inline void unjam() {
+            disableShooting();
+            openServo(); 
+            setIndexer(-0.1);
+        }
+
+    private:  // Private Methods
+        int getFlywheelVoltage();
+        int getIndexerVoltage();
+        int getServoPosition();
+    };
 }  // namespace ThornBots
