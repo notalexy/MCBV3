@@ -1,30 +1,23 @@
 #include "FlywheelSubsystem.h"
 
-namespace ThornBots {
-    ShooterController::ShooterController(tap::Drivers* driver) {
-        this->drivers = driver;
-        //TODO: Complete this
-    }
-    void ShooterController::initialize() {
-        motor_Indexer.initialize();
+namespace subsystems {
+    FlyWheelSubsystem::FlyWheelSubsystem(tap::Drivers* drivers) 
+      : tap::control::Subsystem(drivers),
+        drivers(drivers) {} 
+
+    void FlyWheelSubsystem::initialize() {
         motor_Flywheel1.initialize();
         motor_Flywheel2.initialize();
-        drivers->pwm.init(); //For the servo we will be using
-
-        //Nothing needs to be done to drivers
-        //Nothing needs to be done to the controllers
     }
-    void ShooterController::updateSpeeds(){
+    void FlyWheelSubsystem::updateSpeeds(){
         if(shooterControllerTimer.execute()) {
-            indexerVoltage = getIndexerVoltage();
+            // indexerVoltage = getIndexerVoltage();
             flyWheelVoltage = getFlywheelVoltage();
         }
     }
 
-    void ShooterController::setMotorSpeeds() {
+    void FlyWheelSubsystem::setMotorSpeeds() {
         updateSpeeds();
-        indexPIDController.runControllerDerivateError(indexerVoltage - motor_Indexer.getShaftRPM(), 1);
-        motor_Indexer.setDesiredOutput(static_cast<int32_t>(indexPIDController.getOutput()));
 
         flywheelPIDController1.runControllerDerivateError(flyWheelVoltage - motor_Flywheel1.getShaftRPM(), 1);
         motor_Flywheel1.setDesiredOutput(static_cast<int32_t>(flywheelPIDController1.getOutput()));
@@ -33,10 +26,7 @@ namespace ThornBots {
         motor_Flywheel2.setDesiredOutput(static_cast<int32_t>(flywheelPIDController2.getOutput()));
     }
 
-    void ShooterController::stopMotors() {
-        //indexPIDController.runControllerDerivateError(0 - motor_Indexer.getShaftRPM(), 1);
-        motor_Indexer.setDesiredOutput(0);//static_cast<int32_t>(indexPIDController.getOutput()));
-
+    void FlyWheelSubsystem::stopMotors() {
        // flywheelPIDController1.runControllerDerivateError(0 - motor_Flywheel1.getShaftRPM(), 1);
         motor_Flywheel1.setDesiredOutput(0);//static_cast<int32_t>(flywheelPIDController1.getOutput()));
 
@@ -44,18 +34,9 @@ namespace ThornBots {
         motor_Flywheel2.setDesiredOutput(0);//static_cast<int32_t>(flywheelPIDController2.getOutput()));
 
         drivers->djiMotorTxHandler.encodeAndSendCanData();
-        //TODO: Add the other motors
     }
 
-    void ShooterController::enableShooting() {
-        this->shootingSafety = true;
-    }
-
-    void ShooterController::disableShooting() {
-        this->shootingSafety = false;
-    }
-
-    int ShooterController::getFlywheelVoltage() {
+    int FlyWheelSubsystem::getFlywheelVoltage() {
         if (robotDisabled) return 0;
         if(shootingSafety){
             return FLYWHEEL_MOTOR_MAX_SPEED;
@@ -64,25 +45,10 @@ namespace ThornBots {
         }
     }
 
-    int ShooterController::getIndexerVoltage() {
-        if (robotDisabled) return 0;
-        if(shootingSafety){
-            return indexerVoltage;
-        }else{
-            return 0;
-        }
-    }
-
-    void ShooterController::setIndexer(double val) {
-        indexerVoltage = val*INDEXER_MOTOR_MAX_SPEED;
-        
-    }
-
-    void ShooterController::disable(){
+    void FlyWheelSubsystem::disable(){
         robotDisabled = true;
     }
-    void ShooterController::enable(){
+    void FlyWheelSubsystem::enable(){
         robotDisabled = false;
     }
-
-}
+}  // namespace subsystems

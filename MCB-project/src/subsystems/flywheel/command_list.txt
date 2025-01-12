@@ -1,0 +1,9 @@
+DefaultIndex
+StartFlywheels
+StopFlywheels
+Unjam
+Stop
+Fire
+
+constructor(var1, var2) : var1(var1), var2(var2) {
+}
