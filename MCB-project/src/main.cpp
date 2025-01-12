@@ -1,23 +1,75 @@
-#include "subsystems/gimbal/GimbalSubsystem.h"
+#include "tap/architecture/periodic_timer.hpp"
+#include "tap/architecture/profiler.hpp"
 
-#include "Robot.h"
-#include "drivers/drivers_singleton.hpp"
+#include "robots/standard/StandardConstants.hpp"
+#include "robots/standard/StandardControl.hpp"
+#include "drivers.hpp"
+#include "tap/communication/sensors/buzzer/buzzer.hpp"
 
-static tap::arch::PeriodicMicroTimer RunTimer(
-    10);  // Don't ask me why. This only works as a global. #Certified Taproot Moment
+// Place any sort of input/output initialization here. For example, place
+// serial init stuff here.
+static void initializeIo(src::Drivers *drivers)
+{
+    drivers->analog.init();
+    drivers->pwm.init();
+    drivers->digital.init();
+    drivers->leds.init();
+    drivers->can.initialize();
+    drivers->errorController.init();
+    drivers->remote.initialize();
+    drivers->refSerial.initialize();
+    // drivers->cvBoard.initialize();
+    drivers->terminalSerial.initialize();
+    drivers->schedulerTerminalHandler.init();
+    drivers->djiMotorTerminalSerialHandler.init();
+    drivers->bmi088.initialize(500, 0.1f, 0.0f);
+    drivers->bmi088.requestRecalibration();
+}
+
+// Anything that you would like to be called place here. It will be called
+// very frequently. Use PeriodicMilliTimers if you don't want something to be
+// called as frequently.
+static void updateIo(src::Drivers *drivers)
+{
+#ifdef PLATFORM_HOSTED
+    tap::motorsim::SimHandler::updateSims();
+#endif
+
+    drivers->canRxHandler.pollCanData();
+    drivers->refSerial.updateSerial();
+    // drivers->cvBoard.updateSerial();
+    drivers->remote.read();
+}
+
+src::Drivers drivers;
+StandardControl control{&drivers};
 
 int main()
 {
-    src::Drivers* drivers = src::DoNotUse_getDrivers();
-    ThornBots::GimbalSubsystem* gimbalSubsystem = new ThornBots::GimbalSubsystem(drivers);
-    ThornBots::Robot* robot = new ThornBots::Robot(drivers, gimbalSubsystem);
+    Board::initialize();
+    initializeIo(&drivers);
+    control.initialize();
+    tap::buzzer::silenceBuzzer(&(drivers.pwm));
 
-    robot->initialize();
+    tap::arch::PeriodicMilliTimer refreshTimer(2);
+
     while (1)
     {
-        if (RunTimer.execute())
-        {  // Calling this function every 10 us at max
-            robot->update();
+        // do this as fast as you can
+        updateIo(&drivers);
+
+        if (refreshTimer.execute())
+        {
+            //tap::buzzer::playNote(&(drivers.pwm), 493);
+
+            drivers.bmi088.periodicIMUUpdate();
+            drivers.commandScheduler.run();
+            drivers.djiMotorTxHandler.encodeAndSendCanData();
+            drivers.terminalSerial.update();
         }
+
+        // prevent looping too fast
+        modm::delay_us(10);
     }
+    return 0;
 }

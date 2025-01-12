@@ -17,23 +17,21 @@
  * along with MCB.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef ENV_UNIT_TESTS
+#ifndef DRIVERS_HPP_
+#define DRIVERS_HPP_
 
-#include "drivers_singleton.hpp"
+#include "tap/drivers.hpp"
 
 namespace src {
-    /**
-     * Class that allows one to construct a Drivers instance because of frienship
-     * with the Drivers class.
-     */
-    class DriversSingleton {
+    class Drivers : public tap::Drivers {
+
+
     public:
-        static src::Drivers drivers;
-    };  // class DriversSingleton
+        Drivers() : tap::Drivers() {}
 
-    src::Drivers DriversSingleton::drivers;
+    public:
+    };  // class Drivers
 
-    src::Drivers *DoNotUse_getDrivers() { return &DriversSingleton::drivers; }
 }  // namespace src
 
-#endif
+#endif  // DRIVERS_HPP_
