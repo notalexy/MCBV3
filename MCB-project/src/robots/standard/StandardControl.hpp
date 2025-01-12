@@ -40,9 +40,11 @@ public:
 
     // Subsystems
     subsystems::GimbalSubsystem gimbal{drivers};
-    subsystems::FlyWheelSubsystem flywheel{drivers};
 
     commands::JoystickMoveCommand look{drivers, &gimbal};
+
+    subsystems::FlyWheelSubsystem flywheel{drivers};
+
     commands::ShooterStartCommand shooterStart{drivers, &flywheel};
     commands::ShooterStopCommand shooterStop{drivers, &flywheel};
 };
