@@ -10,7 +10,7 @@ void JoystickDriveCommand::execute()
         y = drivers->remote.getChannel(Remote::Channel::LEFT_HORIZONTAL);
         r = drivers->remote.getChannel(Remote::Channel::RIGHT_HORIZONTAL);
 
-        translationSpeed = sqrt(x*x+y*y);
+        translationSpeed = sqrt(x * x + y * y);
         translationAngle = x != 0 || y != 0 ? atan2(y,x) : 0;
         //TODO this lmao
         if(drivers->remote.isConnected()){

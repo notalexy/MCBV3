@@ -12,26 +12,26 @@ namespace subsystems
 class DrivetrainSubsystem : public tap::control::Subsystem
 {
 public:  // Public Variables
-    // constexpr static double PI = 3.14159; //Everyone likes Pi!
+    // constexpr static float PI = 3.14159; //Everyone likes Pi!
     constexpr static tap::algorithms::SmoothPidConfig pid_conf_dt =
         {20, 0, 0, 0, 18000, 1, 0, 1, 0, 0, 0};
     constexpr static tap::algorithms::SmoothPidConfig pid_conf_DriveTrainFollowsTurret =
         {500, 0.5, 0, 0, 18000, 1, 0, 1, 0, 0, 0};  // TODO: Tune this profile
-    constexpr static double HIGH_LIM_INC =
+    constexpr static float HIGH_LIM_INC =
         40;  // in watts, however many watts over the current limit given by the ref system
-    constexpr static double REG_LIM_INC = 0;        // in watts, should be zero
-    double limitIncrease = REG_LIM_INC;  // in watts
+    constexpr static float REG_LIM_INC = 0;        // in watts, should be zero
+    float limitIncrease = REG_LIM_INC;  // in watts
 
-    constexpr static double MIN_BUFFER = 10;    // in joules, how much should remain unused in the buffer
+    constexpr static float MIN_BUFFER = 10;    // in joules, how much should remain unused in the buffer
                                      // (disables limitIncrease if the buffer is less than this)
-    constexpr static double VOLT_MAX = 24;      // Volts
-    constexpr static double RA = 0.194 - 0.01;  // ohms //was 1.03 or 0.194
-    constexpr static double KB = 0.35 / 19.2;   // volt-rad/s  //0.39
-    constexpr static double VELO_LOSS = 0.42;   // magic number representing loss from high rpm
-    constexpr static double IDLE_DRAW = 3;      // watts, measured
-    constexpr static double DEFAULT_LIMIT = 100;
+    constexpr static float VOLT_MAX = 24;      // Volts
+    constexpr static float RA = 0.194 - 0.01;  // ohms //was 1.03 or 0.194
+    constexpr static float KB = 0.35 / 19.2;   // volt-rad/s  //0.39
+    constexpr static float VELO_LOSS = 0.42;   // magic number representing loss from high rpm
+    constexpr static float IDLE_DRAW = 3;      // watts, measured
+    constexpr static float DEFAULT_LIMIT = 100;
 
-    constexpr static double KT = 0.35;
+    constexpr static float KT = 0.35;
 
 private:                                            // Private Variables
     tap::Drivers* drivers;
@@ -43,8 +43,8 @@ private:                                            // Private Variables
     tap::algorithms::SmoothPid pidControllerDTFollowsT =
         tap::algorithms::SmoothPid(pid_conf_DriveTrainFollowsTurret);
 
-    double motorOneRPM, motorTwoRPM, motorThreeRPM, motorFourRPM = 0.0, powerLimit = 0;
-    double powerLimit = 100;
+    float motorOneRPM, motorTwoRPM, motorThreeRPM, motorFourRPM = 0.0, powerLimit = 0;
+    float powerLimit = 100;
     bool robotDisabled = false;
 
    
@@ -68,7 +68,7 @@ public:  // Public Methods
      * the described behavior. This will allow the drivetrain to translate with left stick, and turn
      * with the right stick or beyblade depending how this is called.
      */
-    void moveDriveTrain(double turnSpeed, double translationSpeed, double translationAngle);
+    void moveDriveTrain(float turnSpeed, float translationSpeed, float translationAngle);
 
     /*
      * Call this function to convert the desired RPM for all of motors in the DrivetrainSubsystem to
@@ -97,13 +97,13 @@ private:  // Private Methods
      * left, relative to the drivetrain, you would call this function as:
      * convertTranslationSpeedToMotorSpeeds(0.75, pi/2);)
      */
-    void convertTranslationSpeedToMotorSpeeds(double magnitude, double angle);
+    void convertTranslationSpeedToMotorSpeeds(float magnitude, float angle);
 
     /*
      * Call this function to calculate and ADJUST DriveTrain motors' RPMs to rotate at the given
      * turnSpeed. This input is unitless, should be from [0, 1], and simply multiplies it by a
      * constant, adjustable maximum factor of maximum speed.
      */
-    void adjustMotorSpeedWithTurnSpeed(double turnSpeed);
+    void adjustMotorSpeedWithTurnSpeed(float turnSpeed);
 };
 }  // namespace subsystems
