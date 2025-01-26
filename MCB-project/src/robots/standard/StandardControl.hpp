@@ -11,6 +11,10 @@
 #include "subsystems/flywheel/ShooterStartCommand.hpp"
 #include "subsystems/flywheel/ShooterStopCommand.hpp"
 
+#include "subsystems/indexer/IndexerSubsystem.hpp"
+#include "subsystems/indexer/IndexerNBallsCommand.hpp"
+#include "subsystems/indexer/IndexerUnjamCommand.hpp"
+
 #include "drivers.hpp"
 
 using namespace tap::control;
@@ -26,10 +30,12 @@ public:
         // Initialize subsystems
         //gimbal.initialize();
         flywheel.initialize();
+        indexer.initialize();
 
         // Register subsystems;
         //drivers->commandScheduler.registerSubsystem(&gimbal);
         drivers->commandScheduler.registerSubsystem(&flywheel);
+        drivers->commandScheduler.registerSubsystem(&indexer);
 
         // Run startup commands
         //gimbal.setDefaultCommand(&look);

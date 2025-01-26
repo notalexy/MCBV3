@@ -41,4 +41,8 @@ namespace subsystems {
         flyWheel2Voltage = 0;
     }
 
+    float FlyWheelSubsystem::getShootingVelocity() {
+        return targetMotorRPM * 2 * (FLYWHEEL_RADIUS_MM / 1000.0f) * PI / 60.0f;
+    }
+
 }  // namespace subsystems
