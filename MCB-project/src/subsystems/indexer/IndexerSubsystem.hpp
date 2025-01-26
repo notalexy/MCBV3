@@ -17,10 +17,9 @@ static tap::arch::PeriodicMilliTimer secondTimer(100);
 class IndexerSubsystem : public tap::control::Subsystem
 {
 public:  // Public Variables
-// constexpr static double PI = 3.14159;
-
 constexpr static int INDEXER_MOTOR_MAX_SPEED = 6177;   // With the 2006, this should give
 constexpr static float REV_PER_BALL = 20.0f / 7.0f;  // ratio / chambers
+constexpr static float UNJAM_BALL_PER_SECOND = -1.0f;
 constexpr static tap::algorithms::SmoothPidConfig pid_conf_index = {5, 0, 0, 0, 8000, 1, 0, 1, 0, 10, 0};
 
 private:  // Private Variables
@@ -30,7 +29,7 @@ tap::motor::DjiMotor motor_Indexer{drivers, tap::motor::MotorId::MOTOR7, tap::ca
 
 tap::algorithms::SmoothPid indexPIDController{pid_conf_index};
 
-int targetMotorRPM = 0;
+float ballsPerSecond = 0.0f;
 int32_t indexerVoltage = 0;
 int64_t numTicksAtInit = 0.0;
 
@@ -54,8 +53,7 @@ float getNumBallsShot();
 
 void resetBallsCounter();
 
-inline void idle() { setIndexer(0); }
-inline void unjam() { setIndexer(-0.1); }
+void getBallsPerSecond();
 
 private:  // Private Methods
 };
