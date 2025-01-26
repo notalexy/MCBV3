@@ -36,8 +36,8 @@ private:
     src::Drivers* drivers;
     DrivetrainSubsystem* drivetrain;
 
-    double translationAngle, translationSpeed;
-    double x, y, r;
+    float translationAngle, translationSpeed;
+    float x, y, r;
     
 };
 }  // namespace commands

@@ -15,29 +15,29 @@ namespace subsystems
 {
 PitchController::PitchController() {}
 
-double PitchController::calculate(
-    double currentPosition,
-    double currentVelocity,
-    double targetPosition,
-    double deltaT)
+float PitchController::calculate(
+    float currentPosition,
+    float currentVelocity,
+    float targetPosition,
+    float deltaT)
 {
-    double positionError = targetPosition - currentPosition;
+    float positionError = targetPosition - currentPosition;
 
-    double targetVelocity = KP * positionError;
+    float targetVelocity = KP * positionError;
 
     targetPos = targetPosition;
     currentPos = currentPosition;
 
     // model based motion profile
-    double maxVelocity = std::min(VELO_MAX, pastTargetVelocity + ACCEL_MAX * deltaT);
-    double minVelocity = std::max(-VELO_MAX, pastTargetVelocity - ACCEL_MAX * deltaT);
+    float maxVelocity = std::min(VELO_MAX, pastTargetVelocity + ACCEL_MAX * deltaT);
+    float minVelocity = std::max(-VELO_MAX, pastTargetVelocity - ACCEL_MAX * deltaT);
     targetVelocity = std::clamp(targetVelocity, minVelocity, maxVelocity);
 
     currentVelo = currentVelocity;
     targetVelo = targetVelocity;
 
     // velocity controller
-    double velocityError = targetVelocity - currentVelocity;
+    float velocityError = targetVelocity - currentVelocity;
     pastTargetVelocity = targetVelocity;
 
     // integral velocity controller
@@ -53,7 +53,7 @@ double PitchController::calculate(
         }
     }
     // calculation for setting target current aka velocity controller
-    double targetCurrent =
+    float targetCurrent =
         KSTATIC * signum(targetVelocity) + KF + KPV * velocityError + KIV * buildup;
 
     pastOutput = RA * targetCurrent + KV * targetVelocity;
