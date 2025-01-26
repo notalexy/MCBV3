@@ -28,22 +28,23 @@ public:
     void initialize()
     {
         // Initialize subsystems
-        //gimbal.initialize();
+        gimbal.initialize();
         flywheel.initialize();
-        indexer.initialize();
+       indexer.initialize();
 
         // Register subsystems;
-        //drivers->commandScheduler.registerSubsystem(&gimbal);
+        drivers->commandScheduler.registerSubsystem(&gimbal);
         drivers->commandScheduler.registerSubsystem(&flywheel);
         drivers->commandScheduler.registerSubsystem(&indexer);
 
         // Run startup commands
-        //gimbal.setDefaultCommand(&look);
+        gimbal.setDefaultCommand(&look);
         flywheel.setDefaultCommand(&shooterStop);
 
-        drivers->commandMapper.addMap(&shootMapping);
 
-
+       drivers->commandMapper.addMap(&startShootMapping);
+        drivers->commandMapper.addMap(&idleShootMapping);
+        drivers->commandMapper.addMap(&stopShootMapping);
     }
 
     src::Drivers* drivers;
@@ -58,9 +59,23 @@ public:
     commands::ShooterStartCommand shooterStart{drivers, &flywheel};
     commands::ShooterStopCommand shooterStop{drivers, &flywheel};
 
-    HoldCommandMapping shootMapping{
+   subsystems::IndexerSubsystem indexer{drivers};
+
+    commands::IndexerNBallsCommand indexer10Hz{drivers, &indexer, -1, 10};
+    commands::IndexerUnjamCommand indexerUnjam{drivers, &indexer};
+
+    HoldCommandMapping startShootMapping {
+        drivers,
+        {&indexer10Hz},
+        RemoteMapState(Remote::Switch::RIGHT_SWITCH, Remote::SwitchState::UP)};
+
+    HoldCommandMapping idleShootMapping {
         drivers,
         {&shooterStart},
         RemoteMapState(Remote::Switch::LEFT_SWITCH, Remote::SwitchState::UP)};
 
+    HoldCommandMapping stopShootMapping {
+        drivers,
+        {&indexerUnjam, &shooterStop},
+        RemoteMapState(Remote::Switch::RIGHT_SWITCH, Remote::SwitchState::DOWN)};
 };

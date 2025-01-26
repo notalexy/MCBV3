@@ -1,6 +1,7 @@
 #pragma once
 
-#include "tap/communication/serial/remote.hpp"
+
+
 #include "tap/control/command.hpp"
 
 #include "subsystems/indexer/IndexerSubsystem.hpp"
@@ -10,7 +11,6 @@
 namespace commands
 {
 using subsystems::IndexerSubsystem;
-using tap::communication::serial::Remote;
 
 class IndexerNBallsCommand : public tap::control::Command
 {

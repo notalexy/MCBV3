@@ -5,6 +5,7 @@ namespace subsystems {
 IndexerSubsystem::IndexerSubsystem(tap::Drivers* drivers)
     : tap::control::Subsystem(drivers),
       drivers(drivers)
+
       {}
 
 void IndexerSubsystem::initialize() {
@@ -18,6 +19,10 @@ void IndexerSubsystem::refresh() {
 void IndexerSubsystem::indexAtRate(float ballsPerSecond) {
   this->ballsPerSecond = ballsPerSecond;
   setTargetMotorRPM(ballsPerSecond * 60.0f * REV_PER_BALL);
+}
+
+void IndexerSubsystem::stopIndex(){
+  indexerVoltage = 0;
 }
 
 void IndexerSubsystem::setTargetMotorRPM(int targetMotorRPM) {

@@ -4,14 +4,14 @@ namespace commands
 {
 
 void IndexerUnjamCommand::initialize() {
-    indexer->indexAtRate(IndexerSubsystem::UNJAM_BALL_PER_SECOND);
 }
 void IndexerUnjamCommand::execute()
 {
+        indexer->indexAtRate(IndexerSubsystem::UNJAM_BALL_PER_SECOND);
 }
 
 void IndexerUnjamCommand::end(bool) {
-    indexer->indexAtRate(0);
+    indexer->stopIndex();
 }
 
 bool IndexerUnjamCommand::isFinished(void) const { return false; }

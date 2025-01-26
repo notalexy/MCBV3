@@ -11,14 +11,11 @@
 namespace subsystems
 {
 
-static tap::arch::PeriodicMilliTimer shooterControllerTimer(2);
-static tap::arch::PeriodicMilliTimer secondTimer(100);
-
 class IndexerSubsystem : public tap::control::Subsystem
 {
 public:  // Public Variables
 constexpr static int INDEXER_MOTOR_MAX_SPEED = 6177;   // With the 2006, this should give
-constexpr static float REV_PER_BALL = 20.0f / 7.0f;  // ratio / chambers
+constexpr static float REV_PER_BALL = 36.0f / 7.0f;  // ratio / chambers
 constexpr static float UNJAM_BALL_PER_SECOND = -1.0f;
 constexpr static tap::algorithms::SmoothPidConfig pid_conf_index = {5, 0, 0, 0, 8000, 1, 0, 1, 0, 10, 0};
 
@@ -47,7 +44,7 @@ void indexAtRate(float ballsPerSecond);
 
 void setTargetMotorRPM(int targetMotorRPM);
 
-void setIndexer(double val);
+void stopIndex();
 
 float getNumBallsShot();
 
