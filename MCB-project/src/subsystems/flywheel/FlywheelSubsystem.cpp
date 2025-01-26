@@ -16,7 +16,7 @@ namespace subsystems {
     /**
      * sets the target motor RPM of the flywheels
      */
-    void FlyWheelSubsystem::setTargetMotorRPM(int targetMotorRPM){
+    void FlyWheelSubsystem::setTargetVelocity(int targetMotorRPM){
         this->targetMotorRPM = targetMotorRPM;
         flywheelPIDController1.runControllerDerivateError(targetMotorRPM - motor_Flywheel1.getShaftRPM(), 1);
         flywheelPIDController2.runControllerDerivateError(targetMotorRPM - motor_Flywheel2.getShaftRPM(), 1);
@@ -41,10 +41,4 @@ namespace subsystems {
         flyWheel2Voltage = 0;
     }
 
-    void FlyWheelSubsystem::disable(){
-        robotDisabled = true;
-    }
-    void FlyWheelSubsystem::enable(){
-        robotDisabled = false;
-    }
 }  // namespace subsystems

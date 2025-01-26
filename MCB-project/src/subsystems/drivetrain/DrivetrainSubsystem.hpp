@@ -43,8 +43,7 @@ private:                                            // Private Variables
     tap::algorithms::SmoothPid pidControllerDTFollowsT =
         tap::algorithms::SmoothPid(pid_conf_DriveTrainFollowsTurret);
 
-    double motorOneRPM, motorTwoRPM, motorThreeRPM, motorFourRPM = 0.0, powerLimit = 0;
-    double powerLimit = 100;
+    double motorOneRPM, motorTwoRPM, motorThreeRPM, motorFourRPM = 0.0, powerLimit = 100;
     bool robotDisabled = false;
 
    

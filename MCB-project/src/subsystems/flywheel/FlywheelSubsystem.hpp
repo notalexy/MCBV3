@@ -55,7 +55,7 @@ public:  // Public Methods
      */
     void refresh() override;
 
-    void setTargetMotorRPM(int targetMotorRPM);
+    void setTargetVelocity(int targetMotorRPM);
     /*
         * Call this function to set all Turret motors to 0 desired RPM, calculate the voltage level in which to achieve this quickly
         * and packages this information for the motors TO BE SENT over CanBus
