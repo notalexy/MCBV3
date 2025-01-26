@@ -13,7 +13,7 @@ namespace subsystems
 {
 ChassisController::ChassisController() {}
 
-double ChassisController::calculate()
+float ChassisController::calculate()
 {
    return 0;
 }

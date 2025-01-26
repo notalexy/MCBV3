@@ -13,47 +13,47 @@ namespace subsystems
 {
 YawController::YawController() {}
 
-double YawController::calculate(
-    double currentPosition,
-    double currentVelocity,
-    double currentDrivetrainVelocity,
-    double targetPosition,
-    double inputVelocity,
-    double deltaT)
+float YawController::calculate(
+    float currentPosition,
+    float currentVelocity,
+    float currentDrivetrainVelocity,
+    float targetPosition,
+    float inputVelocity,
+    float deltaT)
 {
-    double positionError = targetPosition - currentPosition;
-    while (positionError > static_cast<double>(M_PI))
+    float positionError = targetPosition - currentPosition;
+    while (positionError > static_cast<float>(M_PI))
     {
-        positionError -= static_cast<double>(M_TWOPI);
+        positionError -= static_cast<float>(M_TWOPI);
     }
-    while (positionError < static_cast<double>(-M_PI))
+    while (positionError < static_cast<float>(-M_PI))
     {
-        positionError += static_cast<double>(M_TWOPI);
+        positionError += static_cast<float>(M_TWOPI);
     }
 
-    double choiceKDT = currentDrivetrainVelocity * positionError > 0
+    float choiceKDT = currentDrivetrainVelocity * positionError > 0
                            ? KDT
                            : KDT_REV;  // check if turret is fighting drivetrain;
     inputVelocity = std::clamp(inputVelocity, -VELO_MAX / 2, VELO_MAX / 2);
-    double targetVelocity =
+    float targetVelocity =
         (KP + signum(currentDrivetrainVelocity) * choiceKDT) * positionError + inputVelocity;
 
     // model based motion profile
-    double aMaxTemp =
+    float aMaxTemp =
         (C + (KB * KT * pow(RATIO, 2)) / RA +
          UK * signum(currentDrivetrainVelocity - currentVelocity));
-    double maxVelocity = std::min(
+    float maxVelocity = std::min(
         VELO_MAX,
         pastTargetVelocity + 1 / J * (aMaxTemp + (VOLT_MAX * KT * RATIO) / RA) * A_SCALE * deltaT);
-    double minVelocity = std::max(
+    float minVelocity = std::max(
         -VELO_MAX,
         pastTargetVelocity + 1 / J * (aMaxTemp - (VOLT_MAX * KT * RATIO) / RA) * A_SCALE * deltaT);
     targetVelocity = std::clamp(targetVelocity, minVelocity, maxVelocity);
 
     // velocity controller
-    double velocityError = targetVelocity - currentVelocity;
-    double targetRelativeVelocity = targetVelocity - currentDrivetrainVelocity;
-    double targetAcceleration = (targetVelocity - pastTargetVelocity) / deltaT;
+    float velocityError = targetVelocity - currentVelocity;
+    float targetRelativeVelocity = targetVelocity - currentDrivetrainVelocity;
+    float targetAcceleration = (targetVelocity - pastTargetVelocity) / deltaT;
     pastTargetVelocity = targetVelocity;
 
     // integral velocity controller
@@ -65,7 +65,7 @@ double YawController::calculate(
         buildup += velocityError * deltaT;  // integrate normally
     }
     // calculation for setting target current aka velocity controller
-    double targetCurrent = KVISC * targetRelativeVelocity + UK * signum(targetRelativeVelocity) +
+    float targetCurrent = KVISC * targetRelativeVelocity + UK * signum(targetRelativeVelocity) +
                            KA * targetAcceleration + KPV * velocityError + KIV * buildup;
 
     pastOutput = RA * targetCurrent + KV * targetRelativeVelocity;

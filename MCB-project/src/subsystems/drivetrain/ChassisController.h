@@ -15,7 +15,7 @@ class ChassisController
 public:
     ChassisController();
     //~YawController();
-    double calculate();
+    float calculate();
 
 private:
     // START getters and setters
@@ -79,6 +79,6 @@ private:
         *c2 = *c;
     }
 
-    double signum(double num) { return (num > 0) ? 1 : ((num < 0) ? -1 : 0); }
+    int signum(float num) { return (num > 0) ? 1 : ((num < 0) ? -1 : 0); }
 };
 }  // namespace subsystems

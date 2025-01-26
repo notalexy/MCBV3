@@ -21,16 +21,16 @@ void GimbalSubsystem::refresh() {
     yawAngleRelativeWorld = fmod(PI / 180 * drivers->bmi088.getYaw() - imuOffset, 2 * PI);
 }
 
-void GimbalSubsystem::turretMove(double desiredYawAngle, double desiredPitchAngle, double driveTrainRPM,
-                                 double yawAngleRelativeWorld, double yawRPM, double inputVel, double dt) {
+void GimbalSubsystem::turretMove(float desiredYawAngle, float desiredPitchAngle, float driveTrainRPM,
+                                 float yawAngleRelativeWorld, float yawRPM, float inputVel, float dt) {
  //   if (turretControllerTimer.execute()) {
         pitchMotorVoltage = getPitchVoltage(desiredPitchAngle - 0.48 * PI, dt);
         yawMotorVoltage = getYawVoltage(driveTrainRPM, yawAngleRelativeWorld, yawRPM, desiredYawAngle, inputVel, dt);
    // }
 }
 
-void GimbalSubsystem::updateMotors(double right_stick_horz, double right_stick_vert) {
-    double temp = right_stick_horz * YAW_TURNING_PROPORTIONAL;
+void GimbalSubsystem::updateMotors(float right_stick_horz, float right_stick_vert) {
+    float temp = right_stick_horz * YAW_TURNING_PROPORTIONAL;
     driveTrainEncoder = getYawEncoderValue();
     yawEncoderCache = driveTrainEncoder;
     targetYawAngleWorld = fmod(targetYawAngleWorld + temp, 2 * PI);
@@ -53,12 +53,12 @@ void GimbalSubsystem::reZeroYaw() {
     // TODO
 }
 
-int GimbalSubsystem::getYawVoltage(double driveTrainRPM, double yawAngleRelativeWorld, double yawRPM,
-                                   double desiredAngleWorld, double inputVel, double dt) {
+int GimbalSubsystem::getYawVoltage(float driveTrainRPM, float yawAngleRelativeWorld, float yawRPM,
+                                   float desiredAngleWorld, float inputVel, float dt) {
     return robotDisabled ? 0 : 1000 * yawController.calculate(yawAngleRelativeWorld, yawRPM, 0, desiredAngleWorld, inputVel, dt);
 }
 
-int GimbalSubsystem::getPitchVoltage(double targetAngle, double dt) {
+int GimbalSubsystem::getPitchVoltage(float targetAngle, float dt) {
     return robotDisabled ? 0 : 1000 * pitchController.calculate(getPitchEncoderValue(), getPitchVel(), targetAngle, dt);
 }
 
