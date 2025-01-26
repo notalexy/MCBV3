@@ -20,6 +20,7 @@ public:  // Public Variables
 // constexpr static double PI = 3.14159;
 
 constexpr static int INDEXER_MOTOR_MAX_SPEED = 6177;   // With the 2006, this should give
+constexpr static float REV_PER_BALL = 20.0f / 7.0f;  // ratio / chambers
 constexpr static tap::algorithms::SmoothPidConfig pid_conf_index = {5, 0, 0, 0, 8000, 1, 0, 1, 0, 10, 0};
 
 private:  // Private Variables
@@ -29,7 +30,9 @@ tap::motor::DjiMotor motor_Indexer{drivers, tap::motor::MotorId::MOTOR7, tap::ca
 
 tap::algorithms::SmoothPid indexPIDController{pid_conf_index};
 
-double indexerVoltage = 0.0;
+int targetMotorRPM = 0;
+int32_t indexerVoltage = 0;
+int64_t numTicksAtInit = 0.0;
 
 public:  // Public Methods
 
@@ -41,12 +44,19 @@ void initialize();
 
 void refresh() override;
 
+void indexAtRate(float ballsPerSecond);
+
+void setTargetMotorRPM(int targetMotorRPM);
+
 void setIndexer(double val);
+
+float getNumBallsShot();
+
+void resetBallsCounter();
 
 inline void idle() { setIndexer(0); }
 inline void unjam() { setIndexer(-0.1); }
 
 private:  // Private Methods
-int getIndexerVoltage();
 };
 } //namespace subsystems
