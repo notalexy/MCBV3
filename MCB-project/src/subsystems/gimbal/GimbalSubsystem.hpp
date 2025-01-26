@@ -34,15 +34,14 @@ private:  // Private Variables
     tap::motor::DjiMotor motor_Yaw;
     tap::motor::DjiMotor motor_Pitch;
 
-    YawController yawController = YawController();
-    PitchController pitchController = PitchController();
+    YawController yawController; //default constructor
+    PitchController pitchController;
 
     float pitchMotorVoltage, yawMotorVoltage;
 
     bool robotDisabled = false;
 
     float driveTrainRPM, yawRPM, yawAngleRelativeWorld = 0.0, imuOffset;
-    bool useKeyboardMouse = false;
     float yawEncoderCache = 0;
     float desiredYawAngleWorld, desiredYawAngleWorld2, driveTrainEncoder = 0.0;
     float stickAccumulator = 0, targetYawAngleWorld = PI,

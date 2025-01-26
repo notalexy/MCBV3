@@ -43,8 +43,9 @@ private:                                            // Private Variables
     tap::algorithms::SmoothPid pidControllerDTFollowsT =
         tap::algorithms::SmoothPid(pid_conf_DriveTrainFollowsTurret);
 
-    double motorOneRPM, motorTwoRPM, motorThreeRPM, motorFourRPM = 0.0, powerLimit = 100;
-    bool robotDisabled = false;
+    float motorOneRPM, motorTwoRPM, motorThreeRPM, motorFourRPM = 0.0, powerLimit = 100;
+
+    float I1t, I2t, I3t, I4t;
 
    
 
@@ -82,11 +83,6 @@ public:  // Public Methods
      * THIS TO WORK
      */
     void stopMotors();
-    inline void disable() { robotDisabled = true; }
-    inline void enable() { robotDisabled = false; }
-
-    void setHigherPowerLimit();
-    void setRegularPowerLimit();
 
 private:  // Private Methods
     /*
@@ -104,5 +100,7 @@ private:  // Private Methods
      * constant, adjustable maximum factor of maximum speed.
      */
     void adjustMotorSpeedWithTurnSpeed(float turnSpeed);
+    
+
 };
 }  // namespace subsystems

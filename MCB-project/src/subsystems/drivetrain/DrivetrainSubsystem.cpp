@@ -50,9 +50,9 @@ void DrivetrainSubsystem::initialize()
     motor_four.initialize();
 }
 
+//guaranteed to be called
 void DrivetrainSubsystem::refresh()
 {
-    drivers->canRxHandler.pollCanData();
 
     if (drivers->refSerial.getRefSerialReceivingData())  // check for uart disconnected
         powerLimit = drivers->refSerial.getRobotData().chassis.powerConsumptionLimit;
@@ -62,113 +62,34 @@ void DrivetrainSubsystem::refresh()
     motorTwoRPM = motor_two.getShaftRPM();
     motorThreeRPM = motor_three.getShaftRPM();
     motorFourRPM = motor_four.getShaftRPM();
+    motor_one.setDesiredOutput(static_cast<int32_t>(I1t * 819.2f));
+    motor_two.setDesiredOutput(static_cast<int32_t>(I2t * 819.2f));
+    motor_three.setDesiredOutput(static_cast<int32_t>(I3t * 819.2f));
+    motor_four.setDesiredOutput(static_cast<int32_t>(I4t * 819.2f));
 
-    drivers->djiMotorTxHandler
-        .encodeAndSendCanData();  // Processes these motor speed changes into CAN signal
 }
 static float motorOneSpeed, motorTwoSpeed, motorThreeSpeed, motorFourSpeed = 0;
 
-void DrivetrainSubsystem::moveDriveTrain(
-    float turnSpeed,
-    float translationSpeed,
-    float translationAngle)
+void DrivetrainSubsystem::setTargetTranslationVector(float translationSpeed, float translationAngle)
 {
-    float angularOffset = (motor_one.getShaftRPM() + motor_three.getShaftRPM()) / 2 / 14000.0;
-
-    convertTranslationSpeedToMotorSpeeds(
-        translationSpeed,
-        translationAngle + angularOffset - 3 * PI / 4);
-
-    adjustMotorSpeedWithTurnSpeed(turnSpeed);
+    //hey controller heres speed and angle
+    //it will do things with the individual motors
 }
 
-void DrivetrainSubsystem::setMotorSpeeds()
-{
-    if (robotDisabled) return stopMotors();
-
-    powerLimit += limitIncrease;  // add limit increase
-
-    float w1 = motorOneRPM * (2 * M_PI / 60);    // Convert RPM to rad/s
-    float w2 = motorTwoRPM * (2 * M_PI / 60);    // Convert RPM to rad/s
-    float w3 = motorThreeRPM * (2 * M_PI / 60);  // Convert RPM to rad/s
-    float w4 = motorFourRPM * (2 * M_PI / 60);   // Convert RPM to rad/s
-
-    // set the outputs according to the pid controller and get currents adjusted for saturation
-    pidController.runControllerDerivateError(motorOneSpeed - motorOneRPM, 1);
-    float I1t = std::clamp(
-        static_cast<float>(pidController.getOutput()) / 819.2f,
-        -abs(VOLT_MAX - KB * w1) / RA,
-        abs(VOLT_MAX - KB * w1) / RA);
-
-    pidController.runControllerDerivateError(motorTwoSpeed - motorTwoRPM, 1);
-    float I2t = std::clamp(
-        static_cast<float>(pidController.getOutput()) / 819.2f,
-        -abs(VOLT_MAX - KB * w2) / RA,
-        abs(VOLT_MAX - KB * w2) / RA);
-
-    pidController.runControllerDerivateError(motorThreeSpeed - motorThreeRPM, 1);
-    float I3t = std::clamp(
-        static_cast<float>(pidController.getOutput()) / 819.2f,
-        -abs(VOLT_MAX - KB * w3) / RA,
-        abs(VOLT_MAX - KB * w3) / RA);
-
-    pidController.runControllerDerivateError(motorFourSpeed - motorFourRPM, 1);
-    float I4t = std::clamp(
-        static_cast<float>(pidController.getOutput()) / 819.2f,
-        -abs(VOLT_MAX - KB * w4) / RA,
-        abs(VOLT_MAX - KB * w4) / RA);
-
-    // Calculate total power requested
-    float totalPowerRequested = 0.7 * RA * (I1t * I1t + I2t * I2t + I3t * I3t + I4t * I4t) +
-                                 VELO_LOSS * (abs(w1) + abs(w2) + abs(w3) + abs(w4));
-    // float totalPowerRequested =
-    //   RA * (I1t * I1t + I2t * I2t + I3t * I3t + I4t * I4t) + KT * (abs(w1 * I1t) + abs(w2 * I2t)
-    //   + abs(w3 * I3t) + abs(w4 * I4t));
-
-    // Scale currents if power limit is exceeded
-    float scale = std::max((float)1.0, (totalPowerRequested + IDLE_DRAW) / powerLimit);
-
-    motor_one.setDesiredOutput(static_cast<int32_t>(I1t * 819.2 / scale));
-    motor_two.setDesiredOutput(static_cast<int32_t>(I2t * 819.2 / scale));
-    motor_three.setDesiredOutput(static_cast<int32_t>(I3t * 819.2 / scale));
-    motor_four.setDesiredOutput(static_cast<int32_t>(I4t * 819.2 / scale));
+void DrivetrainSubsystem::setCurrentForMotor(int motorNum, float current){
+    //maybe store the four currents in an array
+    //motornum would probably be 1 based, make the array size 5 and not use index 0
+    //currents[motorNum]=current
 }
 
+//fix function
 void DrivetrainSubsystem::stopMotors()
 {
     motor_one.setDesiredOutput(0);
     motor_two.setDesiredOutput(0);
     motor_three.setDesiredOutput(0);
     motor_four.setDesiredOutput(0);
-    drivers->djiMotorTxHandler.encodeAndSendCanData();
 }
 
-void DrivetrainSubsystem::convertTranslationSpeedToMotorSpeeds(
-    float translationSpeed,
-    float translationAngle)
-{
-    motorOneSpeed = translationSpeed * sin(translationAngle + (PI / 4));
-    motorTwoSpeed = translationSpeed * sin(translationAngle - (PI / 4));
-    motorThreeSpeed = translationSpeed * sin(translationAngle - (PI / 4));
-    motorFourSpeed = translationSpeed * sin(translationAngle + (PI / 4));
-}
-
-void DrivetrainSubsystem::adjustMotorSpeedWithTurnSpeed(float turnSpeed)
-{
-    motorOneSpeed += turnSpeed;
-    motorTwoSpeed -= turnSpeed;
-    motorThreeSpeed += turnSpeed;
-    motorFourSpeed -= turnSpeed;
-}
-
-void DrivetrainSubsystem::setHigherPowerLimit()
-{
-    if (drivers->refSerial.getRobotData().chassis.powerBuffer > MIN_BUFFER)
-        limitIncrease = HIGH_LIM_INC;
-    else
-        setRegularPowerLimit();
-}
-
-void DrivetrainSubsystem::setRegularPowerLimit() { limitIncrease = REG_LIM_INC; }
 
 }  // namespace subsystems

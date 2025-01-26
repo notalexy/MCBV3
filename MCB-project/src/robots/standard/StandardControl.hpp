@@ -24,16 +24,20 @@ public:
     void initialize()
     {
         // Initialize subsystems
-        gimbal.initialize();
+        //gimbal.initialize();
         flywheel.initialize();
 
-        // Register subsystems
-        drivers->commandScheduler.registerSubsystem(&gimbal);
+        // Register subsystems;
+        //drivers->commandScheduler.registerSubsystem(&gimbal);
         drivers->commandScheduler.registerSubsystem(&flywheel);
 
         // Run startup commands
-        gimbal.setDefaultCommand(&look);
+        //gimbal.setDefaultCommand(&look);
         flywheel.setDefaultCommand(&shooterStop);
+
+        drivers->commandMapper.addMap(&shootMapping);
+
+
     }
 
     src::Drivers* drivers;
@@ -47,4 +51,10 @@ public:
 
     commands::ShooterStartCommand shooterStart{drivers, &flywheel};
     commands::ShooterStopCommand shooterStop{drivers, &flywheel};
+
+    HoldCommandMapping shootMapping{
+        drivers,
+        {&shooterStart},
+        RemoteMapState(Remote::Switch::LEFT_SWITCH, Remote::SwitchState::UP)};
+
 };

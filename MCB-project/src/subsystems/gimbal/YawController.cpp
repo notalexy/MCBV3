@@ -40,7 +40,7 @@ float YawController::calculate(
 
     // model based motion profile
     float aMaxTemp =
-        (C + (KB * KT * pow(RATIO, 2)) / RA +
+        (C + (KB * KT * RATIO*RATIO) / RA +
          UK * signum(currentDrivetrainVelocity - currentVelocity));
     float maxVelocity = std::min(
         VELO_MAX,
