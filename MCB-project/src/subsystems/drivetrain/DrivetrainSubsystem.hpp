@@ -68,7 +68,7 @@ public:  // Public Methods
      * the described behavior. This will allow the drivetrain to translate with left stick, and turn
      * with the right stick or beyblade depending how this is called.
      */
-    void moveDriveTrain(float turnSpeed, float translationSpeed, float translationAngle);
+    void setTargetTranslationVector(float translationSpeed, float translationAngle);
 
     /*
      * Call this function to convert the desired RPM for all of motors in the DrivetrainSubsystem to

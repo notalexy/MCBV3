@@ -76,11 +76,11 @@ void DrivetrainSubsystem::setTargetTranslationVector(float translationSpeed, flo
     //it will do things with the individual motors
 }
 
-void DrivetrainSubsystem::setCurrentForMotor(int motorNum, float current){
-    //maybe store the four currents in an array
-    //motornum would probably be 1 based, make the array size 5 and not use index 0
-    //currents[motorNum]=current
-}
+// void DrivetrainSubsystem::setCurrentForMotor(int motorNum, float current){
+//     //maybe store the four currents in an array
+//     //motornum would probably be 1 based, make the array size 5 and not use index 0
+//     //currents[motorNum]=current
+// }
 
 //fix function
 void DrivetrainSubsystem::stopMotors()
