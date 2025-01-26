@@ -18,6 +18,7 @@ class FlyWheelSubsystem : public tap::control::Subsystem
 public:  // Public Variables
 // constexpr static float PI = 3.14159;
 constexpr static int FLYWHEEL_MOTOR_MAX_RPM = 8333;  // We had 5000 last year, and we can go 30/18 times as fast. So 5000 * 30/18
+constexpr static int FLYWHEEL_RADIUS_MM = 60;
 constexpr static tap::algorithms::SmoothPidConfig pid_conf_flywheel = {40, 0.1, 0, 10.0, 10000, 1, 0, 1, 0, 0, 0};
 
 private:  // Private Variables
@@ -61,6 +62,8 @@ public:  // Public Methods
         * and packages this information for the motors TO BE SENT over CanBus
         */
     void stopMotors();
+
+    float getShootingVelocity();
 
     inline void enable() { this->robotDisabled = false; }
     inline void disable() { this->robotDisabled = true; }
