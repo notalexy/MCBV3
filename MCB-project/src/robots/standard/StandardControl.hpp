@@ -42,7 +42,7 @@ public:
         flywheel.setDefaultCommand(&shooterStop);
 
 
-       drivers->commandMapper.addMap(&startShootMapping);
+        drivers->commandMapper.addMap(&startShootMapping);
         drivers->commandMapper.addMap(&idleShootMapping);
         drivers->commandMapper.addMap(&stopShootMapping);
     }
@@ -59,7 +59,7 @@ public:
     commands::ShooterStartCommand shooterStart{drivers, &flywheel};
     commands::ShooterStopCommand shooterStop{drivers, &flywheel};
 
-   subsystems::IndexerSubsystem indexer{drivers};
+    subsystems::IndexerSubsystem indexer{drivers};
 
     commands::IndexerNBallsCommand indexer10Hz{drivers, &indexer, -1, 10};
     commands::IndexerUnjamCommand indexerUnjam{drivers, &indexer};

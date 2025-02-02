@@ -50,7 +50,7 @@ float getNumBallsShot();
 
 void resetBallsCounter();
 
-void getBallsPerSecond();
+float getBallsPerSecond();
 
 private:  // Private Methods
 };

@@ -39,4 +39,8 @@ void IndexerSubsystem::resetBallsCounter() {
   numTicksAtInit = motor_Indexer.getEncoderUnwrapped();
 }
 
+float IndexerSubsystem::getBallsPerSecond() {
+  return ballsPerSecond;
+}
+
 } //namespace subsystems
