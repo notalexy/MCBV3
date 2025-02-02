@@ -8,7 +8,7 @@ void IndexerNBallsCommand::initialize() {
 }
 void IndexerNBallsCommand::execute()
 {
-        indexer->indexAtRate(ballsPerSecond);
+    indexer->indexAtRate(ballsPerSecond);
 }
 
 void IndexerNBallsCommand::end(bool) {
