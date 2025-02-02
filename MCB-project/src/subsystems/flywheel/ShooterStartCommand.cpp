@@ -1,4 +1,4 @@
-#include "ShooterStartCommand.h"
+#include "ShooterStartCommand.hpp"
 
 namespace commands
 {

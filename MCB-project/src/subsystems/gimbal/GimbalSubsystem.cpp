@@ -1,4 +1,4 @@
-#include "GimbalSubsystem.h"
+#include "GimbalSubsystem.hpp"
 
 namespace subsystems {
 

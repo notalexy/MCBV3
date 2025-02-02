@@ -3,9 +3,9 @@
 #include "tap/communication/serial/remote.hpp"
 #include "tap/control/command.hpp"
 
-#include "subsystems/indexer/IndexerSubsystem.h"
+#include "subsystems/indexer/IndexerSubsystem.hpp"
 
-#include "drivers.h"
+#include "drivers.hpp"
 
 namespace commands
 {
