@@ -1,54 +1,48 @@
-#include "FlywheelSubsystem.h"
+#include "FlywheelSubsystem.hpp"
 
 namespace subsystems {
     FlyWheelSubsystem::FlyWheelSubsystem(tap::Drivers* drivers) 
       : tap::control::Subsystem(drivers),
         drivers(drivers) {} 
 
+        /**
+         * initializes the 2 flywheels
+         */
     void FlyWheelSubsystem::initialize() {
         motor_Flywheel1.initialize();
         motor_Flywheel2.initialize();
     }
-    void FlyWheelSubsystem::updateSpeeds(){
-        if(shooterControllerTimer.execute()) {
-            // indexerVoltage = getIndexerVoltage();
-            flyWheelVoltage = getFlywheelVoltage();
-        }
+    
+    /**
+     * sets the target motor RPM of the flywheels
+     */
+    void FlyWheelSubsystem::setTargetVelocity(int targetMotorRPM){
+        this->targetMotorRPM = targetMotorRPM;
+        flywheelPIDController1.runControllerDerivateError(targetMotorRPM - motor_Flywheel1.getShaftRPM(), 1);
+        flywheelPIDController2.runControllerDerivateError(targetMotorRPM - motor_Flywheel2.getShaftRPM(), 1);
+
+        flyWheel1Voltage = static_cast<int32_t>(flywheelPIDController1.getOutput());
+        flyWheel2Voltage = static_cast<int32_t>(flywheelPIDController2.getOutput());
     }
 
-    void FlyWheelSubsystem::setMotorSpeeds() {
-        updateSpeeds();
-
-        flywheelPIDController1.runControllerDerivateError(flyWheelVoltage - motor_Flywheel1.getShaftRPM(), 1);
-        motor_Flywheel1.setDesiredOutput(static_cast<int32_t>(flywheelPIDController1.getOutput()));
-
-        flywheelPIDController2.runControllerDerivateError(flyWheelVoltage - motor_Flywheel2.getShaftRPM(), 1);
-        motor_Flywheel2.setDesiredOutput(static_cast<int32_t>(flywheelPIDController2.getOutput()));
+    /**
+     * refreshes flywheel output
+     */
+    void FlyWheelSubsystem::refresh() {
+        motor_Flywheel1.setDesiredOutput(flyWheel1Voltage);
+        motor_Flywheel2.setDesiredOutput(flyWheel2Voltage);
     }
 
+    /**
+     * turn off
+     */
     void FlyWheelSubsystem::stopMotors() {
-       // flywheelPIDController1.runControllerDerivateError(0 - motor_Flywheel1.getShaftRPM(), 1);
-        motor_Flywheel1.setDesiredOutput(0);//static_cast<int32_t>(flywheelPIDController1.getOutput()));
-
-       // flywheelPIDController2.runControllerDerivateError(0 - motor_Flywheel2.getShaftRPM(), 1);
-        motor_Flywheel2.setDesiredOutput(0);//static_cast<int32_t>(flywheelPIDController2.getOutput()));
-
-        drivers->djiMotorTxHandler.encodeAndSendCanData();
+        flyWheel1Voltage = 0;
+        flyWheel2Voltage = 0;
     }
 
-    int FlyWheelSubsystem::getFlywheelVoltage() {
-        if (robotDisabled) return 0;
-        if(shootingSafety){
-            return FLYWHEEL_MOTOR_MAX_SPEED;
-        }else{
-            return 0;
-        }
+    float FlyWheelSubsystem::getShootingVelocity() {
+        return targetMotorRPM * 2 * (FLYWHEEL_RADIUS_MM / 1000.0f) * PI / 60.0f;
     }
 
-    void FlyWheelSubsystem::disable(){
-        robotDisabled = true;
-    }
-    void FlyWheelSubsystem::enable(){
-        robotDisabled = false;
-    }
 }  // namespace subsystems

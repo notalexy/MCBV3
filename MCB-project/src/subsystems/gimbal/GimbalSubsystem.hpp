@@ -6,8 +6,8 @@
 #include "tap/motor/dji_motor.hpp"
 #include "tap/control/subsystem.hpp"
 
-#include "PitchController.h"
-#include "YawController.h"
+#include "PitchController.hpp"
+#include "YawController.hpp"
 #include "tap/communication/sensors/buzzer/buzzer.hpp"
 
 #include "drivers.hpp"
@@ -19,14 +19,14 @@ static tap::arch::PeriodicMilliTimer turretControllerTimer(2);
 class GimbalSubsystem : public tap::control::Subsystem
 {
 public:  // Public Variables
-    // constexpr static double PI = 3.14159;
+    // constexpr static float PI = 3.14159;
     constexpr static int YAW_MOTOR_MAX_SPEED = 1000;  // TODO: Make this value relevent
     constexpr static int YAW_MOTOR_MAX_VOLTAGE =
         24000;  // Should be the voltage of the battery. Unless the motor maxes out below that.
                 // //TODO: Check the datasheets
 
-    static constexpr double YAW_TURNING_PROPORTIONAL = -0.02;
-    static constexpr double dt = 0.002;
+    static constexpr float YAW_TURNING_PROPORTIONAL = -0.02;
+    static constexpr float dt = 0.002f;
 
 private:  // Private Variables
     tap::Drivers* drivers;
@@ -34,18 +34,17 @@ private:  // Private Variables
     tap::motor::DjiMotor motor_Yaw;
     tap::motor::DjiMotor motor_Pitch;
 
-    YawController yawController = YawController();
-    PitchController pitchController = PitchController();
+    YawController yawController; //default constructor
+    PitchController pitchController;
 
-    double pitchMotorVoltage, yawMotorVoltage;
+    float pitchMotorVoltage, yawMotorVoltage;
 
     bool robotDisabled = false;
 
-    double driveTrainRPM, yawRPM, yawAngleRelativeWorld = 0.0, imuOffset;
-    bool useKeyboardMouse = false;
-    double yawEncoderCache = 0;
-    double desiredYawAngleWorld, desiredYawAngleWorld2, driveTrainEncoder = 0.0;
-    double stickAccumulator = 0, targetYawAngleWorld = PI,
+    float driveTrainRPM, yawRPM, yawAngleRelativeWorld = 0.0, imuOffset;
+    float yawEncoderCache = 0;
+    float desiredYawAngleWorld, desiredYawAngleWorld2, driveTrainEncoder = 0.0;
+    float stickAccumulator = 0, targetYawAngleWorld = PI,
            targetDTVelocityWorld = 0;  // changed targetYawAngleWorld from 0 to PI
 
 public:  // Public Methods
@@ -76,18 +75,18 @@ public:  // Public Methods
      * the turret.
      */
     void turretMove(
-        double desiredYawAngle,
-        double desiredPitchAngle,
-        double driveTrainRPM,
-        double yawAngleRelativeWorld,
-        double yawRPM,
-        double inputVel,
-        double dt);
+        float desiredYawAngle,
+        float desiredPitchAngle,
+        float driveTrainRPM,
+        float yawAngleRelativeWorld,
+        float yawRPM,
+        float inputVel,
+        float dt);
 
     /*
      * tells the motors to move the gimbal to its specified angle calculated in update();
      */
-    void updateMotors(double right_stick_horz, double right_stick_vert);
+    void updateMotors(float right_stick_horz, float right_stick_vert);
 
     /*
      * Call this function to convert the desired RPM for all of motors in the GimbalSubsystem to a
@@ -114,25 +113,25 @@ public:  // Public Methods
      */
     void reZeroYaw();
 
-    inline double getYawEncoderValue()
+    inline float getYawEncoderValue()
     {
         return tap::motor::DjiMotor::encoderToDegrees(motor_Yaw.getEncoderUnwrapped()) * PI / 180;
     }
-    inline double getPitchEncoderValue()
+    inline float getPitchEncoderValue()
     {
         return tap::motor::DjiMotor::encoderToDegrees(motor_Pitch.getEncoderUnwrapped()) * PI / 180;
     }
-    inline double getYawVel() { return motor_Yaw.getShaftRPM() * PI / 30; }
-    inline double getPitchVel() { return motor_Pitch.getShaftRPM() * PI / 30; }
+    inline float getYawVel() { return motor_Yaw.getShaftRPM() * PI / 30; }
+    inline float getPitchVel() { return motor_Pitch.getShaftRPM() * PI / 30; }
 
 private:  // Private Methods
-    int getPitchVoltage(double targetAngle, double dt);
+    int getPitchVoltage(float targetAngle, float dt);
     int getYawVoltage(
-        double driveTrainRPM,
-        double yawAngleRelativeWorld,
-        double yawRPM,
-        double desiredAngleWorld,
-        double inputVel,
-        double dt);
+        float driveTrainRPM,
+        float yawAngleRelativeWorld,
+        float yawRPM,
+        float desiredAngleWorld,
+        float inputVel,
+        float dt);
 };
 }  // namespace ThornBots

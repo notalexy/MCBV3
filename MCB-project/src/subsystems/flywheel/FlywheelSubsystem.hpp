@@ -16,24 +16,25 @@ static tap::arch::PeriodicMilliTimer secondTimer(100);
 class FlyWheelSubsystem : public tap::control::Subsystem
 {
 public:  // Public Variables
-// constexpr static double PI = 3.14159;
-constexpr static int FLYWHEEL_MOTOR_MAX_SPEED = 8333;  // We had 5000 last year, and we can go 30/18 times as fast. So 5000 * 30/18
+// constexpr static float PI = 3.14159;
+constexpr static int FLYWHEEL_MOTOR_MAX_RPM = 8333;  // We had 5000 last year, and we can go 30/18 times as fast. So 5000 * 30/18
+constexpr static int FLYWHEEL_RADIUS_MM = 60;
 constexpr static tap::algorithms::SmoothPidConfig pid_conf_flywheel = {40, 0.1, 0, 10.0, 10000, 1, 0, 1, 0, 0, 0};
 
 private:  // Private Variables
 tap::Drivers* drivers;
 // TODO: Check all motor ID's, and verify indexers and flywheels are in the correct direction
-tap::motor::DjiMotor motor_Flywheel1 =
-    tap::motor::DjiMotor(drivers, tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, true, "Flywheel", 0, 0);
-tap::motor::DjiMotor motor_Flywheel2 =
-    tap::motor::DjiMotor(drivers, tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, false, "Flywheel", 0, 0);
+tap::motor::DjiMotor motor_Flywheel1{drivers, tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, true, "Flywheel", 0, 0};
+tap::motor::DjiMotor motor_Flywheel2{drivers, tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, false, "Flywheel", 0, 0};
 
-tap::algorithms::SmoothPid flywheelPIDController1 = tap::algorithms::SmoothPid(pid_conf_flywheel);
-tap::algorithms::SmoothPid flywheelPIDController2 = tap::algorithms::SmoothPid(pid_conf_flywheel);
+tap::algorithms::SmoothPid flywheelPIDController1{pid_conf_flywheel};
+tap::algorithms::SmoothPid flywheelPIDController2{pid_conf_flywheel};
 
-double flyWheelVoltage = 0.0;
+int32_t flyWheel1Voltage = 0;
+int32_t flyWheel2Voltage = 0;
 
-bool shootingSafety = false;
+int targetMotorRPM;
+
 bool robotDisabled = false;
 
 public:  // Public Methods 
@@ -55,24 +56,18 @@ public:  // Public Methods
      */
     void refresh() override;
 
-    /*
-    * Call this function to convert the desired RPM for all of motors in the GimbalSubsystem to a voltage level which
-    * would then be sent over CanBus to each of the motor controllers to actually set this voltage level on each of the motors.
-    * Should be placed inside of the main loop, and called every time through the loop, ONCE
-    */
-    void setMotorSpeeds();
-
-    void updateSpeeds();
+    void setTargetVelocity(int targetMotorRPM);
     /*
         * Call this function to set all Turret motors to 0 desired RPM, calculate the voltage level in which to achieve this quickly
         * and packages this information for the motors TO BE SENT over CanBus
         */
     void stopMotors();
 
+    float getShootingVelocity();
+
     inline void enable() { this->robotDisabled = false; }
     inline void disable() { this->robotDisabled = true; }
 
     private:  // Private Methods
-        int getFlywheelVoltage();
     };
 }  // namespace ThornBots
