@@ -1,4 +1,4 @@
-#include "JoystickMoveCommand.hpp"
+#include "JoystickMoveCommand.h"
 
 namespace commands
 {

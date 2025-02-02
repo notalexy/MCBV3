@@ -1,4 +1,4 @@
-#include "IndexerNBallsCommand.hpp"
+#include "IndexerNBallsCommand.h"
 
 namespace commands
 {

@@ -1,4 +1,4 @@
-#include "ShooterStopCommand.hpp"
+#include "ShooterStopCommand.h"
 
 namespace commands
 {
