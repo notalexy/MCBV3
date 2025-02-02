@@ -97,8 +97,8 @@ void ChassisController::estimateInputError() {
 // Function to calculate the required force (and torque) based on errors
 void ChassisController::calculateRequiredForces() {
     // Calculate required forces for X and Y in local frame
-    float F_x_req_local = KP_V * (dot_estimated_inertial[0] - dot_estimated_inertial_last[0]) + Eint_input_x_local;
-    float F_y_req_local = K_PV * (dot_estimated_inertial[1] - dot_estimated_inertial_last[1]) + Eint_input_y_local;
+    float F_x_req_local = KP_V * (dot_estimated_inertial[0] - dot_estimated_inertial_last[0]) + Eint_input_local[0];
+    float F_y_req_local = KP_V * (dot_estimated_inertial[1] - dot_estimated_inertial_last[1]) + Eint_input_local[1];
     
     // Calculate required torque for Z in local frame
     float T_z_req_local = KP_V_ROT * (dot_theta_estimated - dot_theta_estimated_last);

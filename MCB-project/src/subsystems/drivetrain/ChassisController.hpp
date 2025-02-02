@@ -65,6 +65,7 @@ private:
 
     float theta_estimated = 0;
     float dot_theta_estimated = 0;
+    float dot_theta_estimated_last = 0;
     float estimated_inertial[2] = {0,0}; //x and y
     float dot_estimated_inertial[2] = {0,0}; //x and y
     float dot_estimated_inertial_last[2] = {0,0}; //x and y
