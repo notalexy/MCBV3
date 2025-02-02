@@ -1,4 +1,4 @@
-#pragma oncex`
+#pragma once
 
 #include "tap/communication/serial/remote.hpp"
 #include "tap/control/command.hpp"
