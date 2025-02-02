@@ -3,6 +3,8 @@
 namespace commands
 {
 
+        
+
 void JoystickMoveCommand::initialize() {  }
 void JoystickMoveCommand::execute()
 {
@@ -11,7 +13,7 @@ void JoystickMoveCommand::execute()
   
         //TODO this lmao
         if(drivers->remote.isConnected()){
-                gimbal->updateMotors(yaw, pitch);
+                gimbal->updateMotors(CONTROLLER_YAW_PROPORTIONAL* yaw, CONTROLLER_PITCH_PROPORTIONAL * pitch);
         } else {
                 gimbal->stopMotors();
         }

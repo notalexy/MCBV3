@@ -22,6 +22,8 @@ public:
         float targetPosition,
         float inputVelocity,
         float deltaT);
+        
+    void clearBuildup() { buildup = 0; };
 
 private:
     // START getters and setters

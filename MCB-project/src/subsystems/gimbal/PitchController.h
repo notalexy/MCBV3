@@ -21,6 +21,8 @@ public:
         float targetPosition,
         float deltaT);
 
+    void clearBuildup() { buildup = 0; };
+
 private:
     // START getters and setters
     float buildup = 0;

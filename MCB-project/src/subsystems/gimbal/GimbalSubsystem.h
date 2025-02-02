@@ -25,8 +25,14 @@ public:  // Public Variables
         24000;  // Should be the voltage of the battery. Unless the motor maxes out below that.
                 // //TODO: Check the datasheets
 
-    static constexpr float YAW_TURNING_PROPORTIONAL = -0.02;
+    
+    //looks down 17 degrees
+    //looks up 20
+    static constexpr float MAX_PITCH_UP = PI / 180 * 15;
+    static constexpr float MAX_PITCH_DOWN = PI / 180 * 18;
+
     static constexpr float dt = 0.002f;
+    static constexpr float PITCH_OFFSET = - 0.48 * PI; //to make gimbal horizontal when told to go to 0
 
 private:  // Private Variables
     tap::Drivers* drivers;
@@ -38,8 +44,6 @@ private:  // Private Variables
     PitchController pitchController;
 
     float pitchMotorVoltage, yawMotorVoltage;
-
-    bool robotDisabled = false;
 
     float driveTrainRPM, yawRPM, yawAngleRelativeWorld = 0.0, imuOffset;
     float yawEncoderCache = 0;
@@ -74,19 +78,19 @@ public:  // Public Methods
      * left stick will control drivetrain translating and right stick will control pitch and yaw of
      * the turret.
      */
-    void turretMove(
-        float desiredYawAngle,
-        float desiredPitchAngle,
-        float driveTrainRPM,
-        float yawAngleRelativeWorld,
-        float yawRPM,
-        float inputVel,
-        float dt);
+    // void turretMove(
+    //     float desiredYawAngle,
+    //     float desiredPitchAngle,
+    //     float driveTrainRPM,
+    //     float yawAngleRelativeWorld,
+    //     float yawRPM,
+    //     float inputVel,
+    //     float dt);
 
     /*
      * tells the motors to move the gimbal to its specified angle calculated in update();
      */
-    void updateMotors(float right_stick_horz, float right_stick_vert);
+    void updateMotors(float changeInTargetYaw, float targetPitch);
 
     /*
      * Call this function to convert the desired RPM for all of motors in the GimbalSubsystem to a
@@ -94,7 +98,7 @@ public:  // Public Methods
      * actually set this voltage level on each of the motors. Should be placed inside of the main
      * loop, and called every time through the loop, ONCE
      */
-    void setMotorSpeeds();
+    // void setMotorSpeeds();
 
     /*
      * Call this function to set all Turret motors to 0 desired RPM, calculate the voltage level in
@@ -102,8 +106,6 @@ public:  // Public Methods
      * CanBus
      */
     void stopMotors();
-    inline void disable() { robotDisabled = true; }
-    inline void enable() { robotDisabled = false; }
 
     /*
      * Call this function (any number of times) to reZero the yaw motor location. This will be used
