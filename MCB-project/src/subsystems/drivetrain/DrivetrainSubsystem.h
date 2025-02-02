@@ -4,7 +4,8 @@
 #include "tap/board/board.hpp"
 #include "tap/control/subsystem.hpp"
 #include "tap/motor/dji_motor.hpp"
-#include "drivers.hpp"
+
+#include "drivers.h"
 
 namespace subsystems
 {

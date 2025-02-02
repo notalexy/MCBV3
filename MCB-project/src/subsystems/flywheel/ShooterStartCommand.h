@@ -3,19 +3,19 @@
 #include "tap/communication/serial/remote.hpp"
 #include "tap/control/command.hpp"
 
-#include "subsystems/flywheel/FlywheelSubsystem.hpp"
+#include "subsystems/flywheel/FlywheelSubsystem.h"
 
-#include "drivers.hpp"
+#include "drivers.h"
 
 namespace commands
 {
 using subsystems::FlyWheelSubsystem;
 using tap::communication::serial::Remote;
 
-class ShooterStopCommand : public tap::control::Command
+class ShooterStartCommand : public tap::control::Command
 {
 public:
-    ShooterStopCommand(src::Drivers* drivers, FlyWheelSubsystem* flywheel)
+    ShooterStartCommand(src::Drivers* drivers, FlyWheelSubsystem* flywheel)
         : drivers(drivers),
           flywheel(flywheel)
     {
@@ -30,7 +30,7 @@ public:
 
     bool isFinished() const override;
 
-    const char* getName() const override { return "stop flywheel command"; }
+    const char* getName() const override { return "start flywheel command"; }
 
 private:
     src::Drivers* drivers;

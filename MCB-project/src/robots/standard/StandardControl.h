@@ -4,18 +4,18 @@
 #include "tap/control/press_command_mapping.hpp"
 #include "tap/control/toggle_command_mapping.hpp"
 
-#include "subsystems/gimbal/GimbalSubsystem.hpp"
-#include "subsystems/gimbal/JoystickMoveCommand.hpp"
+#include "subsystems/gimbal/GimbalSubsystem.h"
+#include "subsystems/gimbal/JoystickMoveCommand.h"
 
-#include "subsystems/flywheel/FlywheelSubsystem.hpp"
-#include "subsystems/flywheel/ShooterStartCommand.hpp"
-#include "subsystems/flywheel/ShooterStopCommand.hpp"
+#include "subsystems/flywheel/FlywheelSubsystem.h"
+#include "subsystems/flywheel/ShooterStartCommand.h"
+#include "subsystems/flywheel/ShooterStopCommand.h"
 
-#include "subsystems/indexer/IndexerSubsystem.hpp"
-#include "subsystems/indexer/IndexerNBallsCommand.hpp"
-#include "subsystems/indexer/IndexerUnjamCommand.hpp"
+#include "subsystems/indexer/IndexerSubsystem.h"
+#include "subsystems/indexer/IndexerNBallsCommand.h"
+#include "subsystems/indexer/IndexerUnjamCommand.h"
 
-#include "drivers.hpp"
+#include "drivers.h"
 
 using namespace tap::control;
 using namespace tap::communication::serial;
