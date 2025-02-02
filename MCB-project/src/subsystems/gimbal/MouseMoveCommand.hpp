@@ -3,9 +3,9 @@
 #include "tap/communication/serial/remote.hpp"
 #include "tap/control/command.hpp"
 
-#include "subsystems/gimbal/GimbalSubsystem.h"
+#include "subsystems/gimbal/GimbalSubsystem.hpp"
 
-#include "drivers.h"
+#include "drivers.hpp"
 
 namespace commands
 {

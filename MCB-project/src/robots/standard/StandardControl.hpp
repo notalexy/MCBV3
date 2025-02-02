@@ -6,6 +6,7 @@
 
 #include "subsystems/gimbal/GimbalSubsystem.hpp"
 #include "subsystems/gimbal/JoystickMoveCommand.hpp"
+#include "subsystems/gimbal/MouseMoveCommand.hpp"
 
 #include "subsystems/flywheel/FlywheelSubsystem.hpp"
 #include "subsystems/flywheel/ShooterStartCommand.hpp"
@@ -52,7 +53,8 @@ public:
     // Subsystems
     subsystems::GimbalSubsystem gimbal{drivers};
 
-    commands::JoystickMoveCommand look{drivers, &gimbal};
+    // commands::JoystickMoveCommand look{drivers, &gimbal};
+    commands::MouseMoveCommand look{drivers, &gimbal};
 
     subsystems::FlyWheelSubsystem flywheel{drivers};
 

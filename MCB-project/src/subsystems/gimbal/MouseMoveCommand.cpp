@@ -1,4 +1,4 @@
-#include "MouseMoveCommand.h"
+#include "MouseMoveCommand.hpp"
 
 namespace commands
 {
@@ -11,7 +11,7 @@ void MouseMoveCommand::execute()
         static int mouseYOffset = drivers->remote.getMouseY();
         int mouseX = drivers->remote.getMouseX() - mouseXOffset;
         int mouseY = drivers->remote.getMouseY() - mouseYOffset;
-        static double pitch=0;
+        static float pitch=0;
 
         //need to tune the numbers here, then pull them out as constants
         pitch+=mouseY / 10000.0;
