@@ -6,11 +6,11 @@
 #include "tap/motor/dji_motor.hpp"
 #include "tap/control/subsystem.hpp"
 
-#include "PitchController.h"
-#include "YawController.h"
+#include "PitchController.hpp"
+#include "YawController.hpp"
 #include "tap/communication/sensors/buzzer/buzzer.hpp"
 
-#include "drivers.h"
+#include "drivers.hpp"
 
 namespace subsystems
 {

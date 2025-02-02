@@ -4,19 +4,18 @@
 #include "tap/control/press_command_mapping.hpp"
 #include "tap/control/toggle_command_mapping.hpp"
 
-#include "subsystems/gimbal/GimbalSubsystem.h"
-#include "subsystems/gimbal/JoystickMoveCommand.h"
-#include "subsystems/gimbal/MouseMoveCommand.h"
+#include "subsystems/gimbal/GimbalSubsystem.hpp"
+#include "subsystems/gimbal/JoystickMoveCommand.hpp"
 
-#include "subsystems/flywheel/FlywheelSubsystem.h"
-#include "subsystems/flywheel/ShooterStartCommand.h"
-#include "subsystems/flywheel/ShooterStopCommand.h"
+#include "subsystems/flywheel/FlywheelSubsystem.hpp"
+#include "subsystems/flywheel/ShooterStartCommand.hpp"
+#include "subsystems/flywheel/ShooterStopCommand.hpp"
 
-#include "subsystems/indexer/IndexerSubsystem.h"
-#include "subsystems/indexer/IndexerNBallsCommand.h"
-#include "subsystems/indexer/IndexerUnjamCommand.h"
+#include "subsystems/indexer/IndexerSubsystem.hpp"
+#include "subsystems/indexer/IndexerNBallsCommand.hpp"
+#include "subsystems/indexer/IndexerUnjamCommand.hpp"
 
-#include "drivers.h"
+#include "drivers.hpp"
 
 using namespace tap::control;
 using namespace tap::communication::serial;
@@ -53,8 +52,7 @@ public:
     // Subsystems
     subsystems::GimbalSubsystem gimbal{drivers};
 
-    // commands::JoystickMoveCommand look{drivers, &gimbal};
-    commands::MouseMoveCommand look{drivers, &gimbal};
+    commands::JoystickMoveCommand look{drivers, &gimbal};
 
     subsystems::FlyWheelSubsystem flywheel{drivers};
 
@@ -80,4 +78,16 @@ public:
         drivers,
         {&indexerUnjam, &shooterStop},
         RemoteMapState(Remote::Switch::RIGHT_SWITCH, Remote::SwitchState::DOWN)};
+
+    HoldCommandMapping startShootMappingMouse {
+        drivers,
+        {&shooterStart, &indexer10Hz},
+        RemoteMapState(RemoteMapState::MouseButton::LEFT)
+    };
+    
+    HoldCommandMapping stopShootMappingMouse {
+        drivers,
+        {&shooterStop, &indexerUnjam},
+        RemoteMapState(RemoteMapState::MouseButton::LEFT)
+    };
 };

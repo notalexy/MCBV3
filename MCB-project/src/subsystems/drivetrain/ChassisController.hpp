@@ -2,20 +2,18 @@
 #include <cmath>
 #include <iostream>
 #include <string>
+#include <deque>  // For storing the last n values
 
 #include "tap/algorithms/smooth_pid.hpp"
 #include "tap/architecture/periodic_timer.hpp"
 #include "tap/board/board.hpp"
 #include "tap/motor/dji_motor.hpp"
 
+
 namespace subsystems
 {
 class ChassisController
 {
-public:
-    ChassisController();
-    //~YawController();
-    float calculate();
 
 private:
     // START getters and setters
@@ -40,6 +38,11 @@ private:
     const float P_MAX = 0;       // W, maximum power
     const float I_MAX = 0;       // A, maximum current
 
+    // Feedforward gains from fundamental system constants
+    const float K_V = KB;                   // Velocity feedforward gain (back EMF constant)
+    const float K_VIS = C_WHEEL / KT;       // Viscous damping feedforward gain
+    const float K_S = UK_WHEEL / KT;        // Static friction feedforward g
+
     // Tunable Parameters
     const float F_MIN_T = 0;  // minimum beyblade force if throttling
     const float KP_V = 0;     // proportional gain for velocity
@@ -56,12 +59,39 @@ private:
     const float BEYBLADE_AMPLITUDE = 0;  // beyblade amplitude
     const float BEYBLADE_FREQUENCY = 0;  // beyblade frequency
 
+    const float LATENCY = 0.008;            //latency s
+    const float DT = 0.002;                 //DT in s
+
+
+    float theta_estimated = 0;
+    float dot_theta_estimated = 0;
+    float dot_theta_estimated_last = 0;
+    float estimated_inertial[2] = {0,0}; //x and y
+    float dot_estimated_inertial[2] = {0,0}; //x and y
+    float dot_estimated_inertial_last[2] = {0,0}; //x and y
+
+
+    float inertial_forces[2] = {0,0};
+    float dot_local[2] = {0,0};
+
+    std::deque<float*> history;
+    std::deque<float> target_velocity_queue; // For storing target velocity magnitudes
+
+    // Beyblade settings
+    float dot_theta_beyblade = 0;  // Target beyblade velocity when chassis is not translating
+    float dot_theta_gain = 0;      // Amount to subtract from dot_theta_beyblade per meter/s of chassis speed
+
+    float F_last_inertial[2] = {0,0}; //x and y
+    float Eint_input_local[2] = {0,0}; //x and y
+    float E_input_inertial[2] = {0,0}; //x and y
+
     void forceSummation(float f1, float f2, float f3, float f4, float* fx, float* fy, float* tz)
     {
         *fx = (f1 - f2 - f3 + f4) / ROOT_2;
         *fy = (-f1 - f2 + f3 + f4) / ROOT_2;
         *tz = (-f1 - f2 - f3 - f4) * TRACKWIDTH / 2;
     }
+    
 
     void motorVelocites(float t1m, float t2m, float t3m, float t4m, float* xdot, float* ydot, float* thetadot)
     {
@@ -71,14 +101,51 @@ private:
         *thetadot = (-t1m - t2m - t3m - t4m) * GEAR_RATIO * TRACKWIDTH / (R_WHEEL * 2);
     }
 
+    //initialize the rest in the function
+    float** rotMat = new float*[2]; 
+    
     // rotation matrix function
-    void rotationMatrix(float theta, float* c, float* ms, float* s, float* c2) {
-        *c = std::cos(theta);
-        *s = std::sin(theta);
-        *ms = -*s;
-        *c2 = *c;
+    float** rotationMatrix(float theta) {
+        rotMat[0][0] = std::cos(theta);
+        rotMat[1][0] = std::sin(theta);
+        rotMat[0][1] = -rotMat[1][0];
+        rotMat[1][1] = rotMat[0][0];
+        return rotMat;
+    }
+    void multiplyMatrices(int rows1, int cols1, float** mat1, float* mat2, float* result) {
+        // Iterate over rows of mat1 and columns of mat2
+        for (int i = 0; i < rows1; ++i) {
+            result[i] = 0;  // Initialize to zero before accumulating
+            for (int j = 0; j < cols1; ++j) {
+                result[i] += mat1[i][j] * mat2[j];
+            }
+        }
     }
 
-    int signum(float num) { return (num > 0) ? 1 : ((num < 0) ? -1 : 0); }
+
+    void estimateState(float* F);
+
+    void estimateInputError();
+
+    void calculateRequiredForces();
+
+
+
+    float signum(float num) { return (num > 0) ? 1 : ((num < 0) ? -1 : 0); }
+
+        // Helper for velocity control (sawtooth function)
+    float sawtooth(float freq, float amplitude)
+    {
+        // A simple sawtooth wave function for variable speed beyblade
+        return amplitude * (1 - fmod(freq * (std::fmod(std::clock(), 1.0f) * 2 * M_PI), 1.0f));
+    }
+
+
+public:
+    ChassisController();
+    //~YawController();
+    float calculate();
+    float calculateBeybladeVelocity(float bb_freq, float bb_amp);
+
 };
 }  // namespace subsystems

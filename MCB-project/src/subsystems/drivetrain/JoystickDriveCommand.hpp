@@ -3,9 +3,9 @@
 #include "tap/communication/serial/remote.hpp"
 #include "tap/control/command.hpp"
 
-#include "subsystems/drivetrain/DrivetrainSubsystem.h"
+#include "subsystems/drivetrain/DrivetrainSubsystem.hpp"
 
-#include "drivers.h"
+#include "drivers.hpp"
 
 namespace commands
 {
