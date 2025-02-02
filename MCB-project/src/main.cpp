@@ -1,9 +1,9 @@
 #include "tap/architecture/periodic_timer.hpp"
 #include "tap/architecture/profiler.hpp"
 
-#include "robots/standard/StandardConstants.hpp"
-#include "robots/standard/StandardControl.hpp"
-#include "drivers.hpp"
+#include "robots/standard/StandardConstants.h"
+#include "robots/standard/StandardControl.h"
+#include "drivers.h"
 #include "tap/communication/sensors/buzzer/buzzer.hpp"
 
 // Place any sort of input/output initialization here. For example, place
