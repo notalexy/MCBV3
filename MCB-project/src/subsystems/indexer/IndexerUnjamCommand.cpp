@@ -1,4 +1,4 @@
-#include "IndexerUnjamCommand.h"
+#include "IndexerUnjamCommand.hpp"
 
 namespace commands
 {

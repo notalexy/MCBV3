@@ -1,4 +1,4 @@
-#include "PitchController.h"
+#include "PitchController.hpp"
 
 #include <cmath>
 #include <iostream>

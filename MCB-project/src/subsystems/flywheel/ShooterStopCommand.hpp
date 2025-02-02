@@ -1,11 +1,11 @@
-#pragma once
+#pragma oncex`
 
 #include "tap/communication/serial/remote.hpp"
 #include "tap/control/command.hpp"
 
-#include "subsystems/flywheel/FlywheelSubsystem.h"
+#include "subsystems/flywheel/FlywheelSubsystem.hpp"
 
-#include "drivers.h"
+#include "drivers.hpp"
 
 namespace commands
 {
