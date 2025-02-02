@@ -78,4 +78,16 @@ public:
         drivers,
         {&indexerUnjam, &shooterStop},
         RemoteMapState(Remote::Switch::RIGHT_SWITCH, Remote::SwitchState::DOWN)};
+
+    HoldCommandMapping startShootMappingMouse {
+        drivers,
+        {&shooterStart, &indexer10Hz},
+        RemoteMapState(RemoteMapState::MouseButton::LEFT)
+    };
+    
+    HoldCommandMapping stopShootMappingMouse {
+        drivers,
+        {&shooterStop, &indexerUnjam},
+        RemoteMapState(RemoteMapState::MouseButton::LEFT)
+    };
 };
