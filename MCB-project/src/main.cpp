@@ -1,8 +1,8 @@
 #include "tap/architecture/periodic_timer.hpp"
 #include "tap/architecture/profiler.hpp"
 
-#include "robots/standard/StandardConstants.hpp"
-#include "robots/standard/StandardControl.hpp"
+#include "robots/RobotConstants.hpp"
+#include "robots/RobotControl.hpp"
 #include "drivers.hpp"
 #include "tap/communication/sensors/buzzer/buzzer.hpp"
 
@@ -42,7 +42,7 @@ static void updateIo(src::Drivers *drivers)
 }
 
 src::Drivers drivers;
-StandardControl control{&drivers};
+RobotControl control{&drivers};
 
 int main()
 {
