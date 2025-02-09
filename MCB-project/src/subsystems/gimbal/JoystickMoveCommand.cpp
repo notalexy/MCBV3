@@ -8,12 +8,12 @@ namespace commands
 void JoystickMoveCommand::initialize() {  }
 void JoystickMoveCommand::execute()
 {
-        yaw = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_HORIZONTAL);
-        pitch = drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_VERTICAL);
+        yaw = CONTROLLER_YAW_PROPORTIONAL * drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_HORIZONTAL);
+        pitch = CONTROLLER_PITCH_PROPORTIONAL * drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_VERTICAL);
   
         //TODO this lmao
         if(drivers->remote.isConnected()){
-                gimbal->updateMotors(CONTROLLER_YAW_PROPORTIONAL* yaw, CONTROLLER_PITCH_PROPORTIONAL * pitch);
+                gimbal->updateMotors(&yaw, &pitch);
         } else {
                 gimbal->stopMotors();
         }

@@ -26,19 +26,24 @@ from build_tools import parse_args
 args = parse_args.parse_args()
 
 #==============================================ADDED BY Jason Heflinger @Thornbots=============================================
-# Grab robot type and modify src path
-# valid_types = ["ROBOTS", "SENTRY", "HERO", "TESTING", "TESTBENCHES"]
-# robot_type = args["ROBOT_TYPE"]
-# if robot_type == None:
-#     print("|======================================================================================|")
-#     print("|          !!!WARNING!!!: No robot type was specified, defaulting to ROBOTS          |") 
-#     print("|======================================================================================|")
-#     robot_type = valid_types[0]
-#     args["ROBOT_TYPE"] = robot_type
-# if robot_type not in valid_types:
-#     raise Exception("Please specify a valid robot type. The current valid robot types include: " + str(valid_types))
-# SRC_PATH = "Code/" + robot_type + "/src"
-# print("Building for " + robot_type)
+#Grab robot type and modify src path
+valid_types = parse_args.ROBOT_TYPES
+robot_type = args["ROBOT_TYPE"]
+sysid = args["SYS_ID"]
+if robot_type == None:
+    print("|======================================================================================|")
+    print(f"|          !!!WARNING!!!: No robot type was specified, defaulting to {valid_types[0]}")
+    print("|======================================================================================|")
+    robot_type = valid_types[0]
+    args["ROBOT_TYPE"] = robot_type
+if sysid != "":
+    print(f"IMPORTANT!!! Running sysid code for {sysid}")
+if robot_type not in valid_types:
+    raise Exception("Please specify a valid robot type. The current valid robot types include: " + str(valid_types))
+print("Building for " + robot_type)
+
+c_flags = [robot_type, sysid]
+
 #=============================================================================================================================
 
 # Define project settings and build paths
@@ -88,7 +93,7 @@ sources = []
 # Building all libraries (read from sconscript files located in provided dirs)
 # Ensure that modm is first, since Taproot depends on modm
 # Append include path to environment so both src/test environments have access to them
-env.SConscript(dirs=[TAPROOT_PATH, SRC_PATH, TEST_PATH], exports=["env", "args", "sources"])
+env.SConscript(dirs=[TAPROOT_PATH, SRC_PATH, TEST_PATH], exports=["env", "args", "c_flags", "sources"])
 
 
 # Tests must be included as sources (rather than built as a separate library) in order for

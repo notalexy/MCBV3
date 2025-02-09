@@ -90,7 +90,7 @@ public:  // Public Methods
     /*
      * tells the motors to move the gimbal to its specified angle calculated in update();
      */
-    void updateMotors(float changeInTargetYaw, float targetPitch);
+    void updateMotors(float* changeInTargetYaw, float* targetPitch);
 
     /*
      * Call this function to convert the desired RPM for all of motors in the GimbalSubsystem to a
@@ -125,6 +125,7 @@ public:  // Public Methods
     }
     inline float getYawVel() { return motor_Yaw.getShaftRPM() * PI / 30; }
     inline float getPitchVel() { return motor_Pitch.getShaftRPM() * PI / 30; }
+
 
 private:  // Private Methods
     int getPitchVoltage(float targetAngle, float dt);
