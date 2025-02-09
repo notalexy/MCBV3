@@ -42,7 +42,7 @@ if robot_type not in valid_types:
     raise Exception("Please specify a valid robot type. The current valid robot types include: " + str(valid_types))
 print("Building for " + robot_type)
 
-c_flags = [robot_type, sysid]
+c_flags =[args["ROBOT_TYPE"], args["SYS_ID"]]
 
 #=============================================================================================================================
 

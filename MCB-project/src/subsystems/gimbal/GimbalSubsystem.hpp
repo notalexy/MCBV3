@@ -1,4 +1,5 @@
 #pragma once
+#include <random>
 #include "tap/algorithms/smooth_pid.hpp"
 #include "tap/architecture/periodic_timer.hpp"
 #include "tap/board/board.hpp"
@@ -11,6 +12,7 @@
 #include "tap/communication/sensors/buzzer/buzzer.hpp"
 
 #include "drivers.hpp"
+
 
 namespace subsystems
 {
@@ -26,13 +28,17 @@ public:  // Public Variables
                 // //TODO: Check the datasheets
 
     
-    //looks down 17 degrees
-    //looks up 20
+    //standard looks down 17 degrees, 15 is safe
     static constexpr float MAX_PITCH_UP = PI / 180 * 15;
+    //looks up 20, 18 is safe
     static constexpr float MAX_PITCH_DOWN = PI / 180 * 18;
 
     static constexpr float dt = 0.002f;
     static constexpr float PITCH_OFFSET = - 0.48 * PI; //to make gimbal horizontal when told to go to 0
+
+    //for sysid
+    static constexpr int YAW_DIST_RANGE = 18000;
+    static constexpr int PITCH_DIST_RANGE = 0;
 
 private:  // Private Variables
     tap::Drivers* drivers;
@@ -50,6 +56,14 @@ private:  // Private Variables
     float desiredYawAngleWorld, desiredYawAngleWorld2, driveTrainEncoder = 0.0;
     float stickAccumulator = 0, targetYawAngleWorld = PI,
            targetDTVelocityWorld = 0;  // changed targetYawAngleWorld from 0 to PI
+           
+    //for sysid
+    std::random_device rd;
+    std::mt19937 gen;
+    std::uniform_int_distribution<int> distYaw;
+    std::uniform_int_distribution<int> distPitch;
+
+
 
 public:  // Public Methods
     GimbalSubsystem(tap::Drivers* drivers);

@@ -42,7 +42,7 @@ float ChassisController::calculateBeybladeVelocity(float bb_freq, float bb_amp) 
 
 
  // Function to calculate chassis state using historical force/torque data and latency
-    void ChassisController::estimateState(const float* F) {
+    void ChassisController::estimateState(float* F) {
         int n = static_cast<int32_t>(LATENCY/DT); // Should be good but casting it just in case
         // Store the current values in the history
         history.emplace_back(F);
