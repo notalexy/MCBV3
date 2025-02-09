@@ -16,6 +16,53 @@ class ChassisController
 {
 
 private:
+#if defined(sentry)
+    // START getters and setters
+    const float TRACKWIDTH = 0.3;          // in m. We need to measure
+    const float ROOT_2 = sqrt(2);          // sqrt 2
+    const float M = 14.0;                  // robot mass kg
+    const float J = 0;                     // measured from sys id kg-m^2
+    const float R_WHEEL = 0.048 / ROOT_2;  // wheel radius m
+    const float J_WHEEL = 0.031;               // wheel moment of inertia kg-m^2
+    const float C_WHEEL = 0.0169;               // wheel damping kg-s/m^2
+    const float UK_WHEEL = 0.07;              // wheel dry friction N-m
+    const float COF_WHEEL = 0;             // unitless COF
+
+    const float M_EFFECTIVE = M + 4 * J_WHEEL / (R_WHEEL * R_WHEEL);
+    const float J_EFFECTIVE = J + 4 * J_WHEEL * TRACKWIDTH / (2 * R_WHEEL);
+
+    const float KB = 0.39;          // V-s/rad backemf
+    const float KT = 0.35;          // N-m/A torque constant
+    const float RA = 1.03;          // ohm, armature resistance
+    const float GEAR_RATIO = 2;  // gear ratio
+    const float VOLT_MAX = 24;    // V, maximum voltage
+    const float P_MAX = 0;       // W, maximum power
+    const float I_MAX = 0;       // A, maximum current
+
+    // Feedforward gains from fundamental system constants
+    const float K_V = KB;                   // Velocity feedforward gain (back EMF constant)
+    const float K_VIS = C_WHEEL / KT;       // Viscous damping feedforward gain
+    const float K_S = UK_WHEEL / KT;        // Static friction feedforward g
+
+    // Tunable Parameters
+    const float F_MIN_T = 0;  // minimum beyblade force if throttling
+    const float KP_V = 0.05;     // proportional gain for velocity
+    const float KI_V = 1;     // integral gain for velocity
+
+    const float IV_MAX = 0.1;  // maximum integral term for velocity control
+
+    const float KP_V_ROT = 0;  // proportional gain for rotational velocity
+
+    const float KP = 26;              // proportional gain for position control
+    const float VEL_TARGET = 0;      // target velocity
+    const float BEYBLADE_DELAY = 0;  // delay for beyblade mode
+
+    const float BEYBLADE_AMPLITUDE = 0;  // beyblade amplitude
+    const float BEYBLADE_FREQUENCY = 0;  // beyblade frequency
+
+    const float LATENCY = 0.008;            //latency s
+    const float DT = 0.002;                 //DT in s
+#else
     // START getters and setters
     const float TRACKWIDTH = 0.3;          // in m. We need to measure
     const float ROOT_2 = sqrt(2);          // sqrt 2
@@ -61,6 +108,7 @@ private:
 
     const float LATENCY = 0.008;            //latency s
     const float DT = 0.002;                 //DT in s
+#endif
 
 
     float theta_estimated = 0;

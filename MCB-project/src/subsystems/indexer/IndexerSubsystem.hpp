@@ -21,9 +21,11 @@ constexpr static tap::algorithms::SmoothPidConfig pid_conf_index = {5, 0, 0, 0, 
 
 private:  // Private Variables
 tap::Drivers* drivers;
-// TODO: Check all motor ID's, and verify indexers and flywheels are in the correct direction
+#if defined(sentry)
+tap::motor::DjiMotor motor_Indexer{drivers, tap::motor::MotorId::MOTOR4, tap::can::CanBus::CAN_BUS2, false, "Indexer", 0, 0};
+#else
 tap::motor::DjiMotor motor_Indexer{drivers, tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS2, false, "Indexer", 0, 0};
-
+#endif
 tap::algorithms::SmoothPid indexPIDController{pid_conf_index};
 
 float ballsPerSecond = 0.0f;

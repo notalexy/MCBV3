@@ -18,6 +18,7 @@ public:  // Public Variables
         {20, 0, 0, 0, 18000, 1, 0, 1, 0, 0, 0};
     constexpr static tap::algorithms::SmoothPidConfig pid_conf_DriveTrainFollowsTurret =
         {500, 0.5, 0, 0, 18000, 1, 0, 1, 0, 0, 0};  // TODO: Tune this profile
+#if defined(sentry) 
     constexpr static float HIGH_LIM_INC =
         40;  // in watts, however many watts over the current limit given by the ref system
     constexpr static float REG_LIM_INC = 0;        // in watts, should be zero
@@ -33,6 +34,25 @@ public:  // Public Variables
     constexpr static float DEFAULT_LIMIT = 100;
 
     constexpr static float KT = 0.35;
+#else
+    constexpr static float HIGH_LIM_INC =
+        40;  // in watts, however many watts over the current limit given by the ref system
+    constexpr static float REG_LIM_INC = 0;        // in watts, should be zero
+    float limitIncrease = REG_LIM_INC;  // in watts
+
+    constexpr static float MIN_BUFFER = 10;    // in joules, how much should remain unused in the buffer
+                                     // (disables limitIncrease if the buffer is less than this)
+    constexpr static float VOLT_MAX = 24;      // Volts
+    constexpr static float RA = 0.194 - 0.01;  // ohms //was 1.03 or 0.194
+    constexpr static float KB = 0.35 / 19.2;   // volt-rad/s  //0.39
+    constexpr static float VELO_LOSS = 0.42;   // magic number representing loss from high rpm
+    constexpr static float IDLE_DRAW = 3;      // watts, measured
+    constexpr static float DEFAULT_LIMIT = 100;
+
+    constexpr static float KT = 0.35;
+#endif
+    
+    
 
 private:                                            // Private Variables
     tap::Drivers* drivers;
