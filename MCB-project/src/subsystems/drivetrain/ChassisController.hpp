@@ -70,8 +70,8 @@ private:
     const float J = 0;                     // measured from sys id kg-m^2
     const float R_WHEEL = 0.048 / ROOT_2;  // wheel radius m
     const float J_WHEEL = 0;               // wheel moment of inertia kg-m^2
-    const float C_WHEEL = 0;               // wheel damping kg-s/m^2
-    const float UK_WHEEL = 0;              // wheel dry friction N-m
+    const float C_MOTOR = 0;               // motor damping kg-s/m^2
+    const float UK_MOTOR = 0;              // motor dry friction N-m
     const float COF_WHEEL = 0;             // unitless COF
 
     const float M_EFFECTIVE = M + 4 * J_WHEEL / (R_WHEEL * R_WHEEL);
@@ -81,14 +81,14 @@ private:
     const float KT = 0;          // N-m/A torque constant
     const float RA = 0;          // ohm, armature resistance
     const float GEAR_RATIO = 0;  // gear ratio
-    const float VOLT_MAX = 0;    // V, maximum voltage
+    const float VOLT_MAX = 0;    // V, maximum                                                                                         v                                                                                                                                                             
     const float P_MAX = 0;       // W, maximum power
     const float I_MAX = 0;       // A, maximum current
 
     // Feedforward gains from fundamental system constants
     const float K_V = KB;                   // Velocity feedforward gain (back EMF constant)
-    const float K_VIS = C_WHEEL / KT;       // Viscous damping feedforward gain
-    const float K_S = UK_WHEEL / KT;        // Static friction feedforward g
+    const float K_VIS = C_MOTOR / KT;       // Viscous damping feedforward gain
+    const float K_S = UK_MOTOR / KT;        // Static friction feedforward g
 
     // Tunable Parameters
     const float F_MIN_T = 0;  // minimum beyblade force if throttling
@@ -105,6 +105,7 @@ private:
 
     const float BEYBLADE_AMPLITUDE = 0;  // beyblade amplitude
     const float BEYBLADE_FREQUENCY = 0;  // beyblade frequency
+    const bool BEYBLADE_FIXED_SPEED = false;
 
     const float LATENCY = 0.008;            //latency s
     const float DT = 0.002;                 //DT in s
@@ -118,9 +119,13 @@ private:
     float dot_estimated_inertial[2] = {0,0}; //x and y
     float dot_estimated_inertial_last[2] = {0,0}; //x and y
 
-
     float inertial_forces[2] = {0,0};
     float dot_local[2] = {0,0};
+
+    // Unfinished variables still set up for the function
+    float estimated_motor_theta[4] = {0, 0, 0, 0};
+    std::pair<float, float> motor_V_I[4]; // Vff and Iff for the 4 motors (feed forward)
+    float motor_force[4] = {0, 0, 0, 0}; // unimplemented
 
     std::deque<float*> history;
     std::deque<float> target_velocity_queue; // For storing target velocity magnitudes
@@ -139,9 +144,8 @@ private:
         *fy = (-f1 - f2 + f3 + f4) / ROOT_2;
         *tz = (-f1 - f2 - f3 - f4) * TRACKWIDTH / 2;
     }
-    
 
-    void motorVelocites(float t1m, float t2m, float t3m, float t4m, float* xdot, float* ydot, float* thetadot)
+    void motorVelocities(float t1m, float t2m, float t3m, float t4m, float* xdot, float* ydot, float* thetadot)
     {
         // t1m is theta 1m dot
         *xdot = (t1m - t2m - t3m + t4m) * GEAR_RATIO / (R_WHEEL * ROOT_2);
@@ -160,6 +164,7 @@ private:
         rotMat[1][1] = rotMat[0][0];
         return rotMat;
     }
+
     void multiplyMatrices(int rows1, int cols1, float** mat1, float* mat2, float* result) {
         // Iterate over rows of mat1 and columns of mat2
         for (int i = 0; i < rows1; ++i) {
@@ -171,13 +176,15 @@ private:
     }
 
 
-    void estimateState(float* F);
+    void estimateState(const float* F);
 
     void estimateInputError();
 
     void calculateRequiredForces();
 
+    void estimateInverseKinematics();
 
+    void calculateFeedForward();
 
     float signum(float num) { return (num > 0) ? 1 : ((num < 0) ? -1 : 0); }
 
