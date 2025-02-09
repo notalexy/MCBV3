@@ -33,16 +33,16 @@ private:
 
     // Physical constants
     const float C = 0.0169;                          // kg-s/m^2
-    const float J = 0.031;                           // 289;               // kg-m^2
+    const float J = 0.031*1.25;                           // 289;               // kg-m^2
     const float UK = 0.05;                           // N-m
     const float KB = 0.716;                          // V-rad/s
     const float KT = 0.741;                          // N-m/A
     const float RA = 8.705;                          // ohm
     const float RATIO = 1;                           // unitless
-    const float VOLT_MAX = 22.2;                     // V
+    const float VOLT_MAX = 24;                     // V
     const float VELO_MAX = VOLT_MAX / (KB * RATIO);  // rad/s
     // Position controller constants
-    const float KP = 11.1;  // sec^-1
+    const float KP = 8;//10.5;  // sec^-1
 
     // Feedforward constants
     const float A_SCALE = 0.9;                       // 0.8            // unitless
@@ -56,9 +56,9 @@ private:
     const float KDT_REV = -0.7;  // unitless
 
     // Velocity feedback
-    const float KPV = 1;                        // A-s/rad
-    const float KIV = 1.5;//1.5                      // A/rad
-    const float IV_MAX = 0.1;                   // units TBD
+    const float KPV = .01;                        // A-s/rad
+    const float KIV = .15;//1.5                      // A/rad
+    const float IV_MAX = 0.1 / KIV;                   // units TBD
     const float INT_THRESH = VOLT_MAX * 0.85l;  // V
     const float TAKEBACK = 0.01;                // unitless
 

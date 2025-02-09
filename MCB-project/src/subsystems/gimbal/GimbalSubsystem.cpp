@@ -24,13 +24,14 @@ void GimbalSubsystem::refresh() {
 }
 
 
-void GimbalSubsystem::updateMotors(float changeInTargetYaw, float targetPitch) {
-    targetPitch = std::clamp(targetPitch, -MAX_PITCH_DOWN, MAX_PITCH_UP);
+void GimbalSubsystem::updateMotors(float* changeInTargetYaw, float* targetPitch) {
+    *targetPitch = std::clamp(*targetPitch, -MAX_PITCH_DOWN, MAX_PITCH_UP);
     driveTrainEncoder = getYawEncoderValue();
     yawEncoderCache = driveTrainEncoder;
-    targetYawAngleWorld = fmod(targetYawAngleWorld + changeInTargetYaw, 2 * PI);
-    pitchMotorVoltage = getPitchVoltage(targetPitch, dt);
-    yawMotorVoltage = getYawVoltage(driveTrainRPM, yawAngleRelativeWorld, yawRPM, targetYawAngleWorld, changeInTargetYaw / dt, dt);
+    targetYawAngleWorld = fmod(targetYawAngleWorld + *changeInTargetYaw, 2 * PI);
+    pitchMotorVoltage = getPitchVoltage(*targetPitch, dt);
+    yawMotorVoltage = getYawVoltage(driveTrainRPM, yawAngleRelativeWorld, yawRPM, targetYawAngleWorld, *changeInTargetYaw / dt, dt);
+    
 }
 
 

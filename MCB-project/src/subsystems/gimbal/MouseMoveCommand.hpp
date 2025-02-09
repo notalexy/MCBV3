@@ -30,7 +30,10 @@ public:
 
     bool isFinished() const override;
 
-    const char* getName() const override { return "move turret joystick command"; }
+    const char* getName() const override { return "move turret mouse command"; }
+    
+    static constexpr float MOUSE_YAW_PROPORTIONAL = -0.0001;
+    static constexpr float MOUSE_PITCH_PROPORTIONAL = 0.00001;
 
 private:
     src::Drivers* drivers;
@@ -38,7 +41,8 @@ private:
 
     bool isCalibrated = false;
 
-    float yaw = 0.0f;
-    float pitch = 0.0f;
+    float yaw = 0.0f, pitch = 0.0f;
+    int16_t mouseXOffset, mouseYOffset;
+
 };
 }  // namespace commands

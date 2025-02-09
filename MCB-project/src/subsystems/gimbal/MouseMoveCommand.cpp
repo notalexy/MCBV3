@@ -3,23 +3,21 @@
 namespace commands
 {
 
-void MouseMoveCommand::initialize() {  }
+void MouseMoveCommand::initialize() { 
+        mouseXOffset = drivers->remote.getMouseX();
+        mouseYOffset = drivers->remote.getMouseY();
+        
+ }
 void MouseMoveCommand::execute()
 {
 
-        static int mouseXOffset = drivers->remote.getMouseX();
-        static int mouseYOffset = drivers->remote.getMouseY();
-        int mouseX = drivers->remote.getMouseX() - mouseXOffset;
-        int mouseY = drivers->remote.getMouseY() - mouseYOffset;
-        static float pitch=0;
 
-        //need to tune the numbers here, then pull them out as constants
-        pitch+=mouseY / 10000.0;
-        yaw = mouseX  / 200.0;
-  
+        yaw = MOUSE_YAW_PROPORTIONAL * (drivers->remote.getMouseX() - mouseXOffset);
+        pitch += MOUSE_PITCH_PROPORTIONAL * (drivers->remote.getMouseY() - mouseYOffset);
+
         //TODO this lmao
         if(drivers->remote.isConnected()){
-                gimbal->updateMotors(yaw, pitch);
+                gimbal->updateMotors(&yaw, &pitch);
         } else {
                 gimbal->stopMotors();
         }
@@ -27,7 +25,9 @@ void MouseMoveCommand::execute()
 
 }
 
-void MouseMoveCommand::end(bool) {}
+void MouseMoveCommand::end(bool) {
+        pitch = 0;
+}
 
-bool MouseMoveCommand::isFinished(void) const { return false; }
+bool MouseMoveCommand::isFinished() const { return false; }
 }  // namespace commands

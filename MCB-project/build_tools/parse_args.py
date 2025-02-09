@@ -25,8 +25,13 @@ SIM_BUILD_TARGET_ACCEPTED_ARGS      = ["build-sim", "run-sim"]
 HARDWARE_BUILD_TARGET_ACCEPTED_ARGS = ["build", "run", "size", "gdb", "all"]
 VALID_BUILD_PROFILES                = ["debug", "release", "fast"]
 VALID_PROFILING_TYPES               = ["true", "false"]
+SYS_ID_DEFINES                      = {"none": "no_sysid",
+                                       "dt": "drivetrain_sysid",
+                                       "yaw": "yaw_sysid",
+                                       "odo": "odom_sysid"}
+ROBOT_TYPES                         = ["standard", "hero", "sentry"]
 
-USAGE = "Usage: scons <target> [profile=<debug|release|fast>] [robot=TARGET_<ROBOT_TYPE>] [profiling=<true|false>]\n\
+USAGE = "Usage: scons <target> [profile=<debug|release|fast>] [robot=<ROBOT_TYPE>] [profiling=<true|false>] [sysid=<true|false>]\n\
     \"<target>\" is one of:\n\
         - \"build\": build all code for the hardware platform.\n\
         - \"run\": build all code for the hardware platform, and deploy it to the board via a connected ST-Link.\n\
@@ -35,9 +40,10 @@ USAGE = "Usage: scons <target> [profile=<debug|release|fast>] [robot=TARGET_<ROB
         - \"run-tests-gcov\": builds core code and tests, executes them locally, and captures and prints code coverage information\n\
         - \"build-sim\": build all code for the simulated environment, for the current host platform.\n\
         - \"run-sim\": build all code for the simulated environment, for the current host platform, and execute the simulator locally.\n\
-    \"TARGET_<ROBOT_TYPE>\" is an optional argument that can override whatever robot type has been specified in robot_type.hpp.\n\
+    \"robot=<ROBOT_TYPE>\" is an optional argument that can override whatever robot type has been specified in robot_type.hpp.\n\
         - <ROBOT_TYPE> must be one of the following:\n\
-            - STANDARD, DRONE, ENGINEER, SENTRY, HERO"
+            - standard, hero, sentry.\n\
+        - \"sysid\" lets you run sysid stuff yay"
 
 
 def parse_args():
@@ -46,6 +52,7 @@ def parse_args():
         "BUILD_PROFILE": "",
         "PROFILING": "",
         "ROBOT_TYPE": "",
+        "SYS_ID": "",
         "BUILD": "",
     }
     if len(COMMAND_LINE_TARGETS) > CMD_LINE_ARGS:
@@ -73,6 +80,13 @@ def parse_args():
     args["BUILD_PROFILE"] = ARGUMENTS.get("profile", "release")
     if args["BUILD_PROFILE"] not in VALID_BUILD_PROFILES:
         raise Exception("You specified an invalid build profile.\n" + USAGE)
+
+    sysid = ARGUMENTS.get("sysid")
+    if sysid in SYS_ID_DEFINES:
+        args["SYS_ID"] = SYS_ID_DEFINES[sysid]
+    elif sysid != None:
+        raise Exception("You specified an invalid sysid type.\n" + USAGE)
+
 
     args["PROFILING"] = ARGUMENTS.get("profiling", "false")
     if args["PROFILING"] not in VALID_PROFILING_TYPES:

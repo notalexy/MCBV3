@@ -41,7 +41,7 @@ private:
 
     bool isCalibrated = false;
 
-    float yaw = 0.0f;
-    float pitch = 0.0f;
+    float yaw = 0.0f, pitch = 0.0f;
+
 };
 }  // namespace commands
