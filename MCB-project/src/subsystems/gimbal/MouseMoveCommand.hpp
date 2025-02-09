@@ -12,10 +12,10 @@ namespace commands
 using subsystems::GimbalSubsystem;
 using tap::communication::serial::Remote;
 
-class JoystickMoveCommand : public tap::control::Command
+class MouseMoveCommand : public tap::control::Command
 {
 public:
-    JoystickMoveCommand(src::Drivers* drivers, GimbalSubsystem* gimbal)
+    MouseMoveCommand(src::Drivers* drivers, GimbalSubsystem* gimbal)
         : drivers(drivers),
           gimbal(gimbal)
     {
@@ -30,10 +30,10 @@ public:
 
     bool isFinished() const override;
 
-    const char* getName() const override { return "move turret joystick command"; }
-
-    static constexpr float CONTROLLER_YAW_PROPORTIONAL = -0.02;
-    static constexpr float CONTROLLER_PITCH_PROPORTIONAL = 0.1 * PI;
+    const char* getName() const override { return "move turret mouse command"; }
+    
+    static constexpr float MOUSE_YAW_PROPORTIONAL = -0.0001;
+    static constexpr float MOUSE_PITCH_PROPORTIONAL = 0.00001;
 
 private:
     src::Drivers* drivers;
@@ -42,6 +42,7 @@ private:
     bool isCalibrated = false;
 
     float yaw = 0.0f, pitch = 0.0f;
+    int16_t mouseXOffset, mouseYOffset;
 
 };
 }  // namespace commands

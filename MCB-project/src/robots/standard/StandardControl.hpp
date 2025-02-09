@@ -6,6 +6,7 @@
 
 #include "subsystems/gimbal/GimbalSubsystem.hpp"
 #include "subsystems/gimbal/JoystickMoveCommand.hpp"
+#include "subsystems/gimbal/MouseMoveCommand.hpp"
 
 #include "subsystems/flywheel/FlywheelSubsystem.hpp"
 #include "subsystems/flywheel/ShooterStartCommand.hpp"
@@ -46,6 +47,7 @@ public:
         drivers->commandMapper.addMap(&startShootMapping);
         drivers->commandMapper.addMap(&idleShootMapping);
         drivers->commandMapper.addMap(&stopShootMapping);
+        drivers->commandMapper.addMap(&controllerToKeyboardMouseMapping);
     }
 
     src::Drivers* drivers;
@@ -54,6 +56,7 @@ public:
     subsystems::GimbalSubsystem gimbal{drivers};
 
     commands::JoystickMoveCommand look{drivers, &gimbal};
+    commands::MouseMoveCommand look2{drivers, &gimbal};
 
     subsystems::FlyWheelSubsystem flywheel{drivers};
 
@@ -64,6 +67,11 @@ public:
 
     commands::IndexerNBallsCommand indexer10Hz{drivers, &indexer, -1, 10};
     commands::IndexerUnjamCommand indexerUnjam{drivers, &indexer};
+
+    ToggleCommandMapping controllerToKeyboardMouseMapping {
+        drivers,
+        {&look2},
+        RemoteMapState({Remote::Key::CTRL, Remote::Key::Z})};
 
     HoldCommandMapping startShootMapping {
         drivers,
