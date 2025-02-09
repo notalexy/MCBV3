@@ -27,6 +27,7 @@ public:
 
     void initialize()
     {
+
         // Initialize subsystems
         gimbal.initialize();
         flywheel.initialize();
