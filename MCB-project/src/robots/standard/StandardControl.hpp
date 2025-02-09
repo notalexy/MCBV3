@@ -46,6 +46,7 @@ public:
         drivers->commandMapper.addMap(&startShootMapping);
         drivers->commandMapper.addMap(&idleShootMapping);
         drivers->commandMapper.addMap(&stopShootMapping);
+        drivers->commandMapper.addMap(&controllerToKeyboardMouseMapping);
     }
 
     src::Drivers* drivers;
@@ -53,8 +54,8 @@ public:
     // Subsystems
     subsystems::GimbalSubsystem gimbal{drivers};
 
-    // commands::JoystickMoveCommand look{drivers, &gimbal};
-    commands::MouseMoveCommand look{drivers, &gimbal};
+    commands::JoystickMoveCommand look{drivers, &gimbal};
+    commands::MouseMoveCommand look2{drivers, &gimbal};
 
     subsystems::FlyWheelSubsystem flywheel{drivers};
 
@@ -65,6 +66,11 @@ public:
 
     commands::IndexerNBallsCommand indexer10Hz{drivers, &indexer, -1, 10};
     commands::IndexerUnjamCommand indexerUnjam{drivers, &indexer};
+
+    ToggleCommandMapping controllerToKeyboardMouseMapping {
+        drivers,
+        {&look2},
+        RemoteMapState({Remote::Key::CTRL, Remote::Key::Z})};
 
     HoldCommandMapping startShootMapping {
         drivers,
