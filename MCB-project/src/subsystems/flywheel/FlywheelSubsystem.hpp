@@ -23,10 +23,13 @@ constexpr static tap::algorithms::SmoothPidConfig pid_conf_flywheel = {40, 0.1, 
 
 private:  // Private Variables
 tap::Drivers* drivers;
-// TODO: Check all motor ID's, and verify indexers and flywheels are in the correct direction
+#if defined(sentry)
+tap::motor::DjiMotor motor_Flywheel1{drivers, tap::motor::MotorId::MOTOR3, tap::can::CanBus::CAN_BUS2, true, "Flywheel", 0, 0};
+tap::motor::DjiMotor motor_Flywheel2{drivers, tap::motor::MotorId::MOTOR1, tap::can::CanBus::CAN_BUS2, false, "Flywheel", 0, 0};
+#else
 tap::motor::DjiMotor motor_Flywheel1{drivers, tap::motor::MotorId::MOTOR5, tap::can::CanBus::CAN_BUS2, true, "Flywheel", 0, 0};
 tap::motor::DjiMotor motor_Flywheel2{drivers, tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, false, "Flywheel", 0, 0};
-
+#endif
 tap::algorithms::SmoothPid flywheelPIDController1{pid_conf_flywheel};
 tap::algorithms::SmoothPid flywheelPIDController2{pid_conf_flywheel};
 
