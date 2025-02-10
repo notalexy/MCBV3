@@ -1,5 +1,4 @@
 
-
 #if defined(hero)
 #include "hero/HeroControl.hpp"
 using RobotControl = HeroControl;

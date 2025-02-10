@@ -176,7 +176,7 @@ private:
     }
 
 
-    void estimateState(const float* F);
+    void estimateState(float* F);
 
     void estimateInputError();
 
