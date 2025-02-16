@@ -112,31 +112,31 @@ private:
 #endif
 
 
-    float theta_estimated = 0;
-    float dot_theta_estimated = 0;
-    float dot_theta_estimated_last = 0;
-    float estimated_inertial[2] = {0,0}; //x and y
-    float dot_estimated_inertial[2] = {0,0}; //x and y
-    float dot_estimated_inertial_last[2] = {0,0}; //x and y
+    float thetaEstimated = 0;
+    float dotThetaEstimated = 0;
+    float dotThetaEstimatedLast = 0;
+    float estimatedInertial[2] = {0,0}; //x and y
+    float dotEstimatedInertial[2] = {0,0}; //x and y
+    float dotEstimatedInertialLast[2] = {0,0}; //x and y
 
-    float inertial_forces[2] = {0,0};
-    float dot_local[2] = {0,0};
+    float inertialForces[2] = {0,0};
+    float dotLocal[2] = {0,0};
 
     // Unfinished variables still set up for the function
-    float estimated_motor_theta[4] = {0, 0, 0, 0};
+    float estimatedMotorTheta[4] = {0, 0, 0, 0};
     std::pair<float, float> motor_V_I[4]; // Vff and Iff for the 4 motors (feed forward)
-    float motor_force[4] = {0, 0, 0, 0}; // unimplemented
+    float motorForce[4] = {0, 0, 0, 0}; // unimplemented
 
     std::deque<float*> history;
-    std::deque<float> target_velocity_queue; // For storing target velocity magnitudes
+    std::deque<float> targetVelocityQueue; // For storing target velocity magnitudes
 
     // Beyblade settings
-    float dot_theta_beyblade = 0;  // Target beyblade velocity when chassis is not translating
-    float dot_theta_gain = 0;      // Amount to subtract from dot_theta_beyblade per meter/s of chassis speed
+    float dotThetaBeyblade = 0;  // Target beyblade velocity when chassis is not translating
+    float dotThetaGain = 0;      // Amount to subtract from dot_theta_beyblade per meter/s of chassis speed
 
-    float F_last_inertial[2] = {0,0}; //x and y
-    float Eint_input_local[2] = {0,0}; //x and y
-    float E_input_inertial[2] = {0,0}; //x and y
+    float F_lastInertial[2] = {0,0}; //x and y
+    float Eint_inputLocal[2] = {0,0}; //x and y
+    float E_inputInertial[2] = {0,0}; //x and y
 
     void forceSummation(float f1, float f2, float f3, float f4, float* fx, float* fy, float* tz)
     {

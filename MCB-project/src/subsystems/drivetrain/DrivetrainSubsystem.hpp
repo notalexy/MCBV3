@@ -56,13 +56,13 @@ public:  // Public Variables
 
 private:                                            // Private Variables
     tap::Drivers* drivers;
-    tap::motor::DjiMotor motor_one;
-    tap::motor::DjiMotor motor_two;
-    tap::motor::DjiMotor motor_three;
-    tap::motor::DjiMotor motor_four;
-    tap::algorithms::SmoothPid pidController = tap::algorithms::SmoothPid(pid_conf_dt);
+    tap::motor::DjiMotor motorOne;
+    tap::motor::DjiMotor motorTwo;
+    tap::motor::DjiMotor motorThree;
+    tap::motor::DjiMotor motorFour;
+    tap::algorithms::SmoothPid pidController = tap::algorithms::SmoothPid(PID_CONF_DT);
     tap::algorithms::SmoothPid pidControllerDTFollowsT =
-        tap::algorithms::SmoothPid(pid_conf_DriveTrainFollowsTurret);
+        tap::algorithms::SmoothPid(PID_CONF_DRIVE_TRAIN_FOLLOWS_TURRET);
 
     float motorOneRPM, motorTwoRPM, motorThreeRPM, motorFourRPM = 0.0, powerLimit = 100;
 
