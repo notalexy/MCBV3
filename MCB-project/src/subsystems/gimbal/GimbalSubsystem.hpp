@@ -1,18 +1,17 @@
 #pragma once
 #include <random>
+
 #include "tap/algorithms/smooth_pid.hpp"
 #include "tap/architecture/periodic_timer.hpp"
 #include "tap/board/board.hpp"
+#include "tap/communication/sensors/buzzer/buzzer.hpp"
 #include "tap/communication/serial/remote.hpp"
-#include "tap/motor/dji_motor.hpp"
 #include "tap/control/subsystem.hpp"
+#include "tap/motor/dji_motor.hpp"
 
 #include "PitchController.hpp"
 #include "YawController.hpp"
-#include "tap/communication/sensors/buzzer/buzzer.hpp"
-
 #include "drivers.hpp"
-
 
 namespace subsystems
 {
@@ -22,31 +21,29 @@ class GimbalSubsystem : public tap::control::Subsystem
 {
 public:  // Public Variables
     // constexpr static float PI = 3.14159;
-    constexpr static int YAW_MOTOR_MAX_SPEED = 1000;  // TODO: Make this value relevent
-    constexpr static int YAW_MOTOR_MAX_VOLTAGE =
-        24000;  // Should be the voltage of the battery. Unless the motor maxes out below that.
-                // //TODO: Check the datasheets
+    constexpr static int YAW_MOTOR_MAX_SPEED = 1000;     // TODO: Make this value relevent
+    constexpr static int YAW_MOTOR_MAX_VOLTAGE = 24000;  // Should be the voltage of the battery. Unless the motor maxes out below that.
+                                                         // //TODO: Check the datasheets
 
-    
-    //standard looks down 17 degrees, 15 is safe
+    // standard looks down 17 degrees, 15 is safe
     static constexpr float MAX_PITCH_UP = PI / 180 * 15;
-    //looks up 20, 18 is safe
+    // looks up 20, 18 is safe
     static constexpr float MAX_PITCH_DOWN = PI / 180 * 18;
 
     static constexpr float dt = 0.002f;
-    static constexpr float PITCH_OFFSET = - 0.48 * PI; //to make gimbal horizontal when told to go to 0
+    static constexpr float PITCH_OFFSET = -0.48 * PI;  // to make gimbal horizontal when told to go to 0
 
-    //for sysid
+    // for sysid
     static constexpr int YAW_DIST_RANGE = 18000;
     static constexpr int PITCH_DIST_RANGE = 0;
 
 private:  // Private Variables
     tap::Drivers* drivers;
     // TODO: Check all motor ID's, and verify indexers and flywheels are in the correct direction
-    tap::motor::DjiMotor* motor_Yaw;
-    tap::motor::DjiMotor* motor_Pitch;
+    tap::motor::DjiMotor* motorYaw;
+    tap::motor::DjiMotor* motorPitch;
 
-    YawController yawController; //default constructor
+    YawController yawController;  // default constructor
     PitchController pitchController;
 
     float pitchMotorVoltage, yawMotorVoltage;
@@ -55,19 +52,17 @@ private:  // Private Variables
     float yawEncoderCache = 0;
     float desiredYawAngleWorld, desiredYawAngleWorld2, driveTrainEncoder = 0.0;
     float stickAccumulator = 0, targetYawAngleWorld = PI,
-           targetDTVelocityWorld = 0;  // changed targetYawAngleWorld from 0 to PI
-           
-    //for sysid
+          targetDTVelocityWorld = 0;  // changed targetYawAngleWorld from 0 to PI
+
+    // for sysid
     std::random_device rd;
     std::mt19937 gen;
     std::uniform_int_distribution<int> distYaw;
     std::uniform_int_distribution<int> distPitch;
 
-
-
 public:  // Public Methods
     GimbalSubsystem(tap::Drivers* drivers, tap::motor::DjiMotor* yaw, tap::motor::DjiMotor* pitch);
-      
+
     //~GimbalSubsystem() {}  // Intentionally left blank
 
     /*
@@ -83,7 +78,6 @@ public:  // Public Methods
      * go
      */
     void refresh() override;
-
 
     /*
      * tells the motors to move the gimbal to its specified angle calculated in update();
@@ -109,18 +103,11 @@ public:  // Public Methods
 
     float getPitchEncoderValue();
 
-    float getYawVel(); 
-    float getPitchVel(); 
-
+    float getYawVel();
+    float getPitchVel();
 
 private:  // Private Methods
     int getPitchVoltage(float targetAngle, float dt);
-    int getYawVoltage(
-        float driveTrainRPM,
-        float yawAngleRelativeWorld,
-        float yawRPM,
-        float desiredAngleWorld,
-        float inputVel,
-        float dt);
+    int getYawVoltage(float driveTrainRPM, float yawAngleRelativeWorld, float yawRPM, float desiredAngleWorld, float inputVel, float dt);
 };
-}  // namespace ThornBots
+}  // namespace subsystems

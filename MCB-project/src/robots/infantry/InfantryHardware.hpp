@@ -6,6 +6,7 @@
 #include "subsystems/gimbal/GimbalSubsystem.hpp"
 #include "subsystems/flywheel/FlywheelSubsystem.hpp"
 #include "subsystems/indexer/IndexerSubsystem.hpp"
+#include "subsystems/drivetrain/DrivetrainSubsystem.hpp"
 
 #include "drivers.hpp"
 
@@ -32,12 +33,17 @@ public:
 
     DjiMotor indexMotor{drivers, MotorId::MOTOR8, CanBus::CAN_BUS2, false, "Indexer2", 0, 0};
 
+    DjiMotor driveMotor1{drivers, MotorId::MOTOR1, CanBus::CAN_BUS1, true, "Motor 1", 0, 0};
+    DjiMotor driveMotor2{drivers, MotorId::MOTOR2, CanBus::CAN_BUS1, false, "Motor 2", 0, 0};
+    DjiMotor driveMotor3{drivers, MotorId::MOTOR3, CanBus::CAN_BUS1, true, "Motor 3", 0, 0};
+    DjiMotor driveMotor4{drivers, MotorId::MOTOR4, CanBus::CAN_BUS1, false, "Motor 4", 0, 0};
 
 
     //subsystems
     subsystems::GimbalSubsystem gimbal{drivers, &yawMotor, &pitchMotor};
     subsystems::FlywheelSubsystem flywheel{drivers, &flywheelMotor1, &flywheelMotor2};
     subsystems::IndexerSubsystem indexer{drivers, &indexMotor};
+    subsystems::DrivetrainSubsystem drivetrain{drivers, &driveMotor1, &driveMotor2, &driveMotor3, &driveMotor4};
 };
 
 }  // namespace ThornBots

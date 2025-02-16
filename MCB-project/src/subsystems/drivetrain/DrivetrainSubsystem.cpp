@@ -3,51 +3,23 @@
 namespace subsystems
 {
 
-DrivetrainSubsystem::DrivetrainSubsystem(tap::Drivers* drivers)
+DrivetrainSubsystem::DrivetrainSubsystem(tap::Drivers* drivers, tap::motor::DjiMotor* motorOne, tap::motor::DjiMotor* motorTwo, tap::motor::DjiMotor* motorThree, tap::motor::DjiMotor* motorFour)
     : tap::control::Subsystem(drivers),
       drivers(drivers),
-
-      motor_one(
-          drivers,
-          tap::motor::MotorId::MOTOR1,
-          tap::can::CanBus::CAN_BUS1,
-          true,
-          "Motor 1",
-          0,
-          0),
-      motor_two(
-          drivers,
-          tap::motor::MotorId::MOTOR2,
-          tap::can::CanBus::CAN_BUS1,
-          false,
-          "Motor 2",
-          0,
-          0),
-      motor_three(
-          drivers,
-          tap::motor::MotorId::MOTOR3,
-          tap::can::CanBus::CAN_BUS1,
-          true,
-          "Motor 3",
-          0,
-          0),
-      motor_four(
-          drivers,
-          tap::motor::MotorId::MOTOR4,
-          tap::can::CanBus::CAN_BUS1,
-          false,
-          "Motor 4",
-          0,
-          0)
+      motorOne(motorOne),
+      motorTwo(motorOne),
+      motorThree(motorThree),
+      motorFour(motorFour)
+      
 {
 }
 
 void DrivetrainSubsystem::initialize()
 {
-    motor_one.initialize();
-    motor_two.initialize();
-    motor_three.initialize();
-    motor_four.initialize();
+    motorOne->initialize();
+    motorTwo->initialize();
+    motorThree->initialize();
+    motorFour->initialize();
 }
 
 //guaranteed to be called
@@ -58,14 +30,14 @@ void DrivetrainSubsystem::refresh()
         powerLimit = drivers->refSerial.getRobotData().chassis.powerConsumptionLimit;
 
     // shaft rpms measured from encoders
-    motorOneRPM = motor_one.getShaftRPM();
-    motorTwoRPM = motor_two.getShaftRPM();
-    motorThreeRPM = motor_three.getShaftRPM();
-    motorFourRPM = motor_four.getShaftRPM();
-    motor_one.setDesiredOutput(static_cast<int32_t>(I1t * 819.2f));
-    motor_two.setDesiredOutput(static_cast<int32_t>(I2t * 819.2f));
-    motor_three.setDesiredOutput(static_cast<int32_t>(I3t * 819.2f));
-    motor_four.setDesiredOutput(static_cast<int32_t>(I4t * 819.2f));
+    motorOneRPM = motorOne->getShaftRPM();
+    motorTwoRPM = motorTwo->getShaftRPM();
+    motorThreeRPM = motorThree->getShaftRPM();
+    motorFourRPM = motorFour->getShaftRPM();
+    motorOne->setDesiredOutput(static_cast<int32_t>(I1t * 819.2f));
+    motorTwo->setDesiredOutput(static_cast<int32_t>(I2t * 819.2f));
+    motorThree->setDesiredOutput(static_cast<int32_t>(I3t * 819.2f));
+    motorFour->setDesiredOutput(static_cast<int32_t>(I4t * 819.2f));
 
 }
 static float motorOneSpeed, motorTwoSpeed, motorThreeSpeed, motorFourSpeed = 0;
@@ -85,10 +57,10 @@ void DrivetrainSubsystem::setTargetTranslationVector(float translationSpeed, flo
 //fix function
 void DrivetrainSubsystem::stopMotors()
 {
-    motor_one.setDesiredOutput(0);
-    motor_two.setDesiredOutput(0);
-    motor_three.setDesiredOutput(0);
-    motor_four.setDesiredOutput(0);
+    motorOne->setDesiredOutput(0);
+    motorTwo->setDesiredOutput(0);
+    motorThree->setDesiredOutput(0);
+    motorFour->setDesiredOutput(0);
 }
 
 
