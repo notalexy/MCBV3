@@ -33,7 +33,7 @@ using RobotControl = robots::HeroControl;
 
 #elif defined(SENTRY)
 #include "robots/sentry/SentryControl.hpp"
-using RobotControl = robots::SentryControl
+using RobotControl = robots::SentryControl;
 
 #else //for standard
 #include "robots/infantry/InfantryControl.hpp"

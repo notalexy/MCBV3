@@ -25,11 +25,22 @@ SIM_BUILD_TARGET_ACCEPTED_ARGS      = ["build-sim", "run-sim"]
 HARDWARE_BUILD_TARGET_ACCEPTED_ARGS = ["build", "run", "size", "gdb", "all"]
 VALID_BUILD_PROFILES                = ["debug", "release", "fast"]
 VALID_PROFILING_TYPES               = ["true", "false"]
+
+#added by Alex Stedman for mappings ============================
 SYS_ID_DEFINES                      = {"none": "no_sysid",
                                        "dt": "drivetrain_sysid",
                                        "yaw": "yaw_sysid",
                                        "odo": "odom_sysid"}
-ROBOT_TYPES                         = ["standard", "hero", "sentry"]
+
+ROBOT_TYPE_DEFINES                  = {"infantry": "INFANTRY",
+                                       "standard": "INFANTRY",
+                                       "INFANTRY": "INFANTRY",
+                                       "STANDARD": "INFANTRY",
+                                       "hero": "HERO",
+                                       "HERO": "HERO",
+                                       "sentry": "SENTRY",
+                                       "SENTRY": "SENTRY"}
+#===================================================================
 
 USAGE = "Usage: scons <target> [profile=<debug|release|fast>] [robot=<ROBOT_TYPE>] [profiling=<true|false>] [sysid=<true|false>]\n\
     \"<target>\" is one of:\n\
@@ -41,8 +52,8 @@ USAGE = "Usage: scons <target> [profile=<debug|release|fast>] [robot=<ROBOT_TYPE
         - \"build-sim\": build all code for the simulated environment, for the current host platform.\n\
         - \"run-sim\": build all code for the simulated environment, for the current host platform, and execute the simulator locally.\n\
     \"robot=<ROBOT_TYPE>\" is an optional argument that can override whatever robot type has been specified in robot_type.hpp.\n\
-        - <ROBOT_TYPE> must be one of the following:\n\
-            - standard, hero, sentry.\n\
+        - <ROBOT_TYPE> has a few aliases but will be one of the following:\n\
+            - INFANTRY, HERO, SENTRY.\n\
         - \"sysid\" lets you run sysid stuff yay"
 
 
@@ -80,12 +91,19 @@ def parse_args():
     args["BUILD_PROFILE"] = ARGUMENTS.get("profile", "release")
     if args["BUILD_PROFILE"] not in VALID_BUILD_PROFILES:
         raise Exception("You specified an invalid build profile.\n" + USAGE)
+    
+#=====================================ADDED BY Alex Stedman @Thornbots====================================
 
     sysid = ARGUMENTS.get("sysid")
     if sysid in SYS_ID_DEFINES:
         args["SYS_ID"] = SYS_ID_DEFINES[sysid]
+        print( "======================================================================================")
+        print(f"          !!!IMPORTANT!!!: Running SYS_ID on {SYS_ID_DEFINES[sysid]}")
+
     elif sysid != None:
         raise Exception("You specified an invalid sysid type.\n" + USAGE)
+    else: #nothing defined so do none
+        args["SYS_ID"] = SYS_ID_DEFINES["none"]
 
 
     args["PROFILING"] = ARGUMENTS.get("profiling", "false")
@@ -93,6 +111,17 @@ def parse_args():
         raise Exception("You specified an invalid profiling type.\n" + USAGE)
 
     # Extract the robot type from either the command line or robot_type.hpp
-    args["ROBOT_TYPE"] = ARGUMENTS.get("robot") #extract_robot_type.get_robot_type()
 
+    rtype = ARGUMENTS.get("robot")
+    if rtype in ROBOT_TYPE_DEFINES:
+        args["ROBOT_TYPE"] = ROBOT_TYPE_DEFINES[rtype]
+    elif rtype != None:
+        raise Exception("You specified an invalid robot type.\n" + USAGE)
+    else: #nothing defined so do none
+        print( "======================================================================================")
+        print(f"          !!!WARNING!!!: No robot type was specified, defaulting to INFANTRY          ")
+        args["ROBOT_TYPE"] = ROBOT_TYPE_DEFINES["INFANTRY"]
+
+    print( "======================================================================================")
+#=================================================================================================================
     return args
