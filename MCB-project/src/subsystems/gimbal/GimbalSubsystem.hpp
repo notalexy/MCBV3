@@ -43,8 +43,8 @@ public:  // Public Variables
 private:  // Private Variables
     tap::Drivers* drivers;
     // TODO: Check all motor ID's, and verify indexers and flywheels are in the correct direction
-    tap::motor::DjiMotor motor_Yaw;
-    tap::motor::DjiMotor motor_Pitch;
+    tap::motor::DjiMotor* motor_Yaw;
+    tap::motor::DjiMotor* motor_Pitch;
 
     YawController yawController; //default constructor
     PitchController pitchController;
@@ -66,7 +66,7 @@ private:  // Private Variables
 
 
 public:  // Public Methods
-    GimbalSubsystem(tap::Drivers* drivers);
+    GimbalSubsystem(tap::Drivers* drivers, tap::motor::DjiMotor* yaw, tap::motor::DjiMotor* pitch);
       
     //~GimbalSubsystem() {}  // Intentionally left blank
 
@@ -129,16 +129,12 @@ public:  // Public Methods
      */
     void reZeroYaw();
 
-    inline float getYawEncoderValue()
-    {
-        return tap::motor::DjiMotor::encoderToDegrees(motor_Yaw.getEncoderUnwrapped()) * PI / 180;
-    }
-    inline float getPitchEncoderValue()
-    {
-        return tap::motor::DjiMotor::encoderToDegrees(motor_Pitch.getEncoderUnwrapped()) * PI / 180;
-    }
-    inline float getYawVel() { return motor_Yaw.getShaftRPM() * PI / 30; }
-    inline float getPitchVel() { return motor_Pitch.getShaftRPM() * PI / 30; }
+    float getYawEncoderValue();
+
+    float getPitchEncoderValue();
+
+    float getYawVel(); 
+    float getPitchVel(); 
 
 
 private:  // Private Methods

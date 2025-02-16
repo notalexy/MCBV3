@@ -22,7 +22,7 @@ constexpr static tap::algorithms::SmoothPidConfig pid_conf_index = {5, 0, 0, 0, 
 protected:  // Private Variables
 tap::Drivers* drivers;
 // #if defined(sentry)
-tap::motor::DjiMotor motor_Indexer;//{drivers, tap::motor::MotorId::MOTOR4, tap::can::CanBus::CAN_BUS2, false, "Indexer", 0, 0};
+tap::motor::DjiMotor* motor_Indexer;//{drivers, tap::motor::MotorId::MOTOR4, tap::can::CanBus::CAN_BUS2, false, "Indexer", 0, 0};
 // #else
 // tap::motor::DjiMotor motor_Indexer{drivers, tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS2, false, "Indexer", 0, 0};
 // #endif
@@ -34,7 +34,7 @@ int64_t numTicksAtInit = 0;
 
 public:  // Public Methods
 
-IndexerSubsystem(tap::Drivers* drivers);
+IndexerSubsystem(tap::Drivers* drivers, tap::motor::DjiMotor* index);
 
 ~IndexerSubsystem() {}
 
@@ -42,11 +42,11 @@ void initialize();
 
 void refresh() override;
 
-void indexAtRate(float ballsPerSecond);
+virtual void indexAtRate(float ballsPerSecond);
 
-void setTargetMotorRPM(int targetMotorRPM);
+virtual void setTargetMotorRPM(int targetMotorRPM);
 
-void stopIndex();
+virtual void stopIndex();
 
 float getNumBallsShot();
 

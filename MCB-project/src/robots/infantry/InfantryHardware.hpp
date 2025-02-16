@@ -35,9 +35,9 @@ public:
 
 
     //subsystems
-    subsystems::GimbalSubsystem gimbal{drivers};
-    subsystems::FlyWheelSubsystem flywheel{drivers};
-    subsystems::IndexerSubsystem indexer{drivers};
+    subsystems::GimbalSubsystem gimbal{drivers, &yawMotor, &pitchMotor};
+    subsystems::FlywheelSubsystem flywheel{drivers, &flywheelMotor1, &flywheelMotor2};
+    subsystems::IndexerSubsystem indexer{drivers, &indexMotor};
 };
 
 }  // namespace ThornBots

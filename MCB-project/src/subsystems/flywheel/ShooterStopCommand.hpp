@@ -9,13 +9,13 @@
 
 namespace commands
 {
-using subsystems::FlyWheelSubsystem;
+using subsystems::FlywheelSubsystem;
 using tap::communication::serial::Remote;
 
 class ShooterStopCommand : public tap::control::Command
 {
 public:
-    ShooterStopCommand(src::Drivers* drivers, FlyWheelSubsystem* flywheel)
+    ShooterStopCommand(src::Drivers* drivers, FlywheelSubsystem* flywheel)
         : drivers(drivers),
           flywheel(flywheel)
     {
@@ -34,7 +34,7 @@ public:
 
 private:
     src::Drivers* drivers;
-    FlyWheelSubsystem* flywheel;
+    FlywheelSubsystem* flywheel;
 
 };
 }  // namespace commands

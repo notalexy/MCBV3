@@ -3,9 +3,9 @@
 namespace subsystems
 {
 
-IndexerWithSecondMotorSubsystem::IndexerWithSecondMotorSubsystem(tap::Drivers* drivers)
-    : IndexerSubsystem(drivers), // Call base class constructor
-    motor_Indexer2(tap::motor::DjiMotor(drivers, tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, false, "Indexer2", 0, 0))
+IndexerWithSecondMotorSubsystem::IndexerWithSecondMotorSubsystem(tap::Drivers* drivers, tap::motor::DjiMotor* index1, tap::motor::DjiMotor* index2)
+    : IndexerSubsystem(drivers, index1), // Call base class constructor
+    motor_Indexer2(index2)
 {
 
     // Any additional initialization for the second motor, if necessary
@@ -13,20 +13,31 @@ IndexerWithSecondMotorSubsystem::IndexerWithSecondMotorSubsystem(tap::Drivers* d
 
 void IndexerWithSecondMotorSubsystem::initialize() {
     // Initialize both motors
-    motor_Indexer.initialize();  // Initialize the first motor
-    motor_Indexer2.initialize();     // Initialize the second motor
+    motor_Indexer2->initialize();     // Initialize the second motor
 }
 
 void IndexerWithSecondMotorSubsystem::refresh() {
     // Set the desired output for both motors
-    motor_Indexer.setDesiredOutput(indexerVoltage);    // First motor
-    motor_Indexer2.setDesiredOutput(indexerVoltage);   // Second motor (same voltage)
+    motor_Indexer2->setDesiredOutput(indexerVoltage2);   // Second motor (same voltage)
 }
 
 void IndexerWithSecondMotorSubsystem::stopIndex() {
     // Stop both motors
-    motor_Indexer.setDesiredOutput(0);
-    motor_Indexer2.setDesiredOutput(0);
+    IndexerSubsystem::stopIndex();
+    indexerVoltage2 = 0;
+}
+
+void IndexerWithSecondMotorSubsystem::indexAtRate(float ballsPerSecond){
+    this->ballsPerSecond = ballsPerSecond;
+    //divided by 2
+    IndexerSubsystem::setTargetMotorRPM(ballsPerSecond * 30.0f * REV_PER_BALL);
+    setTargetMotorRPM(ballsPerSecond * 30.0f * REV_PER_BALL);
+}
+void IndexerWithSecondMotorSubsystem::setTargetMotorRPM(int targetMotorRPM){
+
+    indexPIDController2.runControllerDerivateError(targetMotorRPM - motor_Indexer2->getShaftRPM(), 1);
+
+    indexerVoltage2 = static_cast<int32_t>(indexPIDController2.getOutput());
 }
 
 } // namespace subsystems

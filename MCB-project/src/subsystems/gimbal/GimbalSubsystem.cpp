@@ -4,19 +4,19 @@ int voltage;
 float velocity;
 namespace subsystems {
 
-GimbalSubsystem::GimbalSubsystem(tap::Drivers* drivers)
+GimbalSubsystem::GimbalSubsystem(tap::Drivers* drivers, tap::motor::DjiMotor* yaw, tap::motor::DjiMotor* pitch)
     : tap::control::Subsystem(drivers),
       drivers(drivers),
-      motor_Yaw(drivers, tap::motor::MotorId::MOTOR7, tap::can::CanBus::CAN_BUS1, false, "Yaw", 0, 0),
-      motor_Pitch(drivers, tap::motor::MotorId::MOTOR6, tap::can::CanBus::CAN_BUS2, false, "Pitch", 0, 0) {
+      motor_Yaw(yaw),
+      motor_Pitch(pitch) {
         gen = std::mt19937(rd());
         distYaw = std::uniform_int_distribution<>(-YAW_DIST_RANGE, YAW_DIST_RANGE);
         distPitch = std::uniform_int_distribution<>(-PITCH_DIST_RANGE, PITCH_DIST_RANGE);
       }
 
 void GimbalSubsystem::initialize() {
-    motor_Pitch.initialize();
-    motor_Yaw.initialize();
+    motor_Pitch->initialize();
+    motor_Yaw->getOutputDesired();
     imuOffset = getYawEncoderValue();
     targetYawAngleWorld += yawAngleRelativeWorld;
 }
@@ -25,8 +25,8 @@ void GimbalSubsystem::refresh() {
     driveTrainRPM = 0;
     yawRPM = PI / 180 * drivers->bmi088.getGz();
     yawAngleRelativeWorld = fmod(PI / 180 * drivers->bmi088.getYaw() - imuOffset, 2 * PI);
-    motor_Pitch.setDesiredOutput(pitchMotorVoltage);
-    motor_Yaw.setDesiredOutput(yawMotorVoltage);
+    motor_Pitch->setDesiredOutput(pitchMotorVoltage);
+    motor_Yaw->setDesiredOutput(yawMotorVoltage);
 }
 
 
@@ -73,5 +73,15 @@ int GimbalSubsystem::getPitchVoltage(float targetAngle, float dt) {
     #endif
 }
 
+float GimbalSubsystem::getYawEncoderValue()
+    {
+        return tap::motor::DjiMotor::encoderToDegrees(motor_Yaw->getEncoderUnwrapped()) * PI / 180;
+    }
+float GimbalSubsystem::getPitchEncoderValue()
+    {
+        return tap::motor::DjiMotor::encoderToDegrees(motor_Pitch->getEncoderUnwrapped()) * PI / 180;
+    }
+float GimbalSubsystem::getYawVel() { return motor_Yaw->getShaftRPM() * PI / 30; }
+float GimbalSubsystem::getPitchVel() { return motor_Pitch->getShaftRPM() * PI / 30; }
 
 }  // namespace ThornBots

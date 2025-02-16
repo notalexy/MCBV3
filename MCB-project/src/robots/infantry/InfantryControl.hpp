@@ -1,15 +1,12 @@
 #include "robots/RobotControl.hpp"
 #include "robots/infantry/InfantryHardware.hpp"
 
-#include "subsystems/gimbal/GimbalSubsystem.hpp"
 #include "subsystems/gimbal/JoystickMoveCommand.hpp"
 #include "subsystems/gimbal/MouseMoveCommand.hpp"
 
-#include "subsystems/flywheel/FlywheelSubsystem.hpp"
 #include "subsystems/flywheel/ShooterStartCommand.hpp"
 #include "subsystems/flywheel/ShooterStopCommand.hpp"
 
-#include "subsystems/indexer/IndexerSubsystem.hpp"
 #include "subsystems/indexer/IndexerNBallsCommand.hpp"
 #include "subsystems/indexer/IndexerUnjamCommand.hpp"
 
@@ -50,7 +47,7 @@ public:
     // Subsystems
 
 
-    //commands
+    // //commands
     commands::JoystickMoveCommand look{drivers, &gimbal};
     commands::MouseMoveCommand look2{drivers, &gimbal};
 
