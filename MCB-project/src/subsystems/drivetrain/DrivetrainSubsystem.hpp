@@ -56,10 +56,10 @@ public:  // Public Variables
 
 private:                                            // Private Variables
     tap::Drivers* drivers;
-    tap::motor::DjiMotor motor_one;
-    tap::motor::DjiMotor motor_two;
-    tap::motor::DjiMotor motor_three;
-    tap::motor::DjiMotor motor_four;
+    tap::motor::DjiMotor* motor_one;
+    tap::motor::DjiMotor* motor_two;
+    tap::motor::DjiMotor* motor_three;
+    tap::motor::DjiMotor* motor_four;
     tap::algorithms::SmoothPid pidController = tap::algorithms::SmoothPid(pid_conf_dt);
     tap::algorithms::SmoothPid pidControllerDTFollowsT =
         tap::algorithms::SmoothPid(pid_conf_DriveTrainFollowsTurret);
@@ -71,7 +71,7 @@ private:                                            // Private Variables
    
 
 public:  // Public Methods
-    DrivetrainSubsystem(tap::Drivers* driver);
+    DrivetrainSubsystem(tap::Drivers* driver, tap::motor::DjiMotor* motorOne, tap::motor::DjiMotor* motorTwo, tap::motor::DjiMotor* motorThree, tap::motor::DjiMotor* motorFour);
     ~DrivetrainSubsystem() {}  // Intentionally blank
 
     /*
