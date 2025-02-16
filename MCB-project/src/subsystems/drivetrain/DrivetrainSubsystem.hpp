@@ -14,9 +14,9 @@ class DrivetrainSubsystem : public tap::control::Subsystem
 {
 public:  // Public Variables
     // constexpr static float PI = 3.14159; //Everyone likes Pi!
-    constexpr static tap::algorithms::SmoothPidConfig pid_conf_dt =
+    constexpr static tap::algorithms::SmoothPidConfig PID_CONF_DT =
         {20, 0, 0, 0, 18000, 1, 0, 1, 0, 0, 0};
-    constexpr static tap::algorithms::SmoothPidConfig pid_conf_DriveTrainFollowsTurret =
+    constexpr static tap::algorithms::SmoothPidConfig PID_CONF_DRIVE_TRAIN_FOLLOWS_TURRET =
         {500, 0.5, 0, 0, 18000, 1, 0, 1, 0, 0, 0};  // TODO: Tune this profile
 #if defined(sentry) 
     constexpr static float HIGH_LIM_INC =

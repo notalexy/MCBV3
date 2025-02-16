@@ -7,16 +7,16 @@ namespace subsystems {
 GimbalSubsystem::GimbalSubsystem(tap::Drivers* drivers, tap::motor::DjiMotor* yaw, tap::motor::DjiMotor* pitch)
     : tap::control::Subsystem(drivers),
       drivers(drivers),
-      motor_Yaw(yaw),
-      motor_Pitch(pitch) {
+      motorYaw(yaw),
+      motorPitch(pitch) {
         gen = std::mt19937(rd());
         distYaw = std::uniform_int_distribution<>(-YAW_DIST_RANGE, YAW_DIST_RANGE);
         distPitch = std::uniform_int_distribution<>(-PITCH_DIST_RANGE, PITCH_DIST_RANGE);
       }
 
 void GimbalSubsystem::initialize() {
-    motor_Pitch->initialize();
-    motor_Yaw->getOutputDesired();
+    motorPitch->initialize();
+    motorYaw->getOutputDesired();
     imuOffset = getYawEncoderValue();
     targetYawAngleWorld += yawAngleRelativeWorld;
 }
@@ -25,8 +25,8 @@ void GimbalSubsystem::refresh() {
     driveTrainRPM = 0;
     yawRPM = PI / 180 * drivers->bmi088.getGz();
     yawAngleRelativeWorld = fmod(PI / 180 * drivers->bmi088.getYaw() - imuOffset, 2 * PI);
-    motor_Pitch->setDesiredOutput(pitchMotorVoltage);
-    motor_Yaw->setDesiredOutput(yawMotorVoltage);
+    motorPitch->setDesiredOutput(pitchMotorVoltage);
+    motorYaw->setDesiredOutput(yawMotorVoltage);
 }
 
 
@@ -75,13 +75,13 @@ int GimbalSubsystem::getPitchVoltage(float targetAngle, float dt) {
 
 float GimbalSubsystem::getYawEncoderValue()
     {
-        return tap::motor::DjiMotor::encoderToDegrees(motor_Yaw->getEncoderUnwrapped()) * PI / 180;
+        return tap::motor::DjiMotor::encoderToDegrees(motorYaw->getEncoderUnwrapped()) * PI / 180;
     }
 float GimbalSubsystem::getPitchEncoderValue()
     {
-        return tap::motor::DjiMotor::encoderToDegrees(motor_Pitch->getEncoderUnwrapped()) * PI / 180;
+        return tap::motor::DjiMotor::encoderToDegrees(motorPitch->getEncoderUnwrapped()) * PI / 180;
     }
-float GimbalSubsystem::getYawVel() { return motor_Yaw->getShaftRPM() * PI / 30; }
-float GimbalSubsystem::getPitchVel() { return motor_Pitch->getShaftRPM() * PI / 30; }
+float GimbalSubsystem::getYawVel() { return motorYaw->getShaftRPM() * PI / 30; }
+float GimbalSubsystem::getPitchVel() { return motorPitch->getShaftRPM() * PI / 30; }
 
 }  // namespace ThornBots

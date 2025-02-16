@@ -3,16 +3,16 @@
 namespace subsystems {
     FlywheelSubsystem::FlywheelSubsystem(tap::Drivers* drivers, tap::motor::DjiMotor* flywheel1, tap::motor::DjiMotor* flywheel2) 
       : tap::control::Subsystem(drivers),
-        motor_Flywheel1(flywheel1),
-        motor_Flywheel2(flywheel2),
+        motorFlywheel1(flywheel1),
+        motorFlywheel2(flywheel2),
         drivers(drivers) {} 
 
         /**
          * initializes the 2 flywheels
          */
     void FlywheelSubsystem::initialize() {
-        motor_Flywheel1->initialize();
-        motor_Flywheel2->initialize();
+        motorFlywheel1->initialize();
+        motorFlywheel2->initialize();
     }
     
     /**
@@ -20,8 +20,8 @@ namespace subsystems {
      */
     void FlywheelSubsystem::setTargetVelocity(int targetMotorRPM){
         this->targetMotorRPM = targetMotorRPM;
-        flywheelPIDController1.runControllerDerivateError(targetMotorRPM - motor_Flywheel1->getShaftRPM(), 1);
-        flywheelPIDController2.runControllerDerivateError(targetMotorRPM - motor_Flywheel2->getShaftRPM(), 1);
+        flywheelPIDController1.runControllerDerivateError(targetMotorRPM - motorFlywheel1->getShaftRPM(), 1);
+        flywheelPIDController2.runControllerDerivateError(targetMotorRPM - motorFlywheel2->getShaftRPM(), 1);
 
         flyWheel1Voltage = static_cast<int32_t>(flywheelPIDController1.getOutput());
         flyWheel2Voltage = static_cast<int32_t>(flywheelPIDController2.getOutput());
@@ -31,8 +31,8 @@ namespace subsystems {
      * refreshes flywheel output
      */
     void FlywheelSubsystem::refresh() {
-        motor_Flywheel1->setDesiredOutput(flyWheel1Voltage);
-        motor_Flywheel2->setDesiredOutput(flyWheel2Voltage);
+        motorFlywheel1->setDesiredOutput(flyWheel1Voltage);
+        motorFlywheel2->setDesiredOutput(flyWheel2Voltage);
     }
 
     /**

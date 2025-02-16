@@ -5,15 +5,15 @@ namespace subsystems {
 IndexerSubsystem::IndexerSubsystem(tap::Drivers* drivers, tap::motor::DjiMotor* index)
     : tap::control::Subsystem(drivers),
     drivers(drivers),
-    motor_Indexer(index)
+    motorIndexer(index)
     {}
 
 void IndexerSubsystem::initialize() {
-    motor_Indexer->initialize();
+    motorIndexer->initialize();
 }
 
 void IndexerSubsystem::refresh() {
-    motor_Indexer->setDesiredOutput(indexerVoltage);
+    motorIndexer->setDesiredOutput(indexerVoltage);
 }
 
 void IndexerSubsystem::indexAtRate(float ballsPerSecond) {
@@ -31,18 +31,18 @@ void IndexerSubsystem::stopIndex() {
 //so the first shot goes out asap
 
 void IndexerSubsystem::setTargetMotorRPM(int targetMotorRPM) {
-    indexPIDController.runControllerDerivateError(targetMotorRPM - motor_Indexer->getShaftRPM(), 1);
+    indexPIDController.runControllerDerivateError(targetMotorRPM - motorIndexer->getShaftRPM(), 1);
 
     indexerVoltage = static_cast<int32_t>(indexPIDController.getOutput());
 }
 
 // converts delta motor ticks to num balls shot using constants
 float IndexerSubsystem::getNumBallsShot() {
-    return (motor_Indexer->getEncoderUnwrapped() - numTicksAtInit) / tap::motor::DjiMotor::ENC_RESOLUTION / REV_PER_BALL;
+    return (motorIndexer->getEncoderUnwrapped() - numTicksAtInit) / tap::motor::DjiMotor::ENC_RESOLUTION / REV_PER_BALL;
 }
 
 void IndexerSubsystem::resetBallsCounter() {
-    numTicksAtInit = motor_Indexer->getEncoderUnwrapped();
+    numTicksAtInit = motorIndexer->getEncoderUnwrapped();
 }
 
 float IndexerSubsystem::getBallsPerSecond() {

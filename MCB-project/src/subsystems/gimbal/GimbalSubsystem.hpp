@@ -43,8 +43,8 @@ public:  // Public Variables
 private:  // Private Variables
     tap::Drivers* drivers;
     // TODO: Check all motor ID's, and verify indexers and flywheels are in the correct direction
-    tap::motor::DjiMotor* motor_Yaw;
-    tap::motor::DjiMotor* motor_Pitch;
+    tap::motor::DjiMotor* motorYaw;
+    tap::motor::DjiMotor* motorPitch;
 
     YawController yawController; //default constructor
     PitchController pitchController;
