@@ -5,7 +5,7 @@
 
 #include "subsystems/gimbal/GimbalSubsystem.hpp"
 #include "subsystems/flywheel/FlywheelSubsystem.hpp"
-#include "subsystems/indexer/IndexerSubsystem.hpp"
+#include "subsystems/indexer/IndexerSubsystem2Motor.hpp"
 
 #include "drivers.hpp"
 
@@ -26,13 +26,16 @@ public:
     DjiMotor flywheelMotor1{drivers, MotorId::MOTOR3, CanBus::CAN_BUS2, true, "Flywheel", 0, 0};
     DjiMotor flywheelMotor2{drivers, MotorId::MOTOR1, CanBus::CAN_BUS2, false, "Flywheel1", 0, 0};
 
+    DjiMotor yawMotor{drivers, MotorId::MOTOR7, CanBus::CAN_BUS1, false, "Yaw", 0, 0};
+    DjiMotor pitchMotor{drivers, MotorId::MOTOR5, CanBus::CAN_BUS2, true, "Pitch", 0, 0};
+
     DjiMotor indexMotor1{drivers, MotorId::MOTOR7, CanBus::CAN_BUS2, false, "Indexer1", 0, 0};
     DjiMotor indexMotor2{drivers, MotorId::MOTOR6, CanBus::CAN_BUS2, true, "Indexer2", 0, 0};
 
     //subsystems
-    subsystems::GimbalSubsystem gimbal{drivers};
+    subsystems::GimbalSubsystem gimbal{drivers, &yawMotor, &pitchMotor};
     subsystems::FlywheelSubsystem flywheel{drivers, &flywheelMotor1, &flywheelMotor2};
-    subsystems::IndexerSubsystem indexer{drivers};
+    subsystems::IndexerWithSecondMotorSubsystem indexer{drivers, &indexMotor1, &indexMotor2};
 
 };
 

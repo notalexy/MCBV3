@@ -27,11 +27,11 @@ public:
 }
 
 //gaslights the compiler to think that RobotControl is one of these three based on the defines
-#if defined(hero)
+#if defined(HERO)
 #include "robots/hero/HeroControl.hpp"
 using RobotControl = robots::HeroControl;
 
-#elif defined(sentry)
+#elif defined(SENTRY)
 #include "robots/sentry/SentryControl.hpp"
 using RobotControl = robots::SentryControl
 
