@@ -84,35 +84,11 @@ public:  // Public Methods
      */
     void refresh() override;
 
-    /*
-     * Should be called within the main loop, so called every time in the main loop when you want
-     * the described behavior. This will allow the drivetrain to translate with the left stick, and
-     * the right stick is for the turret. This function should be called when the right switch is in
-     * the Down state. Enabling beyblading (left switch is not down) will override this state, and
-     * left stick will control drivetrain translating and right stick will control pitch and yaw of
-     * the turret.
-     */
-    // void turretMove(
-    //     float desiredYawAngle,
-    //     float desiredPitchAngle,
-    //     float driveTrainRPM,
-    //     float yawAngleRelativeWorld,
-    //     float yawRPM,
-    //     float inputVel,
-    //     float dt);
 
     /*
      * tells the motors to move the gimbal to its specified angle calculated in update();
      */
     void updateMotors(float* changeInTargetYaw, float* targetPitch);
-
-    /*
-     * Call this function to convert the desired RPM for all of motors in the GimbalSubsystem to a
-     * voltage level which would then be sent over CanBus to each of the motor controllers to
-     * actually set this voltage level on each of the motors. Should be placed inside of the main
-     * loop, and called every time through the loop, ONCE
-     */
-    // void setMotorSpeeds();
 
     /*
      * Call this function to set all Turret motors to 0 desired RPM, calculate the voltage level in
