@@ -12,11 +12,13 @@ IndexerWithSecondMotorSubsystem::IndexerWithSecondMotorSubsystem(tap::Drivers* d
 }
 
 void IndexerWithSecondMotorSubsystem::initialize() {
+    IndexerSubsystem::initialize();
     // Initialize both motors
     motorIndexer2->initialize();     // Initialize the second motor
 }
 
 void IndexerWithSecondMotorSubsystem::refresh() {
+    IndexerSubsystem::refresh();
     // Set the desired output for both motors
     motorIndexer2->setDesiredOutput(indexerVoltage2);   // Second motor (same voltage)
 }
@@ -29,7 +31,7 @@ void IndexerWithSecondMotorSubsystem::stopIndex() {
 
 void IndexerWithSecondMotorSubsystem::indexAtRate(float ballsPerSecond){
     this->ballsPerSecond = ballsPerSecond;
-    //divided by 2
+    //divided by 2 by using 30.0f instead of 60.0f
     IndexerSubsystem::setTargetMotorRPM(ballsPerSecond * 30.0f * REV_PER_BALL);
     setTargetMotorRPM(ballsPerSecond * 30.0f * REV_PER_BALL);
 }
