@@ -1,8 +1,5 @@
-#include "tap/control/command_mapper.hpp"
-#include "tap/control/hold_command_mapping.hpp"
-#include "tap/control/hold_repeat_command_mapping.hpp"
-#include "tap/control/press_command_mapping.hpp"
-#include "tap/control/toggle_command_mapping.hpp"
+#include "robots/RobotControl.hpp"
+#include "robots/sentry/SentryHardware.hpp"
 
 #include "subsystems/gimbal/GimbalSubsystem.hpp"
 #include "subsystems/gimbal/JoystickMoveCommand.hpp"
@@ -18,21 +15,21 @@
 
 #include "drivers.hpp"
 
-using namespace tap::control;
-using namespace tap::communication::serial;
 
-class StandardControl
+namespace robots
+{
+class SentryControl : public ControlInterface, public SentryHardware
 {
 public:
-    StandardControl(src::Drivers* drivers) : drivers(drivers) {}
-
-    void initialize()
-    {
+    //pass drivers back to root robotcontrol to store
+    SentryControl(src::Drivers* drivers) : SentryHardware(drivers) {}
+    //functions we are using
+    void initialize() override {
 
         // Initialize subsystems
         gimbal.initialize();
         flywheel.initialize();
-       indexer.initialize();
+        indexer.initialize();
 
         // Register subsystems;
         drivers->commandScheduler.registerSubsystem(&gimbal);
@@ -48,26 +45,22 @@ public:
         drivers->commandMapper.addMap(&idleShootMapping);
         drivers->commandMapper.addMap(&stopShootMapping);
         drivers->commandMapper.addMap(&controllerToKeyboardMouseMapping);
+
     }
-
-    src::Drivers* drivers;
-
     // Subsystems
-    subsystems::GimbalSubsystem gimbal{drivers};
 
+
+    //commands
     commands::JoystickMoveCommand look{drivers, &gimbal};
     commands::MouseMoveCommand look2{drivers, &gimbal};
-
-    subsystems::FlyWheelSubsystem flywheel{drivers};
 
     commands::ShooterStartCommand shooterStart{drivers, &flywheel};
     commands::ShooterStopCommand shooterStop{drivers, &flywheel};
 
-    subsystems::IndexerSubsystem indexer{drivers};
-
     commands::IndexerNBallsCommand indexer10Hz{drivers, &indexer, -1, 10};
     commands::IndexerUnjamCommand indexerUnjam{drivers, &indexer};
 
+    //mappings
     ToggleCommandMapping controllerToKeyboardMouseMapping {
         drivers,
         {&look2},
@@ -100,3 +93,5 @@ public:
         RemoteMapState(RemoteMapState::MouseButton::LEFT)
     };
 };
+
+}

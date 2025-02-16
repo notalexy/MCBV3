@@ -1,20 +1,11 @@
 #include "IndexerSubsystem.hpp"
 
-#if defined(sentry)
-motor = tap::motor::MotorId::MOTOR5
-#else
-using tap::motor::MotorId::MOTOR8 motor
-#endif
 namespace subsystems {
     
 IndexerSubsystem::IndexerSubsystem(tap::Drivers* drivers)
     : tap::control::Subsystem(drivers),
     drivers(drivers),
-    #if defined(sentry)  
     motor_Indexer(tap::motor::DjiMotor(drivers, motor, tap::can::CanBus::CAN_BUS2, false, "Indexer2", 0, 0))
-    #else
-    motor_Indexer(tap::motor::DjiMotor(drivers, tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, false, "Indexer2", 0, 0))
-    #endif
     {}
 
 void IndexerSubsystem::initialize() {

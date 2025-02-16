@@ -1,8 +1,9 @@
 #include "tap/architecture/periodic_timer.hpp"
 #include "tap/architecture/profiler.hpp"
 
-#include "robots/RobotConstants.hpp"
 #include "robots/RobotControl.hpp"
+
+
 #include "drivers.hpp"
 #include "tap/communication/sensors/buzzer/buzzer.hpp"
 
@@ -42,10 +43,12 @@ static void updateIo(src::Drivers *drivers)
 }
 
 src::Drivers drivers;
+ 
 RobotControl control{&drivers};
 
 int main()
 {
+
     Board::initialize();
     initializeIo(&drivers);
     control.initialize();
@@ -63,6 +66,7 @@ int main()
             //tap::buzzer::playNote(&(drivers.pwm), 493);
 
             drivers.bmi088.periodicIMUUpdate();
+            control.update();
             drivers.commandScheduler.run();
             drivers.djiMotorTxHandler.encodeAndSendCanData();
             drivers.terminalSerial.update();

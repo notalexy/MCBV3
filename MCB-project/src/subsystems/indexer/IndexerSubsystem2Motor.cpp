@@ -5,9 +5,7 @@ namespace subsystems
 
 IndexerWithSecondMotorSubsystem::IndexerWithSecondMotorSubsystem(tap::Drivers* drivers)
     : IndexerSubsystem(drivers), // Call base class constructor
-    motor_Indexer2(tap::motor::DjiMotor(drivers, tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, false, "Indexer2", 0, 0)),
-    motor_Indexer(tap::motor::DjiMotor(drivers, tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, false, "Indexer2", 0, 0))
-
+    motor_Indexer2(tap::motor::DjiMotor(drivers, tap::motor::MotorId::MOTOR8, tap::can::CanBus::CAN_BUS2, false, "Indexer2", 0, 0))
 {
 
     // Any additional initialization for the second motor, if necessary
