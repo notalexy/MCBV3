@@ -20,16 +20,16 @@ public:  // Public Variables
 constexpr static int FLYWHEEL_MOTOR_MAX_RPM = 8333;  // We had 5000 last year, and we can go 30/18 times as fast. So 5000 * 30/18
 constexpr static int FLYWHEEL_RADIUS_MM = 60;
 
-constexpr static tap::algorithms::SmoothPidConfig pid_conf_flywheel = {40, 0.1, 0, 10.0, 10000, 1, 0, 1, 0, 0, 0};
+constexpr static tap::algorithms::SmoothPidConfig PID_CONF_FLYWHEEL = {40, 0.1, 0, 10.0, 10000, 1, 0, 1, 0, 0, 0};
 
 private:  // Private Variables
 tap::Drivers* drivers;
 
-tap::motor::DjiMotor* motor_Flywheel1;
-tap::motor::DjiMotor* motor_Flywheel2;
+tap::motor::DjiMotor* motorFlywheel1;
+tap::motor::DjiMotor* motorFlywheel2;
 
-tap::algorithms::SmoothPid flywheelPIDController1{pid_conf_flywheel};
-tap::algorithms::SmoothPid flywheelPIDController2{pid_conf_flywheel};
+tap::algorithms::SmoothPid flywheelPIDController1{PID_CONF_FLYWHEEL};
+tap::algorithms::SmoothPid flywheelPIDController2{PID_CONF_FLYWHEEL};
 
 int32_t flyWheel1Voltage = 0;
 int32_t flyWheel2Voltage = 0;
