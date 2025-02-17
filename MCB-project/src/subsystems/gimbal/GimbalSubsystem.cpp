@@ -15,7 +15,7 @@ GimbalSubsystem::GimbalSubsystem(tap::Drivers* drivers, tap::motor::DjiMotor* ya
 void GimbalSubsystem::initialize()
 {
     motorPitch->initialize();
-    motorYaw->getOutputDesired();
+    motorYaw->initialize();
     imuOffset = getYawEncoderValue();
     targetYawAngleWorld += yawAngleRelativeWorld;
 }
