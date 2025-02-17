@@ -51,7 +51,7 @@ int main()
 
     Board::initialize();
     initializeIo(&drivers);
-    control.initialize();
+    control.initialize();   
     tap::buzzer::silenceBuzzer(&(drivers.pwm));
 
     tap::arch::PeriodicMilliTimer refreshTimer(2);

@@ -15,11 +15,7 @@ namespace subsystems
 {
 PitchController::PitchController() {}
 
-float PitchController::calculate(
-    float currentPosition,
-    float currentVelocity,
-    float targetPosition,
-    float deltaT)
+float PitchController::calculate(float currentPosition, float currentVelocity, float targetPosition, float deltaT)
 {
     float positionError = targetPosition - currentPosition;
 
@@ -53,11 +49,10 @@ float PitchController::calculate(
         }
     }
     // calculation for setting target current aka velocity controller
-    float targetCurrent =
-        KSTATIC * signum(targetVelocity) + KF + KPV * velocityError + KIV * buildup;
+    float targetCurrent = KSTATIC * signum(targetVelocity) + KF + KPV * velocityError + KIV * buildup;
 
     pastOutput = RA * targetCurrent + KV * targetVelocity;
     output2 = pastOutput * 100;
     return std::clamp(pastOutput, -VOLT_MAX, VOLT_MAX);
 }
-}  // namespace ThornBots
+}  // namespace subsystems

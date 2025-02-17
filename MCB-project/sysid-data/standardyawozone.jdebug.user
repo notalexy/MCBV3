@@ -1,0 +1,31 @@
+
+
+
+
+Breakpoint=C:/Users/stedmaja/OneDrive - Rose-Hulman Institute of Technology/rhit/TeachingFreshies/MCB-project/src/main.cpp:57, State=BP_STATE_DISABLED
+GraphedExpression="voltage", DisplayFormat=DISPLAY_FORMAT_DEC, Color=#e56a6f, Show=0
+GraphedExpression="velocity", Color=#35792b, Show=0
+OpenDocument="GimbalSubsystem.cpp", FilePath="C:/Users/stedmaja/OneDrive - Rose-Hulman Institute of Technology/rhit/TeachingFreshies/MCB-project/src/subsystems/gimbal/GimbalSubsystem.cpp", Line=0
+OpenDocument="clock.hpp", FilePath="C:/Users/stedmaja/OneDrive - Rose-Hulman Institute of Technology/rhit/TeachingFreshies/MCB-project/taproot/src/tap/architecture/clock.hpp", Line=29
+OpenDocument="InfantryControl.hpp", FilePath="C:/Users/stedmaja/OneDrive - Rose-Hulman Institute of Technology/rhit/TeachingFreshies/MCB-project/src/robots/infantry/InfantryControl.hpp", Line=14
+OpenDocument="main.cpp", FilePath="C:/Users/stedmaja/OneDrive - Rose-Hulman Institute of Technology/rhit/TeachingFreshies/MCB-project/src/main.cpp", Line=12
+OpenDocument="cmsis_gcc.h", FilePath="C:/Users/stedmaja/OneDrive - Rose-Hulman Institute of Technology/rhit/TeachingFreshies/MCB-project/taproot/modm/ext/cmsis/core/cmsis_gcc.h", Line=262
+OpenDocument="delay.cpp", FilePath="C:/Users/stedmaja/OneDrive - Rose-Hulman Institute of Technology/rhit/TeachingFreshies/MCB-project/taproot/modm/src/modm/platform/core/delay.cpp", Line=1
+OpenDocument="board.hpp", FilePath="C:/Users/stedmaja/OneDrive - Rose-Hulman Institute of Technology/rhit/TeachingFreshies/MCB-project/taproot/src/tap/board/board.hpp", Line=96
+OpenToolbar="Debug", Floating=0, x=0, y=0
+OpenWindow="Registers 1", DockArea=RIGHT, x=0, y=1, w=300, h=581, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, FilteredItems=[], RefreshRate=1
+OpenWindow="Source Files", DockArea=LEFT, x=0, y=1, w=578, h=703, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Disassembly", DockArea=RIGHT, x=0, y=0, w=300, h=321, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Functions", DockArea=LEFT, x=0, y=0, w=578, h=199, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Data Sampling", DockArea=BOTTOM, x=1, y=0, w=1584, h=524, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, VisibleTab=1, UniformSampleSpacing=0
+OpenWindow="Console", DockArea=BOTTOM, x=0, y=0, w=975, h=524, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+SmartViewPlugin="", Page="", Toolbar="Hidden", Window="SmartView 1"
+TableHeader="Functions", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Address";"Size";"#Insts";"Class";"Source"], ColWidths=[11409;100;100;100;4712;1328]
+TableHeader="Power Sampling", SortCol="None", SortOrder="ASCENDING", VisibleCols=["Index";"Time";"Ch 0"], ColWidths=[100;100;100]
+TableHeader="Registers 1", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Description"], ColWidths=[100;144;100]
+TableHeader="RegisterSelectionDialog", SortCol="None", SortOrder="ASCENDING", VisibleCols=[], ColWidths=[]
+TableHeader="TargetExceptionDialog", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Address";"Description"], ColWidths=[200;100;100;366]
+TableHeader="Source Files", SortCol="File", SortOrder="ASCENDING", VisibleCols=["File";"Status";"Size";"#Insts";"Path"], ColWidths=[426;100;100;100;2237]
+TableHeader="Data Sampling Setup", SortCol="Expression", SortOrder="ASCENDING", VisibleCols=["Expression";"Type";"Value";"Min";"Max";"Average";"# Changes";"Min. Change";"Max. Change"], ColWidths=[114;100;154;154;154;154;115;126;513]
+TableHeader="Data Sampling Table", SortCol="None", SortOrder="ASCENDING", VisibleCols=["Index";"Time";" voltage";" velocity"], ColWidths=[100;100;100;1258]
+WatchedExpression="voltage", Window=Watched Data 1
