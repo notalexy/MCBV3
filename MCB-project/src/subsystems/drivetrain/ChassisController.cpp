@@ -9,6 +9,8 @@
 #include "tap/board/board.hpp"
 #include "tap/motor/dji_motor.hpp"
 
+// TODO: Calculate function that takes in target x, y velocities as well as a target angle as inputs, outputs 4 motor current summations
+
 namespace subsystems
 {
 ChassisController::ChassisController() {
@@ -78,7 +80,7 @@ float ChassisController::calculateBeybladeVelocity(float bb_freq, float bb_amp) 
     }
     // Function to estimate input errors in inertial frame
     void ChassisController::estimateInputError() {
-        for(int i = 0; i < 1; i++){ //iterate for x and y axes
+        for(int i = 0; i < 2; i++){ //iterate for x and y axes
             //i removed fest, because it is stored as inertial forces
             
             // Compute the error between the last and the estimated forces in the inertial frame
@@ -96,18 +98,17 @@ float ChassisController::calculateBeybladeVelocity(float bb_freq, float bb_amp) 
     // Function to calculate the required force (and torque) based on errors
     void ChassisController::calculateRequiredForces() {
         // Calculate required forces for X and Y in local frame
-        float F_x_reqLocal = KP_V * (dotEstimatedInertial[0] - dotEstimatedInertialLast[0]) + Eint_inputLocal[0];
-        float F_y_reqLocal = KP_V * (dotEstimatedInertial[1] - dotEstimatedInertialLast[1]) + Eint_inputLocal[1];
+        F_x_reqLocal = KP_V * (dotEstimatedInertial[0] - dotEstimatedInertialLast[0]) + Eint_inputLocal[0];
+        F_y_reqLocal = KP_V * (dotEstimatedInertial[1] - dotEstimatedInertialLast[1]) + Eint_inputLocal[1];
         
         // Calculate required torque for Z in local frame
-        float T_z_reqLocal = KP_V_ROT * (dotThetaEstimated - dotThetaEstimatedLast);
+        T_z_reqLocal = KP_V_ROT * (dotThetaEstimated - dotThetaEstimatedLast);
 
         // Update the estimated velocities for the next iteration
         dotEstimatedInertialLast[0] = dotEstimatedInertial[0];
         dotEstimatedInertialLast[1] = dotEstimatedInertial[1];
         dotThetaEstimatedLast = dotThetaEstimated;
         
-        // Here, you'd apply the forces and torque to your motors or control systems
     }
 
     // Follows the modeled drivetrain velocity on the notion
@@ -146,13 +147,127 @@ float ChassisController::calculateBeybladeVelocity(float bb_freq, float bb_amp) 
         }
     }
 
+    void ChassisController::calculateTractionLimiting()
+    {
+        float beybladeCommand = calculateBeybladeVelocity(0.0f, 0.0f); // not sure what I should pass into here
+        // Manipulate F_largest based on whether the beyblade torque command is positive or negative
+        if (beybladeCommand > 0)
+        {
+            // TODO: ask how to get minimum/maximum output torque
+        }
+        else if (beybladeCommand < 0)
+        {
+
+        }
+
+        float F_too_much = std::min(abs(F_largest) - F_MAX / 4, 0.0f); // clamp between 0 and infinity
+
+        float T_req_throttled = signum(T_z_reqLocal) * std::min(abs(T_z_reqLocal), 2 * TRACKWIDTH * std::max(T_z_reqLocal / (2 * TRACKWIDTH) - F_too_much, F_MIN_T));
+
+        // Clamping but for dummies. Exclusive from 0 so this has to be done
+        if (F_lat_wheel_max == 0)
+        {
+            lateralScalingFactor = 1;
+        }
+        else if (F_lat_wheel_max == INFINITY)
+        {
+            lateralScalingFactor = 0;
+        }
+        else
+        {
+            lateralScalingFactor = std::min(std::max((F_MAX / 4 - T_req_throttled / (2 * TRACKWIDTH)) - 1 / F_lat_wheel_max, 1.0f), 0.0f);
+        }
+
+        F_req_throttled[0] = lateralScalingFactor * F_x_reqLocal; // x
+        F_req_throttled[1] =  lateralScalingFactor * F_y_reqLocal; // y
+    }
+
+    // Corresponds to the power limiting Notion file
+    void ChassisController::calculateTReqM()
+    {
+        float vec[3] = {F_req_throttled[0], (F_req_throttled[1], 2 * T_z_reqLocal) / (TRACKWIDTH * ROOT_2)};
+        float *matrix[4];
+        float row1[3] = {1, 1, -1};
+        float row2[3] = {-1, 1, -1};
+        float row3[3] = {-1, -1, -1};
+        float row4[3] = {1, -1, -1};
+        matrix[0] = row1;
+        matrix[1] = row2;
+        matrix[2] = row3;
+        matrix[3] = row4;
+        // Multiply them
+        multiplyMatrices(4, 3, matrix, vec, T_req_m);
+
+        // Scale it at the end
+        for (int i = 0; i < 4; ++i)
+        {
+            T_req_m[i] *= (R_WHEEL * ROOT_2) / (4 * (GEAR_RATIO));
+        }
+
+    }
+
+    // Calculates scalding factor based on the equations in the notion
+    void ChassisController::calculatePowerLimiting()
+    {
+
+        // Get all the summations out of the way first
+        float aSum = 0, bSumFirst = 0, bSumSecond = 0, cSumFirst = 0, cSumSecond = 0;
+        for (int i = 0; i < 4; ++i)
+        {
+            aSum += T_req_m[i] * T_req_m[i];
+            bSumFirst += motor_V_I[i].second * KT * T_req_m[i];
+            bSumSecond += T_req_m[i] * motor_V_I[i].first;
+            cSumFirst += motor_V_I[i].second * motor_V_I[i].second;
+            cSumSecond += motor_V_I[i].second * KT * motor_V_I[i].first;
+        }
+        
+        // Then get a, b, c to calculate the scalding factor with
+        float a = (RA / (KT * KT)) * aSum;
+        float b = (2 * RA) / (KT * KT) * bSumFirst + (1 / KT) * bSumSecond;
+        float c =  (RA / (KT * KT)) * cSumFirst + (1 / KT) * cSumSecond - P_MAX;
+
+        scaldingFactor = (-b + sqrt(b * b - 4 * a * c)) / (2 * a);
+
+        //constrain to 0 and 1
+        scaldingFactor = std::max(std::min(scaldingFactor, 1.0f), 0.0f);
+
+        // And finally get T_req_m_throttled based on the new scalding factor
+        for (int i = 0; i < 4; ++i)
+        {
+            T_req_m_throttled[i] = scaldingFactor * T_req_m[i];
+        }
+    }
+
+    void ChassisController::calculateMotorSummations()
+    {
+        for (int i = 0; i < 4; ++i)
+        {
+            motorCurrent[i] = KT / T_req_m_throttled[i] + motor_V_I[i].second;
+        }
+    }
+
     float ChassisController::calculate()
     {
+        estimateInverseKinematics();
+
+        estimateState(nullptr);
+
+        calculateBeybladeVelocity(0.0f, 0.0f); // this should have a class variable linked to the return so traction limiting can use it
+
+        calculateFeedForward();
         // First, estimate the input errors
         estimateInputError();
 
         // Then, calculate the required forces
         calculateRequiredForces();
+
+        calculateTractionLimiting();
+
+        calculateTReqM();
+
+        calculatePowerLimiting();
+
+        calculateMotorSummations();
 
         // Return the calculated force (or any other desired output)
         return 0; // Placeholder, return the required output as needed
