@@ -6,61 +6,48 @@ namespace subsystems
 DrivetrainSubsystem::DrivetrainSubsystem(tap::Drivers* drivers, tap::motor::DjiMotor* motorOne, tap::motor::DjiMotor* motorTwo, tap::motor::DjiMotor* motorThree, tap::motor::DjiMotor* motorFour)
     : tap::control::Subsystem(drivers),
       drivers(drivers),
-      motorOne(motorOne),
-      motorTwo(motorOne),
-      motorThree(motorThree),
-      motorFour(motorFour)
-      
+      motorArray{motorOne, motorTwo, motorThree, motorFour}
 {
 }
 
 void DrivetrainSubsystem::initialize()
 {
-    motorOne->initialize();
-    motorTwo->initialize();
-    motorThree->initialize();
-    motorFour->initialize();
+    for(tap::motor::DjiMotor* m : motorArray) m->initialize();
 }
 
 //guaranteed to be called
 void DrivetrainSubsystem::refresh()
 {
+    imuAngle = drivers->bmi088.getYaw() * PI/180;
 
     if (drivers->refSerial.getRefSerialReceivingData())  // check for uart disconnected
         powerLimit = drivers->refSerial.getRobotData().chassis.powerConsumptionLimit;
 
-    // shaft rpms measured from encoders
-    motorOneRPM = motorOne->getShaftRPM();
-    motorTwoRPM = motorTwo->getShaftRPM();
-    motorThreeRPM = motorThree->getShaftRPM();
-    motorFourRPM = motorFour->getShaftRPM();
-    motorOne->setDesiredOutput(static_cast<int32_t>(I1t * 819.2f));
-    motorTwo->setDesiredOutput(static_cast<int32_t>(I2t * 819.2f));
-    motorThree->setDesiredOutput(static_cast<int32_t>(I3t * 819.2f));
-    motorFour->setDesiredOutput(static_cast<int32_t>(I4t * 819.2f));
+    for(int i = 0; i < 4; i ++){
+        float adjustedCurrent = std::clamp(motorCurrent[i], -20.0f, 20.0f) * 819.2f;
+        motorArray[i]->setDesiredOutput(static_cast<int32_t>(adjustedCurrent));
+
+        motorVel[i] = motorArray[i]->getShaftRPM() * PI / 30.0f; //in rad/s
+    }
 
 }
-static float motorOneSpeed, motorTwoSpeed, motorThreeSpeed, motorFourSpeed = 0;
 
-void DrivetrainSubsystem::setTargetTranslationVector(float translationSpeed, float translationAngle)
-{
-    //hey controller heres speed and angle
-    //it will do things with the individual motors
+void DrivetrainSubsystem::setTargetTranslation(float x, float y, float rot)
+{       
+    lastDrive = {x, y, rot};
+
+    lastDrive = lastDrive.rotate(imuAngle).scalarMultiply(10);
+
+    controller.calculate(lastDrive, imuAngle, motorVel, motorCurrent);
+    
+    // motorCurrent[0] = 10.0f;
 }
 
-// void DrivetrainSubsystem::setCurrentForMotor(int motorNum, float current){
-//     //maybe store the four currents in an array
-//     //motornum would probably be 1 based, make the array size 5 and not use index 0
-//     //currents[motorNum]=current
-// }
 
 //fix function
 void DrivetrainSubsystem::stopMotors()
 {
-    motorOne->setDesiredOutput(0);
-    motorTwo->setDesiredOutput(0);
-    motorThree->setDesiredOutput(0);
-    motorFour->setDesiredOutput(0);
+    for(int i = 0; i < 4; i++) motorCurrent[i] = 0;
 }
 
 

@@ -10,6 +10,8 @@
 #include "subsystems/indexer/IndexerNBallsCommand.hpp"
 #include "subsystems/indexer/IndexerUnjamCommand.hpp"
 
+#include "subsystems/drivetrain/JoystickDriveCommand.hpp"
+
 #include "drivers.hpp"
 
 
@@ -27,15 +29,18 @@ public:
         gimbal.initialize();
         flywheel.initialize();
         indexer.initialize();
+        drivetrain.initialize();
 
         // Register subsystems;
         drivers->commandScheduler.registerSubsystem(&gimbal);
         drivers->commandScheduler.registerSubsystem(&flywheel);
         drivers->commandScheduler.registerSubsystem(&indexer);
+        drivers->commandScheduler.registerSubsystem(&drivetrain);
 
         // Run startup commands
         gimbal.setDefaultCommand(&look);
         flywheel.setDefaultCommand(&shooterStop);
+        drivetrain.setDefaultCommand(&driveCommand);
 
 
         drivers->commandMapper.addMap(&startShootMapping);
@@ -56,6 +61,8 @@ public:
 
     commands::IndexerNBallsCommand indexer10Hz{drivers, &indexer, -1, 10};
     commands::IndexerUnjamCommand indexerUnjam{drivers, &indexer};
+
+   commands::JoystickDriveCommand driveCommand{drivers, &drivetrain};
 
     //mappings
     ToggleCommandMapping controllerToKeyboardMouseMapping {

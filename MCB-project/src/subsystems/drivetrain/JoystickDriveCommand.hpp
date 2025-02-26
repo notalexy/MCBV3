@@ -36,7 +36,6 @@ private:
     src::Drivers* drivers;
     DrivetrainSubsystem* drivetrain;
 
-    float translationAngle, translationSpeed;
     float x, y, r;
     
 };
