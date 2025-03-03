@@ -32,8 +32,8 @@ void OnProjectLoad (void) {
   //
   // User settings
   //
+  Edit.SysVar (VAR_HSS_SPEED, FREQ_100_HZ);
   File.Open ("C:/Users/stedmaja/OneDrive - Rose-Hulman Institute of Technology/rhit/TeachingFreshies/MCB-project/build/hardware/scons-release/MCB-project.elf");
-  Edit.SysVar (VAR_HSS_SPEED, FREQ_500_HZ);
 }
 
 /*********************************************************************

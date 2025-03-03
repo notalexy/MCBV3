@@ -33,10 +33,10 @@ public:
 
     DjiMotor indexMotor{drivers, MotorId::MOTOR7, CanBus::CAN_BUS2, false, "Indexer2", 0, 0};
 
-    DjiMotor driveMotor1{drivers, MotorId::MOTOR2, CanBus::CAN_BUS1, true, "Motor 1", 0, 0};
-    DjiMotor driveMotor2{drivers, MotorId::MOTOR4, CanBus::CAN_BUS1, true, "Motor 2", 0, 0};
-    DjiMotor driveMotor3{drivers, MotorId::MOTOR3, CanBus::CAN_BUS1, true, "Motor 3", 0, 0};
-    DjiMotor driveMotor4{drivers, MotorId::MOTOR1, CanBus::CAN_BUS1, true, "Motor 4", 0, 0};
+    DjiMotor driveMotor1{drivers, MotorId::MOTOR1, CanBus::CAN_BUS1, true, "Motor 1", 0, 0};
+    DjiMotor driveMotor2{drivers, MotorId::MOTOR3, CanBus::CAN_BUS1, true, "Motor 2", 0, 0};
+    DjiMotor driveMotor3{drivers, MotorId::MOTOR4, CanBus::CAN_BUS1, true, "Motor 3", 0, 0};
+    DjiMotor driveMotor4{drivers, MotorId::MOTOR2, CanBus::CAN_BUS1, true, "Motor 4", 0, 0};
 
 
     //subsystems

@@ -25,7 +25,7 @@ AccessModifierOffset: -4
 ColumnLimit: 200
 
 # Always break before braces.
-BreakBeforeBraces: Allman
+BreakBeforeBraces: Attach
 
 # If false, the function's arguments will be on different lines if they don't
 # fit on one line.

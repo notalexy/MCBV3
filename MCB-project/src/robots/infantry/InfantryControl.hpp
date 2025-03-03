@@ -26,27 +26,26 @@ public:
     void initialize() override {
 
         // Initialize subsystems
-        gimbal.initialize();
-        flywheel.initialize();
-        indexer.initialize();
+        // gimbal.initialize();
+        // flywheel.initialize();
+        // indexer.initialize();
         drivetrain.initialize();
 
         // Register subsystems;
-        drivers->commandScheduler.registerSubsystem(&gimbal);
-        drivers->commandScheduler.registerSubsystem(&flywheel);
-        drivers->commandScheduler.registerSubsystem(&indexer);
+        // drivers->commandScheduler.registerSubsystem(&gimbal);
+        // drivers->commandScheduler.registerSubsystem(&flywheel);
+        // drivers->commandScheduler.registerSubsystem(&indexer);
         drivers->commandScheduler.registerSubsystem(&drivetrain);
 
         // Run startup commands
-        gimbal.setDefaultCommand(&look);
-        flywheel.setDefaultCommand(&shooterStop);
+        // gimbal.setDefaultCommand(&look);
+        // flywheel.setDefaultCommand(&shooterStop);
         drivetrain.setDefaultCommand(&driveCommand);
 
-
-        drivers->commandMapper.addMap(&startShootMapping);
-        drivers->commandMapper.addMap(&idleShootMapping);
-        drivers->commandMapper.addMap(&stopShootMapping);
-        drivers->commandMapper.addMap(&controllerToKeyboardMouseMapping);
+        // drivers->commandMapper.addMap(&startShootMapping);
+        // drivers->commandMapper.addMap(&idleShootMapping);
+        // drivers->commandMapper.addMap(&stopShootMapping);
+        // drivers->commandMapper.addMap(&controllerToKeyboardMouseMapping);
 
     }
     // Subsystems

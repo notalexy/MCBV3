@@ -17,8 +17,9 @@ void DrivetrainSubsystem::initialize()
 
 //guaranteed to be called
 void DrivetrainSubsystem::refresh()
-{
-    imuAngle = drivers->bmi088.getYaw() * PI/180;
+{   
+    //need to actually fix this yay
+    imuAngle = (drivers->bmi088.getYaw()-180) * PI/180;
 
     if (drivers->refSerial.getRefSerialReceivingData())  // check for uart disconnected
         powerLimit = drivers->refSerial.getRobotData().chassis.powerConsumptionLimit;
@@ -34,12 +35,11 @@ void DrivetrainSubsystem::refresh()
 
 void DrivetrainSubsystem::setTargetTranslation(float x, float y, float rot)
 {       
-    lastDrive = {x, y, rot};
-
-    lastDrive = lastDrive.rotate(imuAngle).scalarMultiply(10);
+    lastDrive = Pose2d(x, y, rot);
 
     controller.calculate(lastDrive, imuAngle, motorVel, motorCurrent);
     
+    // motorCurrent[0] = 1.0f;
     // motorCurrent[0] = 10.0f;
 }
 
