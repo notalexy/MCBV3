@@ -1,9 +1,9 @@
-#include "IndexerSubsystem2Motor.hpp"
+#include "DoubleIndexerSubsystem.hpp"
 
 namespace subsystems
 {
 
-IndexerWithSecondMotorSubsystem::IndexerWithSecondMotorSubsystem(tap::Drivers* drivers, tap::motor::DjiMotor* index1, tap::motor::DjiMotor* index2)
+DoubleIndexerSubsystem::DoubleIndexerSubsystem(tap::Drivers* drivers, tap::motor::DjiMotor* index1, tap::motor::DjiMotor* index2)
     : IndexerSubsystem(drivers, index1), // Call base class constructor
     motorIndexer2(index2)
 {
@@ -11,31 +11,31 @@ IndexerWithSecondMotorSubsystem::IndexerWithSecondMotorSubsystem(tap::Drivers* d
     // Any additional initialization for the second motor, if necessary
 }
 
-void IndexerWithSecondMotorSubsystem::initialize() {
+void DoubleIndexerSubsystem::initialize() {
     IndexerSubsystem::initialize();
     // Initialize both motors
     motorIndexer2->initialize();     // Initialize the second motor
 }
 
-void IndexerWithSecondMotorSubsystem::refresh() {
+void DoubleIndexerSubsystem::refresh() {
     IndexerSubsystem::refresh();
     // Set the desired output for both motors
     motorIndexer2->setDesiredOutput(indexerVoltage2);   // Second motor (same voltage)
 }
 
-void IndexerWithSecondMotorSubsystem::stopIndex() {
+void DoubleIndexerSubsystem::stopIndex() {
     // Stop both motors
     IndexerSubsystem::stopIndex();
     indexerVoltage2 = 0;
 }
 
-void IndexerWithSecondMotorSubsystem::indexAtRate(float ballsPerSecond){
+void DoubleIndexerSubsystem::indexAtRate(float ballsPerSecond){
     this->ballsPerSecond = ballsPerSecond;
     //divided by 2 by using 30.0f instead of 60.0f
     IndexerSubsystem::setTargetMotorRPM(ballsPerSecond * 30.0f * REV_PER_BALL);
     setTargetMotorRPM(ballsPerSecond * 30.0f * REV_PER_BALL);
 }
-void IndexerWithSecondMotorSubsystem::setTargetMotorRPM(int targetMotorRPM){
+void DoubleIndexerSubsystem::setTargetMotorRPM(int targetMotorRPM){
 
     indexPIDController2.runControllerDerivateError(targetMotorRPM - motorIndexer2->getShaftRPM(), 1);
 

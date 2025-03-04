@@ -35,8 +35,12 @@ using RobotControl = robots::HeroControl;
 #include "robots/sentry/SentryControl.hpp"
 using RobotControl = robots::SentryControl;
 
-#else //for standard
+#elif defined(INFANTRY)
 #include "robots/infantry/InfantryControl.hpp"
+using RobotControl = robots::InfantryControl;
+
+#else //for standard
+#include "robots/oldinfantry/InfantryControl.hpp"
 using RobotControl = robots::InfantryControl;
 
 #endif

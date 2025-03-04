@@ -25,17 +25,6 @@ private:
     float pastTargetVelocity = 0;
     float pastOutput = 0;
 
-    //function vars
-    float positionError;
-    float choiceKDT;
-    float targetVelocity;
-    float aMaxTemp;
-    float maxVelocity;
-    float minVelocity;
-    float velocityError;
-    float targetRelativeVelocity;
-    float targetAcceleration;
-    float targetCurrent;
 public:
     // Physical constants
     const float C = 0.005;                           // kg-s/m^2

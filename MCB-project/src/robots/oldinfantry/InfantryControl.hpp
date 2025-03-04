@@ -1,5 +1,5 @@
 #include "robots/RobotControl.hpp"
-#include "robots/sentry/SentryHardware.hpp"
+#include "robots/oldinfantry/InfantryHardware.hpp"
 
 #include "subsystems/gimbal/JoystickMoveCommand.hpp"
 #include "subsystems/gimbal/MouseMoveCommand.hpp"
@@ -10,46 +10,48 @@
 #include "subsystems/indexer/IndexerNBallsCommand.hpp"
 #include "subsystems/indexer/IndexerUnjamCommand.hpp"
 
+#include "subsystems/drivetrain/JoystickDriveCommand.hpp"
+
 #include "drivers.hpp"
 
 
 namespace robots
 {
-class SentryControl : public ControlInterface, public SentryHardware
+class InfantryControl : public ControlInterface, public InfantryHardware
 {
 public:
     //pass drivers back to root robotcontrol to store
-    SentryControl(src::Drivers* drivers) : SentryHardware(drivers) {}
+    InfantryControl(src::Drivers* drivers) : InfantryHardware(drivers) {}
     //functions we are using
     void initialize() override {
 
         // Initialize subsystems
-        gimbal.initialize();
-        flywheel.initialize();
-        indexer.initialize();
+        // gimbal.initialize();
+        // flywheel.initialize();
+        // indexer.initialize();
         drivetrain.initialize();
 
         // Register subsystems;
-        drivers->commandScheduler.registerSubsystem(&gimbal);
-        drivers->commandScheduler.registerSubsystem(&flywheel);
-        drivers->commandScheduler.registerSubsystem(&indexer);
+        // drivers->commandScheduler.registerSubsystem(&gimbal);
+        // drivers->commandScheduler.registerSubsystem(&flywheel);
+        // drivers->commandScheduler.registerSubsystem(&indexer);
         drivers->commandScheduler.registerSubsystem(&drivetrain);
 
         // Run startup commands
-        gimbal.setDefaultCommand(&look);
-        flywheel.setDefaultCommand(&shooterStop);
+        // gimbal.setDefaultCommand(&look);
+        // flywheel.setDefaultCommand(&shooterStop);
+        drivetrain.setDefaultCommand(&driveCommand);
 
-
-        drivers->commandMapper.addMap(&startShootMapping);
-        drivers->commandMapper.addMap(&idleShootMapping);
-        drivers->commandMapper.addMap(&stopShootMapping);
-        drivers->commandMapper.addMap(&controllerToKeyboardMouseMapping);
+        // drivers->commandMapper.addMap(&startShootMapping);
+        // drivers->commandMapper.addMap(&idleShootMapping);
+        // drivers->commandMapper.addMap(&stopShootMapping);
+        // drivers->commandMapper.addMap(&controllerToKeyboardMouseMapping);
 
     }
     // Subsystems
 
 
-    //commands
+    // //commands
     commands::JoystickMoveCommand look{drivers, &gimbal};
     commands::MouseMoveCommand look2{drivers, &gimbal};
 
@@ -58,6 +60,8 @@ public:
 
     commands::IndexerNBallsCommand indexer10Hz{drivers, &indexer, -1, 10};
     commands::IndexerUnjamCommand indexerUnjam{drivers, &indexer};
+
+   commands::JoystickDriveCommand driveCommand{drivers, &drivetrain};
 
     //mappings
     ToggleCommandMapping controllerToKeyboardMouseMapping {

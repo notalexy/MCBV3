@@ -4,16 +4,16 @@
 namespace subsystems
 {
 
-class IndexerWithSecondMotorSubsystem : public IndexerSubsystem
+class DoubleIndexerSubsystem : public IndexerSubsystem
 {
 
 public:
     // Additional Motor Constants (if necessary)
     tap::motor::DjiMotor* motorIndexer2;
 
-    IndexerWithSecondMotorSubsystem(tap::Drivers* drivers, tap::motor::DjiMotor* index1, tap::motor::DjiMotor* index2);
+    DoubleIndexerSubsystem(tap::Drivers* drivers, tap::motor::DjiMotor* index1, tap::motor::DjiMotor* index2);
 
-    ~IndexerWithSecondMotorSubsystem() {}
+    ~DoubleIndexerSubsystem() {}
 
     void initialize() override;
     void refresh() override;
