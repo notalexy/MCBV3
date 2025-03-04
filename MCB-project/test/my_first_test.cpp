@@ -24,9 +24,9 @@ using namespace subsystems;
 
 ChassisController controller{};
 
-TEST(hello, world) { 
+TEST(drivetrain, poseeq) { 
     Pose2d pose1{0, 1, 2};
-    Pose2d pose2{0, 1, 2};
+    Pose2d pose2{0, 1, 3};
 
     EXPECT_EQ(pose1, pose2); 
 }
