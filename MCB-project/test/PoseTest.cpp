@@ -98,9 +98,10 @@ TEST_F(Pose2dTest, RotateFunction) {
     EXPECT_EQ(rotated, Pose2d(-4.0f, 3.0f, 1.57f));
 }
 
-// Test addRotation function
-TEST_F(Pose2dTest, AddRotationFunction) {
-    Pose2d result = p1.addRotation(0.5f);
+// Test adding rotation function
+TEST_F(Pose2dTest, AddJustRotationFunction) {
+    Pose2d result = p1;
+    result.orientation() += 0.5f;
     EXPECT_EQ(result, Pose2d(3.0f, 4.0f, 2.07f));
 }
 

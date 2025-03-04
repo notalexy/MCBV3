@@ -2,10 +2,11 @@
 #include <cmath>
 #include <iostream>
 #include <string>
+
 #include "util/Pose2d.hpp"
 
 namespace subsystems {
-
+// REMEMBER THAT YOU USE NEGATIVE FOR INERTIAL TO LOCAL AND POSITIVE FOR LOCAL TO INERTIAL
 class ChassisController {
 private:
     // START getters and setters
@@ -19,8 +20,8 @@ private:
     const float UK_MOTOR = 0.004;          // motor dry friction N-m
     const float COF_WHEEL = 0.9;           // unitless COF
 
-    const float M_EFFECTIVE = 10;//M + 4 * J_WHEEL / (R_WHEEL * R_WHEEL);
-    const float J_EFFECTIVE = 11;// J + 4 * J_WHEEL * TRACKWIDTH / (2 * R_WHEEL);
+    const float M_EFFECTIVE = 10;  // M + 4 * J_WHEEL / (R_WHEEL * R_WHEEL);
+    const float J_EFFECTIVE = 11;   // J + 4 * J_WHEEL * TRACKWIDTH / (2 * R_WHEEL);
     const float F_MAX = M * 9.81f * COF_WHEEL;    // maximum force allowed across all 4 wheels
     const float F_MIN_T = 10 / (2 * TRACKWIDTH);  // minimum force per wheel in the torque direction that the traction limiter is allowed to throttle to
 
@@ -58,7 +59,6 @@ private:
     // queues
     const int Q_SIZE = (LATENCY / DT);
 
-
     // matrices (big but these only get run once so yay)
     const float ikr1[3] = {GEAR_RATIO / (R_WHEEL * ROOT_2), GEAR_RATIO / (R_WHEEL * ROOT_2), -(TRACKWIDTH *GEAR_RATIO) / (R_WHEEL * 2)};
     const float ikr2[3] = {-GEAR_RATIO / (R_WHEEL * ROOT_2), GEAR_RATIO / (R_WHEEL * ROOT_2), -(TRACKWIDTH *GEAR_RATIO) / (R_WHEEL * 2)};
@@ -90,7 +90,7 @@ private:
     float dotThetaBeyblade = 0;  // Target beyblade velocity when chassis is not translating
     float dotThetaGain = 0;      // Amount to subtract from dot_theta_beyblade per meter/s of chassis speed
 
-    void multiplyMatrices(int rows1, int cols1, const float **mat1, float *mat2, float *result) {
+    float *multiplyMatrices(int rows1, int cols1, const float **mat1, float *mat2, float *result) {
         // Iterate over rows of mat1 and columns of mat2
         for (int i = 0; i < rows1; i++) {
             result[i] = 0.0f;  // Initialize to zero before accumulating
@@ -98,6 +98,7 @@ private:
                 result[i] += mat1[i][j] * mat2[j];
             }
         }
+        return result;
     }
 
     float signum(float num) { return (num > 0) ? 1 : ((num < 0) ? -1 : 0); }
@@ -121,7 +122,7 @@ public:
 
     void calculateFeedForward(float estimatedMotorVelocity[4], float V_m_FF[4], float I_m_FF[4]);
 
-    void velocityControl(Pose2d inputLocalVel, Vector2d estInertialVel, Pose2d estLocalVel, Vector2d lastInertialForce, Pose2d* reqLocalForce);
+    void velocityControl(Pose2d inputLocalVel, Vector2d estInertialVel, Pose2d estLocalVel, Vector2d lastInertialForce, Pose2d *reqLocalForce);
 
     void calculateTractionLimiting(Pose2d localForce, Pose2d *limitedForce);
 
