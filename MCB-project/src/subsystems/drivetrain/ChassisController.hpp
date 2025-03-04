@@ -2,54 +2,9 @@
 #include <cmath>
 #include <iostream>
 #include <string>
+#include "util/Pose2d.hpp"
 
 namespace subsystems {
-class Pose2d {
-private:
-    float x, y, rotation;
-
-public:
-    Pose2d(float x, float y, float r) : x(x), y(y), rotation(r) {}
-
-    ~Pose2d() {}
-
-    Pose2d() : Pose2d(0.0f, 0.0f, 0.0f) {}
-
-    Pose2d(float vec[3]) : Pose2d(vec[0], vec[1], vec[2]) {}
-
-    float getX() { return x; }
-
-    float getY() { return y; }
-
-    float getRotation() { return rotation; }
-
-    float vectorAngle() {
-        // return 0.0f;
-        if (x == 0 && y == 0) return 0;
-        return std::atan2(y, x);
-    }
-
-    Pose2d rotate(float amt) { return Pose2d(magnitude() * std::cos(amt + vectorAngle()), magnitude() * std::sin(amt + vectorAngle()), rotation); }
-
-    float magnitude() { return std::hypot(x, y); }
-
-    Pose2d addXY(Pose2d other) { return Pose2d(x + other.x, y + other.y, rotation); }
-
-    Pose2d subXY(Pose2d other) { return Pose2d(x - other.x, y - other.y, rotation); }
-
-    Pose2d addRotation(float rot) { return Pose2d(x, y, rotation + rot); }
-
-    Pose2d scalarMultiply(float mag) { return Pose2d(x * mag, y * mag, rotation); }
-
-    Pose2d elementMultiply(float mag) { return Pose2d(x * mag, y * mag, rotation * mag); }
-
-    Pose2d copy() { return Pose2d(x, y, rotation); }
-
-    bool operator==(const Pose2d &other) const {
-        constexpr float EPSILON = 1e-6;
-        return std::fabs(x - other.x) < EPSILON && std::fabs(y - other.y) < EPSILON && std::fabs(rotation - other.rotation) < EPSILON;
-    }
-};
 
 class ChassisController {
 private:
@@ -64,8 +19,8 @@ private:
     const float UK_MOTOR = 0.004;          // motor dry friction N-m
     const float COF_WHEEL = 0.9;           // unitless COF
 
-    const float M_EFFECTIVE = M + 4 * J_WHEEL / (R_WHEEL * R_WHEEL);
-    const float J_EFFECTIVE = J + 4 * J_WHEEL * TRACKWIDTH / (2 * R_WHEEL);
+    const float M_EFFECTIVE = 10;//M + 4 * J_WHEEL / (R_WHEEL * R_WHEEL);
+    const float J_EFFECTIVE = 11;// J + 4 * J_WHEEL * TRACKWIDTH / (2 * R_WHEEL);
     const float F_MAX = M * 9.81f * COF_WHEEL;    // maximum force allowed across all 4 wheels
     const float F_MIN_T = 10 / (2 * TRACKWIDTH);  // minimum force per wheel in the torque direction that the traction limiter is allowed to throttle to
 
@@ -102,8 +57,7 @@ private:
 
     // queues
     const int Q_SIZE = (LATENCY / DT);
-    float *targetVelocityHistory;  // For storing target velocity magnitudes
-    Pose2d *forceHistory;          // history of past chassis forces
+
 
     // matrices (big but these only get run once so yay)
     const float ikr1[3] = {GEAR_RATIO / (R_WHEEL * ROOT_2), GEAR_RATIO / (R_WHEEL * ROOT_2), -(TRACKWIDTH *GEAR_RATIO) / (R_WHEEL * 2)};
@@ -155,6 +109,8 @@ private:
     }
 
 public:
+    float *targetVelocityHistory;  // For storing target velocity magnitudes
+    Pose2d *forceHistory;          // history of past chassis forces
     ChassisController();
     //~YawController();
     void calculate(Pose2d targetVelLocal, float angle, float motorVelocity[4], float motorCurrent[4]);
@@ -165,7 +121,7 @@ public:
 
     void calculateFeedForward(float estimatedMotorVelocity[4], float V_m_FF[4], float I_m_FF[4]);
 
-    void velocityControl(Pose2d inputLocalVel, Pose2d estInertialVel, Pose2d estLocalVel, Pose2d lastInertialForce, Pose2d *reqLocalForce);
+    void velocityControl(Pose2d inputLocalVel, Vector2d estInertialVel, Pose2d estLocalVel, Vector2d lastInertialForce, Pose2d* reqLocalForce);
 
     void calculateTractionLimiting(Pose2d localForce, Pose2d *limitedForce);
 

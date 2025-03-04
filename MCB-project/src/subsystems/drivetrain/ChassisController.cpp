@@ -25,10 +25,10 @@ ChassisController::ChassisController() {
     }
 }
 
-// Function to calculate chassis state using historical force/torque data and latency
+// Function to calculate chassis state using historical force/torque data and latency THIS HAS PASSED TESTS
 void ChassisController::estimateState(Pose2d inputForces, Pose2d* eLocalVel, Pose2d* eInertialVel, Pose2d* eInertialPos) {
     // // Store the current values in the history
-    for(int i = Q_SIZE; i > 0; i--) {
+    for(int i = Q_SIZE-1; i > 0; i--) {
         forceHistory[i] = forceHistory[i-1];
     }
 
@@ -38,19 +38,19 @@ void ChassisController::estimateState(Pose2d inputForces, Pose2d* eLocalVel, Pos
     // For each historical value of Fx, Fy, Tz, calculate the estimates
     for (int i = Q_SIZE-1; i >= 0; i--) {
         // Estimated angular velocity (theta_dot)
-        *eInertialVel = eInertialVel->addRotation(forceHistory[i].getRotation() * DT / J_EFFECTIVE);
-
+        eInertialVel->orientation() += forceHistory[i].getRotation() * (DT / J_EFFECTIVE);
+        
         // Update theta estimate (added DT because i think alex Y did it wrong)
-        *eInertialPos = eInertialPos->addRotation(eInertialVel->getRotation() * DT);
+        eInertialPos->orientation() += eInertialVel->getRotation() * DT;
 
         // Update velocity
-        *eInertialVel = eInertialVel->addXY(forceHistory[i].rotate(-eInertialPos->getRotation()).scalarMultiply(DT / M_EFFECTIVE));
+        eInertialVel->vec() += (forceHistory[i].rotate(eInertialPos->getRotation()) * (DT / M_EFFECTIVE));
 
         // update positions
-        *eInertialPos = eInertialPos->addXY(eInertialVel->scalarMultiply(DT));
+        *eInertialPos += *eInertialVel * DT;
     }
 
-    *eLocalVel = eInertialVel->rotate(eInertialPos->getRotation());
+    *eLocalVel = eInertialVel->rotate(-eInertialPos->getRotation());
 }
 
 float ChassisController::calculateBeybladeVelocity(float bb_freq, float bb_amp) {
@@ -80,19 +80,19 @@ float ChassisController::calculateBeybladeVelocity(float bb_freq, float bb_amp) 
     return dotThetaBeyblade;  // Return the required angular velocity (dot_theta_req)
 }
 
-Pose2d lastInertialVel{}, accumLocalForce{};
+Vector2d lastInertialVel{}, accumLocalForce{};
 // Function to estimate input errors in inertial frame
-void ChassisController::velocityControl(Pose2d inputLocalVel, Pose2d estInertialVel, Pose2d estLocalVel, Pose2d lastInertialForce, Pose2d* reqLocalForce) {
-    Pose2d estInertialForce = estInertialVel.subXY(lastInertialVel).scalarMultiply(M_EFFECTIVE / DT);
+void ChassisController::velocityControl(Pose2d inputLocalVel, Vector2d estInertialVel, Pose2d estLocalVel, Vector2d lastInertialForce, Pose2d* reqLocalForce) {
+    Vector2d estInertialForce = (estInertialVel - lastInertialVel) * (M_EFFECTIVE / DT);
 
     // Compute the error between the last and the estimated forces in the inertial frame
-    Pose2d errorInertialForce = lastInertialForce.subXY(estInertialForce);
+    Vector2d errorInertialForce = (lastInertialForce - estInertialForce);
 
     // Update integral error terms
-    accumLocalForce = accumLocalForce.addXY(errorInertialForce.subXY(accumLocalForce).scalarMultiply(KI_V * DT));
+    accumLocalForce += (errorInertialForce - accumLocalForce) * KI_V * DT;
 
-    // update the required local force
-    *reqLocalForce = inputLocalVel.subXY(estLocalVel).scalarMultiply(KP_V).addXY(accumLocalForce);
+    // update the required local force (for all 3 elements)
+    *reqLocalForce = (inputLocalVel - estLocalVel) * Pose2d(KP_V, KP_V, KP_V_ROT) + accumLocalForce;
 
     // Store current forces for the next iteration
     lastInertialVel = estInertialVel;
@@ -148,7 +148,8 @@ void ChassisController::calculateTractionLimiting(Pose2d localForce, Pose2d* lim
     // since 1/0 is inf, 1/0.00000000000001 is inf basically, do nothing
     if (largest == 0) return;
 
-    *limitedForce = localForce.scalarMultiply(std::max(std::min((F_MAX / 4 - T_req_throttled / (2 * TRACKWIDTH)) * 1 / largest, 0.0f), 1.0f));
+    *limitedForce = localForce;
+    limitedForce->vec() *= (std::max(std::min((F_MAX / 4 - T_req_throttled / (2 * TRACKWIDTH)) * 1 / largest, 0.0f), 1.0f));
 }
 
 // Calculates scaling factor based on the equations in the notion
@@ -182,8 +183,6 @@ void ChassisController::calculatePowerLimiting(float V_m_FF[4], float I_m_FF[4],
 
 Pose2d currentInertialPosition{}, currentLocalVelocity{}, localForce{}, lastInertialForce{};
 
-//std::vector<float> V_m_FF{4, 0.0f}, I_m_FF{4, 0.0f}, estimatedMotorVelocity{4, 0.0f}, motorTorque{4, 0.0f};  // motor feedforwards
-
 float V_m_FF[4], I_m_FF[4], estimatedMotorVelocity[4], motorTorque[4];  // motor feedforwards
 
 void ChassisController::calculate(Pose2d targetVelLocal, float angle, float motorVelocity[4], float motorCurrent[4]) {
@@ -192,11 +191,11 @@ void ChassisController::calculate(Pose2d targetVelLocal, float angle, float moto
     float vec[3];
     multiplyMatrices(3, 4, forwardKinematics, motorVelocity, vec);
 
-    Pose2d estimatedLocalVelocity{vec[0], vec[1], vec[2]};
+    Pose2d estimatedLocalVelocity(vec);
 
     test2 = estimatedLocalVelocity.getY();
 
-    Pose2d estimatedInertialPosition{0.0f, 0.0f, angle};
+    Pose2d estimatedInertialPosition(0.0f, 0.0f, angle);
 
     Pose2d estimatedInertialVelocity = estimatedLocalVelocity.rotate(-angle);
     
@@ -204,12 +203,10 @@ void ChassisController::calculate(Pose2d targetVelLocal, float angle, float moto
 
    // test2 = motorVelocity[0];
 
-    float localVelArr[] = {estimatedLocalVelocity.getX(), estimatedLocalVelocity.getY(), estimatedLocalVelocity.getRotation()};
-
     test3 = estimatedInertialVelocity.getY();
 
     // inverse kinematics
-    multiplyMatrices(4, 3, inverseKinematics, localVelArr, estimatedMotorVelocity);
+    multiplyMatrices(4, 3, inverseKinematics, estimatedLocalVelocity, estimatedMotorVelocity);
 
     test4 = estimatedMotorVelocity[0];
 
@@ -232,11 +229,8 @@ void ChassisController::calculate(Pose2d targetVelLocal, float angle, float moto
     //calculateTractionLimiting(localForce, &localForce);
 
     //test6 = tractionLimitedForce.getX();
-    // std::vector<float> vec3(3, 0.0f);
 
-    float localForceMotorArr[] = {localForce.getX()*R_WHEEL/GEAR_RATIO, localForce.getY()*R_WHEEL/GEAR_RATIO, localForce.getRotation()*R_WHEEL/GEAR_RATIO};
-
-    multiplyMatrices(4, 3, forceInverseKinematics, localForceMotorArr, motorTorque);
+    multiplyMatrices(4, 3, forceInverseKinematics, localForce * (R_WHEEL/GEAR_RATIO), motorTorque);
 
     //calculatePowerLimiting(V_m_FF, I_m_FF, motorTorque, motorTorque);
 
@@ -248,7 +242,7 @@ void ChassisController::calculate(Pose2d targetVelLocal, float angle, float moto
 
     test8 = localForceChassisArr[0];
 
-    localForce = Pose2d{localForceChassisArr[0], localForceChassisArr[1], localForceChassisArr[2]};
+    localForce = Pose2d(localForceChassisArr);
     
     test9 = localForce.getX();
     // set motor currents
