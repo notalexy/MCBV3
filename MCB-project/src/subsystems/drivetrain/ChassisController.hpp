@@ -3,11 +3,6 @@
 #include <iostream>
 #include <string>
 
-#include "tap/algorithms/smooth_pid.hpp"
-#include "tap/architecture/periodic_timer.hpp"
-#include "tap/board/board.hpp"
-#include "tap/motor/dji_motor.hpp"
-
 namespace subsystems
 {
 class Pose2d
@@ -104,9 +99,10 @@ private:
     const float LATENCY = 0.008;  // latency s
     const float DT = 0.002;       // DT in s
 
+    // queues 
     const uint16_t Q_SIZE = static_cast<uint16_t>(LATENCY/DT);
-
     float *targetVelocityHistory;  // For storing target velocity magnitudes
+    Pose2d *forceHistory;  // history of past chassis forces
 
     // matrices (big but these only get run once so yay)
     const float ikr1[3] = {GEAR_RATIO / (R_WHEEL * ROOT_2), GEAR_RATIO / (R_WHEEL * ROOT_2), -(TRACKWIDTH *GEAR_RATIO) / (R_WHEEL * 2)};
@@ -135,25 +131,12 @@ private:
 
     const float *forceKinematics[3] = {ffr1, ffr2, ffr3};
 
-    Pose2d *forceHistory;  // history of past chassis forces
     // Beyblade settings
     float dotThetaBeyblade = 0;  // Target beyblade velocity when chassis is not translating
     float dotThetaGain = 0;      // Amount to subtract from dot_theta_beyblade per meter/s of chassis speed
 
-    // void multiplyMatrices(int rows1, int cols1, const float **mat1, std::vector<float> mat2, std::vector<float> &result)
-    // {
-    //     // Iterate over rows of mat1 and columns of mat2
-    //     for (int i = 0; i < rows1; i++)
-    //     {
-    //         result[i] = 0;  // Initialize to zero before accumulating
-    //         for (int j = 0; j < cols1; j++)
-    //         {
-    //             result[i] += mat1[i][j] * mat2[j];
-    //         }
-    //     }
-    // }
 
-    void multiplyMatrices2(int rows1, int cols1, const float **mat1, float *mat2, float *result)
+    void multiplyMatrices(int rows1, int cols1, const float **mat1, float *mat2, float *result)
     {
         // Iterate over rows of mat1 and columns of mat2
         for (int i = 0; i < rows1; i++)
@@ -182,7 +165,7 @@ private:
     float sawtooth(float freq, float amplitude)
     {
         // A simple sawtooth wave function for variable speed beyblade
-        return amplitude * (1 - fmod(freq * (std::fmod(std::clock(), 1.0f) * 2 * M_PI), 1.0f));
+        return amplitude;// * (1 - fmod(freq * (std::fmod(std::clock(), 1.0f) * 2 * 3.14159265f), 1.0f));
     }
 
 public:

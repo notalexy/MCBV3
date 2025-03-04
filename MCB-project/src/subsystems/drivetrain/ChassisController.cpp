@@ -4,11 +4,6 @@
 #include <iostream>
 #include <string>
 
-#include "tap/algorithms/smooth_pid.hpp"
-#include "tap/architecture/periodic_timer.hpp"
-#include "tap/board/board.hpp"
-#include "tap/motor/dji_motor.hpp"
-
 // TODO: Calculate function that takes in target x, y velocities as well as a target angle as inputs, outputs 4 motor current summations
 
 float test1;
@@ -120,7 +115,7 @@ void ChassisController::calculateTractionLimiting(Pose2d localForce, Pose2d* lim
 
     float forceVector[] = {localForce.getX(), localForce.getY(), localForce.getRotation()};
 
-    multiplyMatrices2(4, 3, forceInverseKinematics, forceVector, motorTorque);
+    multiplyMatrices(4, 3, forceInverseKinematics, forceVector, motorTorque);
 
     float largest = motorTorque[0];
 
@@ -131,23 +126,23 @@ void ChassisController::calculateTractionLimiting(Pose2d localForce, Pose2d* lim
         }
     }
 
-    float F_too_much = std::max(abs(largest) - F_MAX / 4, 0.0f);  // clamp between 0 and infinity
+    float F_too_much = std::max(std::abs(largest) - F_MAX / 4, 0.0f);  // clamp between 0 and infinity
 
     float T_req = localForce.getRotation();
 
-    float T_req_throttled = signum(T_req) * std::min(abs(T_req), 2 * TRACKWIDTH * std::max(T_req / (2 * TRACKWIDTH) - F_too_much, F_MIN_T));
+    float T_req_throttled = signum(T_req) * std::min(std::abs(T_req), 2 * TRACKWIDTH * std::max(T_req / (2 * TRACKWIDTH) - F_too_much, F_MIN_T));
 
     float F_lat[4];
 
     // 2 rows to not do torque
-    multiplyMatrices2(4, 2, forceInverseKinematics, forceVector, F_lat);
+    multiplyMatrices(4, 2, forceInverseKinematics, forceVector, F_lat);
 
-    largest = abs(F_lat[0]);
+    largest = std::abs(F_lat[0]);
 
     // Manipulate F_largest based on whether the beyblade torque command is positive or negative
     for (int i = 1; i < 4; i++) {  // if beybladeCommand > 0, find smallest, vice versa
-        if (abs(F_lat[i]) > largest) {
-            largest = abs(F_lat[i]);
+        if (std::abs(F_lat[i]) > largest) {
+            largest = std::abs(F_lat[i]);
         }
     }
     // since 1/0 is inf, 1/0.00000000000001 is inf basically, do nothing
@@ -195,7 +190,7 @@ void ChassisController::calculate(Pose2d targetVelLocal, float angle, float moto
 
 
     float vec[3];
-    multiplyMatrices2(3, 4, forwardKinematics, motorVelocity, vec);
+    multiplyMatrices(3, 4, forwardKinematics, motorVelocity, vec);
 
     Pose2d estimatedLocalVelocity{vec[0], vec[1], vec[2]};
 
@@ -214,7 +209,7 @@ void ChassisController::calculate(Pose2d targetVelLocal, float angle, float moto
     test3 = estimatedInertialVelocity.getY();
 
     // inverse kinematics
-    multiplyMatrices2(4, 3, inverseKinematics, localVelArr, estimatedMotorVelocity);
+    multiplyMatrices(4, 3, inverseKinematics, localVelArr, estimatedMotorVelocity);
 
     test4 = estimatedMotorVelocity[0];
 
@@ -241,7 +236,7 @@ void ChassisController::calculate(Pose2d targetVelLocal, float angle, float moto
 
     float localForceMotorArr[] = {localForce.getX()*R_WHEEL/GEAR_RATIO, localForce.getY()*R_WHEEL/GEAR_RATIO, localForce.getRotation()*R_WHEEL/GEAR_RATIO};
 
-    multiplyMatrices2(4, 3, forceInverseKinematics, localForceMotorArr, motorTorque);
+    multiplyMatrices(4, 3, forceInverseKinematics, localForceMotorArr, motorTorque);
 
     //calculatePowerLimiting(V_m_FF, I_m_FF, motorTorque, motorTorque);
 
@@ -249,7 +244,7 @@ void ChassisController::calculate(Pose2d targetVelLocal, float angle, float moto
 
     float localForceChassisArr[3];
 
-    multiplyMatrices2(3, 4, forceKinematics, motorTorque, localForceChassisArr);
+    multiplyMatrices(3, 4, forceKinematics, motorTorque, localForceChassisArr);
 
     test8 = localForceChassisArr[0];
 
