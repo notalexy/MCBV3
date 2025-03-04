@@ -3,14 +3,12 @@
 #include <iostream>
 #include <string>
 
-namespace subsystems
-{
-class Pose2d
-{
+namespace subsystems {
+class Pose2d {
 private:
     float x, y, rotation;
-public:
 
+public:
     Pose2d(float x, float y, float r) : x(x), y(y), rotation(r) {}
 
     ~Pose2d() {}
@@ -25,10 +23,10 @@ public:
 
     float getRotation() { return rotation; }
 
-    float vectorAngle() { 
+    float vectorAngle() {
         // return 0.0f;
-        if(x == 0 && y == 0) return 0;
-        return std::atan2(y, x); 
+        if (x == 0 && y == 0) return 0;
+        return std::atan2(y, x);
     }
 
     Pose2d rotate(float amt) { return Pose2d(magnitude() * std::cos(amt + vectorAngle()), magnitude() * std::sin(amt + vectorAngle()), rotation); }
@@ -47,10 +45,13 @@ public:
 
     Pose2d copy() { return Pose2d(x, y, rotation); }
 
+    bool operator==(const Pose2d &other) const {
+        constexpr float EPSILON = 1e-6;
+        return std::fabs(x - other.x) < EPSILON && std::fabs(y - other.y) < EPSILON && std::fabs(rotation - other.rotation) < EPSILON;
+    }
 };
 
-class ChassisController
-{
+class ChassisController {
 private:
     // START getters and setters
     const float TRACKWIDTH = 0.5017;       // in m. We need to measure
@@ -82,7 +83,7 @@ private:
 
     // Tunable Parameters
     const float KP_V = 1500;  // proportional gain for velocity
-    const float KI_V = 0;//50;    // integral gain for velocity
+    const float KI_V = 0;     // 50;    // integral gain for velocity
 
     const float IV_MAX = 120;  // maximum integral term for velocity control
 
@@ -99,10 +100,10 @@ private:
     const float LATENCY = 0.008;  // latency s
     const float DT = 0.002;       // DT in s
 
-    // queues 
-    const uint16_t Q_SIZE = static_cast<uint16_t>(LATENCY/DT);
+    // queues
+    const int Q_SIZE = (LATENCY / DT);
     float *targetVelocityHistory;  // For storing target velocity magnitudes
-    Pose2d *forceHistory;  // history of past chassis forces
+    Pose2d *forceHistory;          // history of past chassis forces
 
     // matrices (big but these only get run once so yay)
     const float ikr1[3] = {GEAR_RATIO / (R_WHEEL * ROOT_2), GEAR_RATIO / (R_WHEEL * ROOT_2), -(TRACKWIDTH *GEAR_RATIO) / (R_WHEEL * 2)};
@@ -135,37 +136,22 @@ private:
     float dotThetaBeyblade = 0;  // Target beyblade velocity when chassis is not translating
     float dotThetaGain = 0;      // Amount to subtract from dot_theta_beyblade per meter/s of chassis speed
 
-
-    void multiplyMatrices(int rows1, int cols1, const float **mat1, float *mat2, float *result)
-    {
+    void multiplyMatrices(int rows1, int cols1, const float **mat1, float *mat2, float *result) {
         // Iterate over rows of mat1 and columns of mat2
-        for (int i = 0; i < rows1; i++)
-        {
+        for (int i = 0; i < rows1; i++) {
             result[i] = 0.0f;  // Initialize to zero before accumulating
-            for (int j = 0; j < cols1; j++)
-            {
+            for (int j = 0; j < cols1; j++) {
                 result[i] += mat1[i][j] * mat2[j];
             }
         }
     }
 
-    void estimateState(Pose2d inputForces, Pose2d *eLocalVel, Pose2d *eInertialVel, Pose2d *eInertialPos);
-
-    void calculateFeedForward(float estimatedMotorVelocity[4], float V_m_FF[4], float I_m_FF[4]);
-
-    void velocityControl(Pose2d inputLocalVel, Pose2d estInertialVel, Pose2d estLocalVel, Pose2d lastInertialForce, Pose2d *reqLocalForce);
-
-    void calculateTractionLimiting(Pose2d localForce, Pose2d* limitedForce);
-
-    void calculatePowerLimiting(float V_m_FF[4], float I_m_FF[4], float T_req_m[4], float T_req_m2[4]);
-
     float signum(float num) { return (num > 0) ? 1 : ((num < 0) ? -1 : 0); }
 
     // Helper for velocity control (sawtooth function)
-    float sawtooth(float freq, float amplitude)
-    {
+    float sawtooth(float freq, float amplitude) {
         // A simple sawtooth wave function for variable speed beyblade
-        return amplitude;// * (1 - fmod(freq * (std::fmod(std::clock(), 1.0f) * 2 * 3.14159265f), 1.0f));
+        return amplitude;  // * (1 - fmod(freq * (std::fmod(std::clock(), 1.0f) * 2 * 3.14159265f), 1.0f));
     }
 
 public:
@@ -173,6 +159,17 @@ public:
     //~YawController();
     void calculate(Pose2d targetVelLocal, float angle, float motorVelocity[4], float motorCurrent[4]);
     float calculateBeybladeVelocity(float bb_freq, float bb_amp);
+
+    // intermediate functions
+    void estimateState(Pose2d inputForces, Pose2d *eLocalVel, Pose2d *eInertialVel, Pose2d *eInertialPos);
+
+    void calculateFeedForward(float estimatedMotorVelocity[4], float V_m_FF[4], float I_m_FF[4]);
+
+    void velocityControl(Pose2d inputLocalVel, Pose2d estInertialVel, Pose2d estLocalVel, Pose2d lastInertialForce, Pose2d *reqLocalForce);
+
+    void calculateTractionLimiting(Pose2d localForce, Pose2d *limitedForce);
+
+    void calculatePowerLimiting(float V_m_FF[4], float I_m_FF[4], float T_req_m[4], float T_req_m2[4]);
 };
 
 }  // namespace subsystems

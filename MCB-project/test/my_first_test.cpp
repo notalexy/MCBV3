@@ -19,6 +19,14 @@
 
 #include <gtest/gtest.h>
 
-#include "my_first_file.hpp"
+#include "subsystems/drivetrain/ChassisController.hpp"
+using namespace subsystems;
 
-TEST(hello, world) { EXPECT_EQ(3, sum(1, 2)); }
+ChassisController controller{};
+
+TEST(hello, world) { 
+    Pose2d pose1{0, 1, 2};
+    Pose2d pose2{0, 1, 2};
+
+    EXPECT_EQ(pose1, pose2); 
+}
