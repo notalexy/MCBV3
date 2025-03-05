@@ -172,7 +172,7 @@ void ChassisController::calculatePowerLimiting(float V_m_FF[4], float I_m_FF[4],
 Pose2d estPosWorld{}, estVelWorld{}, lastForceLocal{};
 
 void ChassisController::calculate(Pose2d targetVelLocal, float angle, float motorVelocity[4], float motorCurrent[4]) {
-    multiplyMatrices(4, 3, inverseKinematics, targetVelLocal.rotate(-angle) * (0.01), motorCurrent);
+    multiplyMatrices(4, 3, inverseKinematics, targetVelLocal.rotate(angle) * (0.01), motorCurrent);
     
     return;
 
