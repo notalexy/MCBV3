@@ -74,7 +74,7 @@ int GimbalSubsystem::getPitchVoltage(float targetAngle, float dt)
 #endif
 }
 
-float GimbalSubsystem::getYawEncoderValue() { return tap::motor::DjiMotor::encoderToDegrees(motorYaw->getEncoderUnwrapped() - 135) * PI / 180; }
+float GimbalSubsystem::getYawEncoderValue() { return tap::motor::DjiMotor::encoderToDegrees(motorYaw->getEncoderUnwrapped()) * PI / 180 - YAW_OFFSET; }
 float GimbalSubsystem::getPitchEncoderValue() { return tap::motor::DjiMotor::encoderToDegrees(motorPitch->getEncoderUnwrapped()) * PI / 180; }
 float GimbalSubsystem::getYawVel() { return motorYaw->getShaftRPM() * PI / 30; }
 float GimbalSubsystem::getPitchVel() { return motorPitch->getShaftRPM() * PI / 30; }

@@ -209,13 +209,14 @@ void ChassisController::calculate(Pose2d targetVelLocal, float angle, float moto
     velocityControl(targetVelLocal, estVelWorld, estVelLocal, lastForceWorld, &forceLocal);
 
     // calculateTractionLimiting(forceLocal, &forceLocal);
+
     Pose2d forceTimes = forceLocal * (R_WHEEL / GEAR_RATIO);
     
     forceTimes.toArray(forceArr);
 
     multiplyMatrices(4, 3, forceInverseKinematics, forceArr, estMotorArr);
 
-    // calculatePowerLimiting(V_m_FF, I_m_FF, estimatedMotorArr, estimatedMotorArr);
+    calculatePowerLimiting(V_m_FF, I_m_FF, estMotorArr, estMotorArr);
 
     //have to reassign bc of how this works. Hopefully this gets garbage collected correctly
     lastForceLocal = Pose2d(multiplyMatrices(3, 4, forceKinematics, estMotorArr, forceArr));

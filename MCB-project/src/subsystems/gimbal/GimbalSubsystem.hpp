@@ -30,6 +30,8 @@ public:  // Public Variables
     // looks up 20, 18 is safe
     static constexpr float MAX_PITCH_DOWN = PI / 180 * 18;
 
+    static constexpr float YAW_OFFSET = 3 * PI / 4;
+
     static constexpr float dt = 0.002f;
     static constexpr float PITCH_OFFSET = -0.48 * PI;  // to make gimbal horizontal when told to go to 0
 
