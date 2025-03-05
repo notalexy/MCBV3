@@ -42,9 +42,9 @@ public:
         flywheel.setDefaultCommand(&shooterStop);
         drivetrain.setDefaultCommand(&driveCommand);
 
-        drivers->commandMapper.addMap(&startShootMapping);
-        drivers->commandMapper.addMap(&idleShootMapping);
-        drivers->commandMapper.addMap(&stopShootMapping);
+        // drivers->commandMapper.addMap(&startShootMapping);
+        // drivers->commandMapper.addMap(&idleShootMapping);
+        // drivers->commandMapper.addMap(&stopShootMapping);
         drivers->commandMapper.addMap(&controllerToKeyboardMouseMapping);
 
     }

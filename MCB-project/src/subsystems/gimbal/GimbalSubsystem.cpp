@@ -28,12 +28,12 @@ void GimbalSubsystem::refresh() {
 void GimbalSubsystem::updateMotors(float* targetYaw, float* targetPitch) {
     // impose limits on passed values
     *targetPitch = std::clamp(*targetPitch, -MAX_PITCH_DOWN, MAX_PITCH_UP);
-    *targetYaw = fmod(*targetYaw, 2 * PI);
+    //*targetYaw = fmod(*targetYaw, 2 * PI);
 
     float yawDifference = *targetYaw - targetYawAngleWorld;
     // this deals with overshoot
-    while (yawDifference > M_PI) yawDifference -= M_TWOPI;
-    while (yawDifference < -M_PI) yawDifference += M_TWOPI;
+    // while (yawDifference > M_PI) yawDifference -= M_TWOPI;
+    // while (yawDifference < -M_PI) yawDifference += M_TWOPI;
 
     // set old values
     targetYawAngleWorld = *targetYaw;
