@@ -3,7 +3,6 @@
 
 #include "subsystems/gimbal/JoystickMoveCommand.hpp"
 #include "subsystems/gimbal/MouseMoveCommand.hpp"
-#include "subsystems/gimbal/GimbalLockCommand.hpp"
 
 #include "subsystems/flywheel/ShooterStartCommand.hpp"
 #include "subsystems/flywheel/ShooterStopCommand.hpp"
@@ -40,7 +39,6 @@ public:
 
         // Run startup commands
         gimbal.setDefaultCommand(&look);
-        // gimbal.setDefaultCommand(&gimbalLockCommand);
         flywheel.setDefaultCommand(&shooterStop);
         drivetrain.setDefaultCommand(&driveCommand);
 
@@ -64,8 +62,6 @@ public:
     commands::IndexerUnjamCommand indexerUnjam{drivers, &indexer};
 
    commands::JoystickDriveCommand driveCommand{drivers, &drivetrain, &gimbal};
-
-   commands::GimbalLockCommand gimbalLockCommand{drivers, &gimbal};
 
     //mappings
     ToggleCommandMapping controllerToKeyboardMouseMapping {

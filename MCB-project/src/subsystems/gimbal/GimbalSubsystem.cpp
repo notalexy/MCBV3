@@ -16,7 +16,7 @@ void GimbalSubsystem::initialize()
 {
     motorPitch->initialize();
     motorYaw->initialize();
-    imuOffset = getYawEncoderValue();
+    imuOffset = getYawEncoderValue() + YAW_OFFSET;
     targetYawAngleWorld += yawAngleRelativeWorld;
 }
 
