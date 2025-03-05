@@ -8,7 +8,7 @@ namespace commands
 void GimbalLockCommand::initialize() {  }
 void GimbalLockCommand::execute()
 {
-        yaw =  PI / 180 * drivers->bmi088.getYaw() - gimbal->getYawEncoderValue();
+        yaw = 0;
         pitch = CONTROLLER_PITCH_PROPORTIONAL * drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_VERTICAL);
   
         //TODO this lmao
