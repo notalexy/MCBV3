@@ -6,8 +6,8 @@ namespace commands
 void JoystickDriveCommand::initialize() {  }
 void JoystickDriveCommand::execute()
 {
-        x = 3*drivers->remote.getChannel(Remote::Channel::LEFT_VERTICAL);
-        y = 3*drivers->remote.getChannel(Remote::Channel::LEFT_HORIZONTAL);
+        x = drivers->remote.getChannel(Remote::Channel::LEFT_HORIZONTAL);
+        y = drivers->remote.getChannel(Remote::Channel::LEFT_VERTICAL);
         r = drivers->remote.getChannel(Remote::Channel::RIGHT_HORIZONTAL);
 
         if(drivers->remote.isConnected()){
