@@ -23,8 +23,6 @@ private:                                            // Private Variables
 
     Pose2d lastDrive;
 
-    float imuAngle;
-
     float motorCurrent[4] = {0.0f,0.0f,0.0f,0.0f};
 
     float motorVel[4] = {0.0f,0.0f,0.0f,0.0f};
@@ -51,7 +49,7 @@ public:  // Public Methods
      * the described behavior. This will allow the drivetrain to translate with left stick, and turn
      * with the right stick or beyblade depending how this is called.
      */
-    void setTargetTranslation(float x, float y, float rot);
+    void setTargetTranslation(float x, float y, float rot, float angleReference);
 
     /*
      * Call this function to set all DriveTrain motors to 0 desired RPM. CALL setMotorSpeeds() FOR

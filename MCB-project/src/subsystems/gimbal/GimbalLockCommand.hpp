@@ -3,28 +3,23 @@
 #include "tap/communication/serial/remote.hpp"
 #include "tap/control/command.hpp"
 
-#include "subsystems/drivetrain/DrivetrainSubsystem.hpp"
 #include "subsystems/gimbal/GimbalSubsystem.hpp"
-
 
 #include "drivers.hpp"
 
 namespace commands
 {
-using subsystems::DrivetrainSubsystem;
 using subsystems::GimbalSubsystem;
-
 using tap::communication::serial::Remote;
 
-class JoystickDriveCommand : public tap::control::Command
+class GimbalLockCommand : public tap::control::Command
 {
 public:
-    JoystickDriveCommand(src::Drivers* drivers, DrivetrainSubsystem* drive, GimbalSubsystem* gimbal)
+    GimbalLockCommand(src::Drivers* drivers, GimbalSubsystem* gimbal)
         : drivers(drivers),
-          drivetrain(drive),
           gimbal(gimbal)
     {
-        addSubsystemRequirement(drive);
+        addSubsystemRequirement(gimbal);
     }
 
     void initialize() override;
@@ -35,14 +30,16 @@ public:
 
     bool isFinished() const override;
 
-    const char* getName() const override { return "drive with joystick command"; }
+    const char* getName() const override { return "move turret joystick command"; }
+
+    static constexpr float CONTROLLER_YAW_PROPORTIONAL = -0.02;
+    static constexpr float CONTROLLER_PITCH_PROPORTIONAL = 0.1 * PI;
 
 private:
     src::Drivers* drivers;
-    DrivetrainSubsystem* drivetrain;
     GimbalSubsystem* gimbal;
 
-    float x, y, r;
-    
+    float yaw = 0.0f, pitch = 0.0f;
+
 };
 }  // namespace commands

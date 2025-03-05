@@ -3,6 +3,7 @@
 
 #include "subsystems/gimbal/JoystickMoveCommand.hpp"
 #include "subsystems/gimbal/MouseMoveCommand.hpp"
+#include "subsystems/gimbal/GimbalLockCommand.hpp"
 
 #include "subsystems/flywheel/ShooterStartCommand.hpp"
 #include "subsystems/flywheel/ShooterStopCommand.hpp"
@@ -26,26 +27,27 @@ public:
     void initialize() override {
 
         // Initialize subsystems
-        // gimbal.initialize();
-        // flywheel.initialize();
-        // indexer.initialize();
+        gimbal.initialize();
+        flywheel.initialize();
+        indexer.initialize();
         drivetrain.initialize();
 
         // Register subsystems;
-        // drivers->commandScheduler.registerSubsystem(&gimbal);
-        // drivers->commandScheduler.registerSubsystem(&flywheel);
-        // drivers->commandScheduler.registerSubsystem(&indexer);
+        drivers->commandScheduler.registerSubsystem(&gimbal);
+        drivers->commandScheduler.registerSubsystem(&flywheel);
+        drivers->commandScheduler.registerSubsystem(&indexer);
         drivers->commandScheduler.registerSubsystem(&drivetrain);
 
         // Run startup commands
-        // gimbal.setDefaultCommand(&look);
-        // flywheel.setDefaultCommand(&shooterStop);
+        gimbal.setDefaultCommand(&look);
+        // gimbal.setDefaultCommand(&gimbalLockCommand);
+        flywheel.setDefaultCommand(&shooterStop);
         drivetrain.setDefaultCommand(&driveCommand);
 
-        // drivers->commandMapper.addMap(&startShootMapping);
-        // drivers->commandMapper.addMap(&idleShootMapping);
-        // drivers->commandMapper.addMap(&stopShootMapping);
-        // drivers->commandMapper.addMap(&controllerToKeyboardMouseMapping);
+        drivers->commandMapper.addMap(&startShootMapping);
+        drivers->commandMapper.addMap(&idleShootMapping);
+        drivers->commandMapper.addMap(&stopShootMapping);
+        drivers->commandMapper.addMap(&controllerToKeyboardMouseMapping);
 
     }
     // Subsystems
@@ -61,7 +63,9 @@ public:
     commands::IndexerNBallsCommand indexer10Hz{drivers, &indexer, -1, 10};
     commands::IndexerUnjamCommand indexerUnjam{drivers, &indexer};
 
-   commands::JoystickDriveCommand driveCommand{drivers, &drivetrain};
+   commands::JoystickDriveCommand driveCommand{drivers, &drivetrain, &gimbal};
+
+   commands::GimbalLockCommand gimbalLockCommand{drivers, &gimbal};
 
     //mappings
     ToggleCommandMapping controllerToKeyboardMouseMapping {

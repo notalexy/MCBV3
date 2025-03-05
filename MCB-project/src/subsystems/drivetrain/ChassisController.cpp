@@ -202,11 +202,11 @@ void ChassisController::calculate(Pose2d targetVelLocal, float angle, float moto
     // // First, estimate the input errors then do velocity PI control
     velocityControl(targetVelLocal, estVelWorld, estVelLocal, lastForceWorld, &forceLocal);
 
-   // calculateTractionLimiting(forceLocal, &forceLocal);
+    // calculateTractionLimiting(forceLocal, &forceLocal);
 
     float* motorTorque = multiplyMatrices(4, 3, forceInverseKinematics, forceLocal * (R_WHEEL / GEAR_RATIO), new float[4]);
 
-    //calculatePowerLimiting(V_m_FF, I_m_FF, motorTorque, motorTorque);
+    // calculatePowerLimiting(V_m_FF, I_m_FF, motorTorque, motorTorque);
 
     //have to reassign bc of how this works. Hopefully this gets garbage collected correctly
     lastForceLocal = Pose2d(multiplyMatrices(3, 4, forceKinematics, motorTorque, new float[3]));
