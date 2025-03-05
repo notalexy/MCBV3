@@ -74,7 +74,6 @@ float ChassisController::calculateBeybladeVelocity(float bb_freq, float bb_amp) 
     return dotThetaBeyblade;  // Return the required angular velocity (dot_theta_req)
 }
 
-Vector2d lastVelWorld{}, accumForceLocal{};
 // Function to estimate input errors in inertial frame
 void ChassisController::velocityControl(Pose2d inputVelLocal, Vector2d estVelWorld, Pose2d estVelLocal, Vector2d lastForceWorld, Pose2d* reqForceLocal) {
     Vector2d estForceInertial = (estVelWorld - lastVelWorld) * (M_EFFECTIVE / DT);
@@ -85,8 +84,11 @@ void ChassisController::velocityControl(Pose2d inputVelLocal, Vector2d estVelWor
     // Update integral error terms
     accumForceLocal += (errForceInertial - accumForceLocal) * KI_V * DT;
 
+    //clamp accumulation
+    accumForceLocal = accumForceLocal.clamp(MIN_FORCE, MAX_FORCE);
+
     // update the required local force (for all 3 elements)
-    *reqForceLocal = ((inputVelLocal - estVelLocal) * Pose2d(KP_V, KP_V, KP_V_ROT)) + accumForceLocal;
+    *reqForceLocal = (inputVelLocal - estVelLocal) * KP_V + accumForceLocal;
 
     // Store current forces for the next iteration
     lastVelWorld = estVelWorld;
@@ -168,13 +170,11 @@ void ChassisController::calculatePowerLimiting(float V_m_FF[4], float I_m_FF[4],
     }
 }
 
-//states to store, current position, curent velocity, and also the lastForce
-Pose2d estPosWorld{}, estVelWorld{}, lastForceLocal{};
 
 void ChassisController::calculate(Pose2d targetVelLocal, float angle, float motorVelocity[4], float motorCurrent[4]) {
-    multiplyMatrices(4, 3, inverseKinematics, targetVelLocal.rotate(angle) * (0.01), motorCurrent);
+    // multiplyMatrices(4, 3, inverseKinematics, targetVelLocal.rotate(angle) * (0.01), motorCurrent);
     
-    return;
+    // return;
 
     Pose2d estVelLocal = multiplyMatrices(3, 4, forwardKinematics, motorVelocity, new float[3]);
 

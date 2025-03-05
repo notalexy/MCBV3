@@ -158,3 +158,11 @@ TEST_F(Pose2dTest, passingtest) {
     
     EXPECT_EQ(result, Pose2d(0.0f, 0.0f, 1.57));
 }
+
+TEST_F(Pose2dTest, clamptest) {
+    Pose2d minp{-1, -1, -1};
+    Pose2d maxp{1, 1, 1};
+
+    EXPECT_EQ(p1.clamp(minp, maxp), Pose2d(1,1,1));
+
+}

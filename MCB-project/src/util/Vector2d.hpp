@@ -3,7 +3,7 @@
 class Vector2d {
 protected:
     float x, y;
-
+    float valClamp(float num, float min, float max) { return std::min(std::max(num, min), max); }
 public:
     // Constructors
     Vector2d(float x, float y) : x(x), y(y) {}
@@ -30,6 +30,10 @@ public:
 
     // Compute magnitude (length) of vector
     float magnitude() const { return std::hypot(x, y); }
+
+    Vector2d clamp(Vector2d min, Vector2d max){
+        return Vector2d(valClamp(x, min.x, max.x), valClamp(y, min.y, max.y));
+    }
 
     operator float*() { return new float[2]{x, y}; }
 

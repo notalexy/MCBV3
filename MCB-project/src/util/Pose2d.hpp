@@ -24,6 +24,10 @@ public:
     //rotate but for a pose
     Pose2d rotate(float amt) { return Pose2d(magnitude() * std::cos(amt + angle()), magnitude() * std::sin(amt + angle()), rotation); }
 
+    Pose2d clamp(Pose2d min, Pose2d max){
+        return Pose2d(valClamp(x, min.x, max.x), valClamp(y, min.y, max.y), valClamp(rotation, min.rotation, max.rotation));
+    }
+
     //make this an array
     operator float*() { return new float[3]{x, y, rotation}; }
 

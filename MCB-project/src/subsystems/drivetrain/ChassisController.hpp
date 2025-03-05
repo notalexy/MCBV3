@@ -13,17 +13,12 @@ private:
     const float TRACKWIDTH = 0.5017;       // in m. We need to measure
     const float ROOT_2 = sqrt(2);          // sqrt 2
     const float M = 14.0;                  // robot mass kg
-    const float J = 3.0;                   // measured from sys id kg-m^2
+    const float J = 0.44;                  // measured from sys id kg-m^2
     const float R_WHEEL = 0.048 / ROOT_2;  // wheel radius m
     const float J_WHEEL = 0.0009;          // wheel moment of inertia kg-m^2
     const float C_MOTOR = 0.00003;         // motor damping kg-s/m^2
     const float UK_MOTOR = 0.004;          // motor dry friction N-m
     const float COF_WHEEL = 0.9;           // unitless COF
-
-    const float M_EFFECTIVE = M + 4 * J_WHEEL / (R_WHEEL * R_WHEEL);
-    const float J_EFFECTIVE = J + 4 * J_WHEEL * TRACKWIDTH / (2 * R_WHEEL);
-    const float F_MAX = M * 9.81f * COF_WHEEL;    // maximum force allowed across all 4 wheels
-    const float F_MIN_T = 10 / (2 * TRACKWIDTH);  // minimum force per wheel in the torque direction that the traction limiter is allowed to throttle to
 
     const float KB = 0.02361;       // V-s/rad backemf
     const float KT = 0.02299;       // N-m/A torque constant
@@ -32,18 +27,26 @@ private:
     const float VOLT_MAX = 24;      // V, maximum                                                                                         v
     const float P_MAX = 50;         // W, maximum power
 
+    const float M_EFFECTIVE = M + 4 * J_WHEEL * std::pow(GEAR_RATIO / R_WHEEL, 2.0f);
+    const float J_EFFECTIVE = J + 4 * J_WHEEL * (TRACKWIDTH / 2.0f) * (GEAR_RATIO / R_WHEEL);
+    const float F_MAX = M * 9.81f * COF_WHEEL;    // maximum force allowed across all 4 wheels
+    const float F_MIN_T = 10 / (2 * TRACKWIDTH);  // minimum force per wheel in the torque direction that the traction limiter is allowed to throttle to
+
     // Feedforward gains from fundamental system constants
     const float K_V = KB;              // Velocity feedforward gain (back EMF constant)
     const float K_VIS = C_MOTOR / KT;  // Viscous damping feedforward gain
     const float K_S = UK_MOTOR / KT;   // Static friction feedforward g
 
     // Tunable Parameters
-    const float KP_V = 1500;  // proportional gain for velocity
+    const float KP_V_XY = 1500;  // proportional gain for velocity
+    const float KP_V_ROT = 30;  // proportional gain for rotational velocity
+    const Pose2d KP_V{KP_V_XY, KP_V_XY, KP_V_ROT};
+    
     const float KI_V = 0;     // 50;    // integral gain for velocity
 
     const float IV_MAX = 120;  // maximum integral term for velocity control
+    const Vector2d MIN_FORCE{-IV_MAX, -IV_MAX}, MAX_FORCE{IV_MAX, IV_MAX};
 
-    const float KP_V_ROT = 30;  // proportional gain for rotational velocity
 
     const float KP = 0;              // proportional gain for position control
     const float VEL_TARGET = 0;      // target velocity
@@ -66,7 +69,7 @@ private:
     const float ikr4[3] = {GEAR_RATIO / (R_WHEEL * ROOT_2), -GEAR_RATIO / (R_WHEEL * ROOT_2), -(TRACKWIDTH *GEAR_RATIO) / (R_WHEEL * 2)};
 
     const float fkr1[4] = {R_WHEEL * ROOT_2 / (4 * GEAR_RATIO), -R_WHEEL *ROOT_2 / (4 * GEAR_RATIO), -R_WHEEL *ROOT_2 / (4 * GEAR_RATIO), R_WHEEL *ROOT_2 / (4 * GEAR_RATIO)};
-    const float fkr2[4] = {-R_WHEEL * ROOT_2 / (4 * GEAR_RATIO), -R_WHEEL *ROOT_2 / (4 * GEAR_RATIO), R_WHEEL *ROOT_2 / (4 * GEAR_RATIO), R_WHEEL *ROOT_2 / (4 * GEAR_RATIO)};
+    const float fkr2[4] = {R_WHEEL * ROOT_2 / (4 * GEAR_RATIO), R_WHEEL *ROOT_2 / (4 * GEAR_RATIO), -R_WHEEL *ROOT_2 / (4 * GEAR_RATIO), -R_WHEEL *ROOT_2 / (4 * GEAR_RATIO)};
     const float fkr3[4] = {-R_WHEEL / (2 * TRACKWIDTH * GEAR_RATIO), -R_WHEEL / (2 * TRACKWIDTH * GEAR_RATIO), -R_WHEEL / (2 * TRACKWIDTH * GEAR_RATIO), -R_WHEEL / (2 * TRACKWIDTH * GEAR_RATIO)};
 
     const float fir1[3] = {ROOT_2 / 4, ROOT_2 / 4, -1 / (TRACKWIDTH * 2)};
@@ -75,7 +78,7 @@ private:
     const float fir4[3] = {ROOT_2 / 4, -ROOT_2 / 4, -1 / (TRACKWIDTH * 2)};
 
     const float ffr1[4] = {1 / ROOT_2, -1 / ROOT_2, -1 / ROOT_2, 1 / ROOT_2};
-    const float ffr2[4] = {-1 / ROOT_2, -1 / ROOT_2, 1 / ROOT_2, 1 / ROOT_2};
+    const float ffr2[4] = {1 / ROOT_2, 1 / ROOT_2, -1 / ROOT_2, -1 / ROOT_2};
     const float ffr3[4] = {-TRACKWIDTH / 2, -TRACKWIDTH / 2, -TRACKWIDTH / 2, -TRACKWIDTH / 2};
 
     // Beyblade settings
@@ -91,6 +94,11 @@ private:
         // A simple sawtooth wave function for variable speed beyblade
         return amplitude;  // * (1 - fmod(freq * (std::fmod(std::clock(), 1.0f) * 2 * 3.14159265f), 1.0f));
     }
+
+        // states to store, current position, curent velocity, and also the lastForce
+    Pose2d estPosWorld{}, estVelWorld{}, lastForceLocal{};
+
+    Vector2d lastVelWorld{}, accumForceLocal{};
 
 public:
     float *targetVelocityHistory;  // For storing target velocity magnitudes
@@ -126,6 +134,8 @@ public:
         }
         return result;
     }
+
+
 };
 
 }  // namespace subsystems
