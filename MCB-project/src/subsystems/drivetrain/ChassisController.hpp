@@ -28,7 +28,7 @@ private:
     const float P_MAX = 50;         // W, maximum power
 
     const float M_EFFECTIVE = M + 4 * J_WHEEL * std::pow(GEAR_RATIO / R_WHEEL, 2.0f);
-    const float J_EFFECTIVE = J + 4 * J_WHEEL * (TRACKWIDTH / 2.0f) * (GEAR_RATIO / R_WHEEL);
+    const float J_EFFECTIVE = J + 4 * J_WHEEL * std::pow((TRACKWIDTH / 2.0f) * (GEAR_RATIO / R_WHEEL), 2.0f);
     const float F_MAX = M * 9.81f * COF_WHEEL;    // maximum force allowed across all 4 wheels
     const float F_MIN_T = 10 / (2 * TRACKWIDTH);  // minimum force per wheel in the torque direction that the traction limiter is allowed to throttle to
 
@@ -41,7 +41,7 @@ private:
     const float KP_V_XY = 1500;  // proportional gain for velocity
     const float KP_V_ROT = 30;  // proportional gain for rotational velocity
     const Pose2d KP_V{KP_V_XY, KP_V_XY, KP_V_ROT};
-    
+
     const float KI_V = 0;     // 50;    // integral gain for velocity
 
     const float IV_MAX = 120;  // maximum integral term for velocity control
