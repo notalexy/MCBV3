@@ -25,7 +25,7 @@ private:
     const float RA = 0.5592;        // ohm, armature resistance
     const float GEAR_RATIO = 13.7;  // gear ratio
     const float VOLT_MAX = 24;      // V, maximum                                                                                         v
-    const float P_MAX = 1000;         // W, maximum power
+    const float P_MAX = 60;         // W, maximum power
 
     const float M_EFFECTIVE = M + 4 * J_WHEEL * std::pow(GEAR_RATIO / R_WHEEL, 2.0f);
     const float J_EFFECTIVE = J + 4 * J_WHEEL * std::pow((TRACKWIDTH / 2.0f) * (GEAR_RATIO / R_WHEEL), 2.0f);

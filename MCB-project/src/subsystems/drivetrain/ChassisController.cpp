@@ -167,7 +167,7 @@ void ChassisController::calculatePowerLimiting(float V_m_FF[4], float I_m_FF[4],
     float c = RA * cSumFirst + cSumSecond - P_MAX;                  // IV^2
 
     float s_scaling = 1.0f;
-    if(b * b - 4 * a * c >= 0) s_scaling =  clamp((-b + std::sqrt(b * b - 4 * a * c)) / (2 * a), 0.0f, 1.0f);
+    if(a > 0 && b * b - 4 * a * c > 0) s_scaling =  clamp((-b + std::sqrt(b * b - 4 * a * c)) / (2 * a), 0.0f, 1.0f);
 
     // And finally get T_req_m_throttled based on the scaling factor
     for (int i = 0; i < 4; ++i) {
