@@ -80,7 +80,8 @@ TEST_F(ChassisControllerTest, EstimateStateHistory4) {
 
 TEST_F(ChassisControllerMatrixTest, inverseTest){
     for(int i = 0; i < 4; i++){
-        float* test = controller.multiplyMatrices(4, 3, controller.inverseKinematics, ikInputs[i], new float[4]);
+        float arr[3] = {ikInputs[i].getX(), ikInputs[i].getY(), ikInputs[i].getRotation()};
+        float* test = controller.multiplyMatrices(4, 3, controller.inverseKinematics, arr, new float[4]);
         for(int j = 0; j < 4; j++){
             EXPECT_NEAR(test[j], ikOutputs[i][j], 0.03f);
         }

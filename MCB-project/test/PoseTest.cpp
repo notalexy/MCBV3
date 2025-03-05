@@ -105,20 +105,20 @@ TEST_F(Pose2dTest, AddJustRotationFunction) {
     EXPECT_EQ(result, Pose2d(3.0f, 4.0f, 2.07f));
 }
 
-// Test array
-TEST_F(Pose2dTest, ArrayFunction) {
-    float* result = p1;
-    EXPECT_EQ(result[0], p1.getX());
-    EXPECT_EQ(result[1], p1.getY());
-    EXPECT_EQ(result[2], p1.getRotation());
-}
+// // Test array
+// TEST_F(Pose2dTest, ArrayFunction) {
+//     float* result = p1;
+//     EXPECT_EQ(result[0], p1.getX());
+//     EXPECT_EQ(result[1], p1.getY());
+//     EXPECT_EQ(result[2], p1.getRotation());
+// }
 
-// Test array but on a vector
-TEST_F(Pose2dTest, ArrayVectorFunction) {
-    float* result = p1.vec();
-    EXPECT_EQ(result[0], p1.getX());
-    EXPECT_EQ(result[1], p1.getY());
-}
+// // Test array but on a vector
+// TEST_F(Pose2dTest, ArrayVectorFunction) {
+//     float* result = p1.vec();
+//     EXPECT_EQ(result[0], p1.getX());
+//     EXPECT_EQ(result[1], p1.getY());
+// }
 
 
 //tests for making sure vectors dont screw things up

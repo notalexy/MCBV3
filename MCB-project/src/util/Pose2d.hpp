@@ -3,7 +3,7 @@
 
 class Pose2d : public Vector2d, public Orientation2d {
 public:
-    //all the constructors
+    // all the constructors
     Pose2d(float x, float y, float r) : Vector2d(x, y), Orientation2d(r) {}
 
     ~Pose2d() {}
@@ -16,20 +16,22 @@ public:
 
     Pose2d(const Pose2d& other) : Vector2d(other.x, other.y), Orientation2d(other.rotation) {}
 
-    //get this as a vec and as an orientation which is useful
+    // get this as a vec and as an orientation which is useful
     Vector2d& vec() { return *this; }
 
     Orientation2d& orientation() { return *this; }
 
-    //rotate but for a pose
+    // rotate but for a pose
     Pose2d rotate(float amt) { return Pose2d(magnitude() * std::cos(amt + angle()), magnitude() * std::sin(amt + angle()), rotation); }
 
-    Pose2d clamp(Pose2d min, Pose2d max){
-        return Pose2d(valClamp(x, min.x, max.x), valClamp(y, min.y, max.y), valClamp(rotation, min.rotation, max.rotation));
-    }
+    Pose2d clamp(Pose2d min, Pose2d max) { return Pose2d(valClamp(x, min.x, max.x), valClamp(y, min.y, max.y), valClamp(rotation, min.rotation, max.rotation)); }
 
-    //make this an array
-    operator float*() { return new float[3]{x, y, rotation}; }
+    float* toArray(float array[3]) {
+        array[0] = x;
+        array[1] = y;
+        array[2] = rotation;
+        return array;
+    }
 
     // Overload + operator (Pose2d addition)
     Pose2d operator+(const Vector2d& other) const { return Pose2d(x + other.getX(), y + other.getY(), rotation); }

@@ -104,6 +104,8 @@ public:
     float *targetVelocityHistory;  // For storing target velocity magnitudes
     Pose2d *forceHistory;          // history of past chassis forces
     ChassisController();
+
+    ~ChassisController();
     //~YawController();
     void calculate(Pose2d targetVelLocal, float angle, float motorVelocity[4], float motorCurrent[4]);
     float calculateBeybladeVelocity(float bb_freq, float bb_amp);
