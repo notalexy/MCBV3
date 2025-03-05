@@ -24,6 +24,11 @@ private:
     float buildup = 0;
     float pastTargetVelocity = 0;
     float pastOutput = 0;
+    float targetVelo;
+    float currentVelo;
+    float targetPos;
+    float currentPos;
+    float output2;
 
     // Physical constants
     const float KB = 0.716;                          // V-rad/s

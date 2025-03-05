@@ -15,20 +15,25 @@ namespace subsystems
 {
 PitchController::PitchController() {}
 
-float PitchController::calculate(float currentPos, float currentVelo, float targetPos, float deltaT)
+float PitchController::calculate(float currentPosition, float currentVelocity, float targetPosition, float deltaT)
 {
-    float positionError = targetPos - currentPos;
+    float positionError = targetPosition - currentPosition;
 
     float targetVelocity = KP * positionError;
+
+    targetPos = targetPosition;
+    currentPos = currentPosition;
 
     // model based motion profile
     float maxVelocity = std::min(VELO_MAX, pastTargetVelocity + ACCEL_MAX * deltaT);
     float minVelocity = std::max(-VELO_MAX, pastTargetVelocity - ACCEL_MAX * deltaT);
     targetVelocity = std::clamp(targetVelocity, minVelocity, maxVelocity);
 
+    currentVelo = currentVelocity;
+    targetVelo = targetVelocity;
+
     // velocity controller
-    float velocityError = targetVelocity - currentVelo;
-    
+    float velocityError = targetVelocity - currentVelocity;
     pastTargetVelocity = targetVelocity;
 
     // integral velocity controller
@@ -47,6 +52,7 @@ float PitchController::calculate(float currentPos, float currentVelo, float targ
     float targetCurrent = KSTATIC * signum(targetVelocity) + KF + KPV * velocityError + KIV * buildup;
 
     pastOutput = RA * targetCurrent + KV * targetVelocity;
+    output2 = pastOutput * 100;
     return std::clamp(pastOutput, -VOLT_MAX, VOLT_MAX);
 }
 }  // namespace subsystems
