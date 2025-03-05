@@ -85,7 +85,7 @@ void ChassisController::velocityControl(Pose2d inputVelLocal, Vector2d estVelWor
     accumForceLocal += (errForceInertial - accumForceLocal) * KI_V * DT;
 
     //clamp accumulation
-    accumForceLocal = accumForceLocal.clamp(MIN_FORCE, MAX_FORCE);
+    //accumForceLocal = accumForceLocal.clamp(MIN_FORCE, MAX_FORCE);
 
     // update the required local force (for all 3 elements)
     *reqForceLocal = (inputVelLocal - estVelLocal) * KP_V + accumForceLocal;
@@ -141,6 +141,7 @@ void ChassisController::calculateTractionLimiting(Pose2d localForce, Pose2d* lim
     // set the limited force to the force, then multiply just the vector by the scaling factor
     // since 1/0 is inf, 1/0.00000000000001 is inf. so onlt set if not zero. its also never negative
     if (largest > 0) limitedForce->vec() *= clamp((F_MAX / 4 - T_req_throttled / (2 * TRACKWIDTH)) * 1 / largest, 0.0f, 1.0f);
+
 
 }
 
