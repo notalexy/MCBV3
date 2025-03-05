@@ -38,7 +38,7 @@ void GimbalSubsystem::updateMotors(float* targetYaw, float* targetPitch) {
     targetPitchAngle = *targetPitch;
 
     pitchMotorVoltage = getPitchVoltage(targetPitchAngle, dt);
-    yawMotorVoltage = getYawVoltage(0, yawAngleWorld, yawRadS, targetYawAngleWorld, 0, dt);
+    yawMotorVoltage = getYawVoltage(0, yawAngleWorld, yawRadS, targetYawAngleWorld, yawDifference / dt, dt);
 }
 
 void GimbalSubsystem::stopMotors() {
