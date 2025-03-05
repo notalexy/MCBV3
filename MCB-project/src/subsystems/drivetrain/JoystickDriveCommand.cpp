@@ -6,7 +6,7 @@ namespace commands
 void JoystickDriveCommand::initialize() {  }
 void JoystickDriveCommand::execute()
 {
-        float referenceAngle = drivetrain->imuAngle - gimbal->getYawEncoderValue();
+        float referenceAngle = gimbal->getYawEncoderValue();
 
         x = drivers->remote.getChannel(Remote::Channel::LEFT_HORIZONTAL);
         y = drivers->remote.getChannel(Remote::Channel::LEFT_VERTICAL);
