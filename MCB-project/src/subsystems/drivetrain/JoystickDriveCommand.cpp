@@ -14,10 +14,9 @@ void JoystickDriveCommand::execute()
 
         Pose2d drive(x, y, r);
 
-        drive.rotate(referenceAngle);
 
         if(drivers->remote.isConnected()){
-                drivetrain->setTargetTranslation(drive);
+                drivetrain->setTargetTranslation(drive.rotate(referenceAngle));
         } else {
                 drivetrain->stopMotors();
         }
