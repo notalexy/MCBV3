@@ -172,10 +172,10 @@ void ChassisController::calculatePowerLimiting(float V_m_FF[4], float I_m_FF[4],
 Pose2d estPosWorld{}, estVelWorld{}, lastForceLocal{};
 
 void ChassisController::calculate(Pose2d targetVelLocal, float angle, float motorVelocity[4], float motorCurrent[4]) {
-    multiplyMatrices(4, 3, inverseKinematics, targetVelLocal.rotate(-angle), motorCurrent);
-
-    return;
+    multiplyMatrices(4, 3, inverseKinematics, targetVelLocal.rotate(-angle) * 500, motorCurrent);
     
+    return;
+
     Pose2d estVelLocal = multiplyMatrices(3, 4, forwardKinematics, motorVelocity, new float[3]);
 
     //also feed in odometry but this will kind of estimate 
