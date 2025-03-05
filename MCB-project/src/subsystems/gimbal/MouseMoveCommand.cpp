@@ -6,15 +6,13 @@ namespace commands
 void MouseMoveCommand::initialize() { 
         mouseXOffset = drivers->remote.getMouseX();
         mouseYOffset = drivers->remote.getMouseY();
-        yaw = gimbal->getTargetYaw();
-        pitch = gimbal->getTargetPitch();
         
  }
 void MouseMoveCommand::execute()
 {
 
 
-        yaw += MOUSE_YAW_PROPORTIONAL * (drivers->remote.getMouseX() - mouseXOffset);
+        yaw = MOUSE_YAW_PROPORTIONAL * (drivers->remote.getMouseX() - mouseXOffset);
         pitch += MOUSE_PITCH_PROPORTIONAL * (drivers->remote.getMouseY() - mouseYOffset);
 
         //TODO this lmao

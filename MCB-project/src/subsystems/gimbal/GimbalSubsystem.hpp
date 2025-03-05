@@ -48,12 +48,11 @@ private:  // Private Variables
 
     float pitchMotorVoltage, yawMotorVoltage;
 
-    float targetYawAngleWorld = PI, targetPitchAngle = 0.0f, imuOffset, yawAngleWorld = 0.0, yawRadS = 0.0f;
-    // float driveTrainRPM, yawRPM, yawAngleRelativeWorld = 0.0, imuOffset;
-    // float yawEncoderCache = 0;
-    // float desiredYawAngleWorld, desiredYawAngleWorld2, driveTrainEncoder = 0.0;
-    // float stickAccumulator = 0, targetYawAngleWorld = PI,
-    //       targetDTVelocityWorld = 0;  // changed targetYawAngleWorld from 0 to PI
+    float driveTrainRPM, yawRPM, yawAngleRelativeWorld = 0.0, imuOffset;
+    float yawEncoderCache = 0;
+    float desiredYawAngleWorld, desiredYawAngleWorld2, driveTrainEncoder = 0.0;
+    float stickAccumulator = 0, targetYawAngleWorld = PI,
+          targetDTVelocityWorld = 0;  // changed targetYawAngleWorld from 0 to PI
 
     // for sysid
     std::random_device rd;
@@ -106,11 +105,6 @@ public:  // Public Methods
 
     float getYawVel();
     float getPitchVel();
-
-    float getTargetYaw();
-    float getTargetPitch();
-    float getIMUOffset();
-
 
 private:  // Private Methods
     int getPitchVoltage(float targetAngle, float dt);
