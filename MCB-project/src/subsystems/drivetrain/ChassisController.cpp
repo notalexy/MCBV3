@@ -91,7 +91,7 @@ void ChassisController::velocityControl(Pose2d inputVelLocal, Vector2d estVelWor
     accumForceLocal += (errForceInertial - accumForceLocal) * KI_V * DT;
 
     //clamp accumulation
-    //accumForceLocal = accumForceLocal.clamp(MIN_FORCE, MAX_FORCE);
+    accumForceLocal = accumForceLocal.clamp(MIN_FORCE, MAX_FORCE);
 
     // update the required local force (for all 3 elements)
     *reqForceLocal = (inputVelLocal - estVelLocal) * KP_V + accumForceLocal;

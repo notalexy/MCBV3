@@ -23,6 +23,7 @@ private:                                            // Private Variables
 
     Pose2d lastDrive;
 
+
     float motorCurrent[4] = {0.0f,0.0f,0.0f,0.0f};
 
     float motorVel[4] = {0.0f,0.0f,0.0f,0.0f};
@@ -33,6 +34,8 @@ private:                                            // Private Variables
 public:  // Public Methods
     DrivetrainSubsystem(tap::Drivers* driver, tap::motor::DjiMotor* motorOne, tap::motor::DjiMotor* motorTwo, tap::motor::DjiMotor* motorThree, tap::motor::DjiMotor* motorFour);
     ~DrivetrainSubsystem() {}  // Intentionally blank
+
+    float imuAngle;
 
     /*
      * Call this function once, outside of the main loop.
@@ -49,7 +52,7 @@ public:  // Public Methods
      * the described behavior. This will allow the drivetrain to translate with left stick, and turn
      * with the right stick or beyblade depending how this is called.
      */
-    void setTargetTranslation(float x, float y, float rot, float angleReference);
+    void setTargetTranslation(Pose2d drive);
 
     /*
      * Call this function to set all DriveTrain motors to 0 desired RPM. CALL setMotorSpeeds() FOR

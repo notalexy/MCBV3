@@ -42,7 +42,7 @@ private:
     const float KP_V_ROT = 30;  // proportional gain for rotational velocity
     const Pose2d KP_V{KP_V_XY, KP_V_XY, KP_V_ROT};
 
-    const float KI_V = 0;//50;     // 50;    // integral gain for velocity
+    const float KI_V = 50;    // integral gain for velocity
 
     const float IV_MAX = 120;  // maximum integral term for velocity control
     const Vector2d MIN_FORCE{-IV_MAX, -IV_MAX}, MAX_FORCE{IV_MAX, IV_MAX};
