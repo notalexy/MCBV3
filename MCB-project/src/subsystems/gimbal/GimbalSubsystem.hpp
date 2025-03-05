@@ -48,7 +48,7 @@ private:  // Private Variables
 
     float pitchMotorVoltage, yawMotorVoltage;
 
-    float targetYawAngleWorld, targetPitchAngle, imuOffset, yawAngleWorld, yawRadS;
+    float targetYawAngleWorld = PI, targetPitchAngle = 0.0f, imuOffset, yawAngleWorld = 0.0, yawRadS = 0.0f;
     // float driveTrainRPM, yawRPM, yawAngleRelativeWorld = 0.0, imuOffset;
     // float yawEncoderCache = 0;
     // float desiredYawAngleWorld, desiredYawAngleWorld2, driveTrainEncoder = 0.0;

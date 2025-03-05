@@ -14,8 +14,6 @@ void GimbalSubsystem::initialize() {
     motorPitch->initialize();
     motorYaw->initialize();
     imuOffset = getYawEncoderValue();
-    targetYawAngleWorld = 0;
-    targetPitchAngle = 0;
 }
 
 void GimbalSubsystem::refresh() {
@@ -28,7 +26,7 @@ void GimbalSubsystem::refresh() {
 void GimbalSubsystem::updateMotors(float* targetYaw, float* targetPitch) {
     // impose limits on passed values
     *targetPitch = std::clamp(*targetPitch, -MAX_PITCH_DOWN, MAX_PITCH_UP);
-    //*targetYaw = fmod(*targetYaw, 2 * PI);
+    *targetYaw = fmod(*targetYaw, 2 * PI);
 
     float yawDifference = *targetYaw - targetYawAngleWorld;
     // this deals with overshoot
