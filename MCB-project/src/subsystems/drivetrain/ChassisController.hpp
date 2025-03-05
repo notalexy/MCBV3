@@ -20,8 +20,8 @@ private:
     const float UK_MOTOR = 0.004;          // motor dry friction N-m
     const float COF_WHEEL = 0.9;           // unitless COF
 
-    const float M_EFFECTIVE = 10;  // M + 4 * J_WHEEL / (R_WHEEL * R_WHEEL);
-    const float J_EFFECTIVE = 11;   // J + 4 * J_WHEEL * TRACKWIDTH / (2 * R_WHEEL);
+    const float M_EFFECTIVE = M + 4 * J_WHEEL / (R_WHEEL * R_WHEEL);
+    const float J_EFFECTIVE = J + 4 * J_WHEEL * TRACKWIDTH / (2 * R_WHEEL);
     const float F_MAX = M * 9.81f * COF_WHEEL;    // maximum force allowed across all 4 wheels
     const float F_MIN_T = 10 / (2 * TRACKWIDTH);  // minimum force per wheel in the torque direction that the traction limiter is allowed to throttle to
 
@@ -65,43 +65,26 @@ private:
     const float ikr3[3] = {-GEAR_RATIO / (R_WHEEL * ROOT_2), -GEAR_RATIO / (R_WHEEL * ROOT_2), -(TRACKWIDTH *GEAR_RATIO) / (R_WHEEL * 2)};
     const float ikr4[3] = {GEAR_RATIO / (R_WHEEL * ROOT_2), -GEAR_RATIO / (R_WHEEL * ROOT_2), -(TRACKWIDTH *GEAR_RATIO) / (R_WHEEL * 2)};
 
-    const float *inverseKinematics[4] = {ikr1, ikr2, ikr3, ikr4};
-
     const float fkr1[4] = {R_WHEEL * ROOT_2 / (4 * GEAR_RATIO), -R_WHEEL *ROOT_2 / (4 * GEAR_RATIO), -R_WHEEL *ROOT_2 / (4 * GEAR_RATIO), R_WHEEL *ROOT_2 / (4 * GEAR_RATIO)};
     const float fkr2[4] = {-R_WHEEL * ROOT_2 / (4 * GEAR_RATIO), -R_WHEEL *ROOT_2 / (4 * GEAR_RATIO), R_WHEEL *ROOT_2 / (4 * GEAR_RATIO), R_WHEEL *ROOT_2 / (4 * GEAR_RATIO)};
     const float fkr3[4] = {-R_WHEEL / (2 * TRACKWIDTH * GEAR_RATIO), -R_WHEEL / (2 * TRACKWIDTH * GEAR_RATIO), -R_WHEEL / (2 * TRACKWIDTH * GEAR_RATIO), -R_WHEEL / (2 * TRACKWIDTH * GEAR_RATIO)};
-
-    const float *forwardKinematics[3] = {fkr1, fkr2, fkr3};
 
     const float fir1[3] = {ROOT_2 / 4, ROOT_2 / 4, -1 / (TRACKWIDTH * 2)};
     const float fir2[3] = {-ROOT_2 / 4, ROOT_2 / 4, -1 / (TRACKWIDTH * 2)};
     const float fir3[3] = {-ROOT_2 / 4, -ROOT_2 / 4, -1 / (TRACKWIDTH * 2)};
     const float fir4[3] = {ROOT_2 / 4, -ROOT_2 / 4, -1 / (TRACKWIDTH * 2)};
 
-    const float *forceInverseKinematics[4] = {fir1, fir2, fir3, fir4};
-
     const float ffr1[4] = {1 / ROOT_2, -1 / ROOT_2, -1 / ROOT_2, 1 / ROOT_2};
     const float ffr2[4] = {-1 / ROOT_2, -1 / ROOT_2, 1 / ROOT_2, 1 / ROOT_2};
     const float ffr3[4] = {-TRACKWIDTH / 2, -TRACKWIDTH / 2, -TRACKWIDTH / 2, -TRACKWIDTH / 2};
-
-    const float *forceKinematics[3] = {ffr1, ffr2, ffr3};
 
     // Beyblade settings
     float dotThetaBeyblade = 0;  // Target beyblade velocity when chassis is not translating
     float dotThetaGain = 0;      // Amount to subtract from dot_theta_beyblade per meter/s of chassis speed
 
-    float *multiplyMatrices(int rows1, int cols1, const float **mat1, float *mat2, float *result) {
-        // Iterate over rows of mat1 and columns of mat2
-        for (int i = 0; i < rows1; i++) {
-            result[i] = 0.0f;  // Initialize to zero before accumulating
-            for (int j = 0; j < cols1; j++) {
-                result[i] += mat1[i][j] * mat2[j];
-            }
-        }
-        return result;
-    }
-
     float signum(float num) { return (num > 0) ? 1 : ((num < 0) ? -1 : 0); }
+
+    float clamp(float num, float min, float max) { return std::min(std::max(num, min), max); }
 
     // Helper for velocity control (sawtooth function)
     float sawtooth(float freq, float amplitude) {
@@ -127,6 +110,22 @@ public:
     void calculateTractionLimiting(Pose2d localForce, Pose2d *limitedForce);
 
     void calculatePowerLimiting(float V_m_FF[4], float I_m_FF[4], float T_req_m[4], float T_req_m2[4]);
+
+    const float *inverseKinematics[4] = {ikr1, ikr2, ikr3, ikr4};
+    const float *forwardKinematics[3] = {fkr1, fkr2, fkr3};
+    const float *forceInverseKinematics[4] = {fir1, fir2, fir3, fir4};
+    const float *forceKinematics[3] = {ffr1, ffr2, ffr3};
+
+    float *multiplyMatrices(int rows1, int cols1, const float **mat1, float *mat2, float *result) {
+        // Iterate over rows of mat1 and columns of mat2
+        for (int i = 0; i < rows1; i++) {
+            result[i] = 0.0f;  // Initialize to zero before accumulating
+            for (int j = 0; j < cols1; j++) {
+                result[i] += mat1[i][j] * mat2[j];
+            }
+        }
+        return result;
+    }
 };
 
 }  // namespace subsystems

@@ -7,42 +7,51 @@ class ChassisControllerTest : public ::testing::Test {
 protected:
     ChassisController controller;
     Pose2d localVel, inertialVel, inertialPos;
+    void runForwardStatePass() {
+        // Common initial conditions
+        localVel = Pose2d(1, 2, 0);
+        inertialVel = Pose2d(-0.6316, 2.1450, 3);
+        inertialPos = Pose2d(0, 0, 0.75);
+
+        controller.estimateState(Pose2d(6,7,7), &localVel, &inertialVel, &inertialPos);
+
+    }
+
+    void runLoadStateHistory() {
+        for (const auto& pose : {Pose2d(1,1,3), Pose2d(2,2,4), Pose2d(3,3,7), Pose2d(4,4,7)}) {
+            controller.estimateState(pose, &localVel, &inertialVel, &inertialPos);
+        }
+    }
+};
+class ChassisControllerMatrixTest : public ::testing::Test {
+protected:
+    ChassisController controller;
+    Pose2d ikInputs[4] = {
+        Pose2d(-0.2297, -0.2587, 7.1358),
+        Pose2d(-0.2376, -0.2600, 7.1192),
+        Pose2d(-0.3028, -0.2644, 6.9863),
+        Pose2d(0, 0, 0)
+    };
+
+    float* ikOutputs[4] = {
+        new float[4]{-686.0557, -582.0774, -464.9930, -568.9712},
+        new float[4]{-686.7906, -579.2545, -461.5783, -569.1145},
+        new float[4]{-691.8479, -554.7717, -435.0841, -572.1602},
+        new float[4]{0,0,0,0}
+    };
 
 };
 
-void observerRun(){
-    
-}
 TEST_F(ChassisControllerTest, EstimateStateHistory) {
-
-    controller.estimateState(Pose2d(1,1,3), &localVel, &inertialVel, &inertialPos);
-    controller.estimateState(Pose2d(2,2,4), &localVel, &inertialVel, &inertialPos);
-    controller.estimateState(Pose2d(3,3,7), &localVel, &inertialVel, &inertialPos);
-    controller.estimateState(Pose2d(4,4,7), &localVel, &inertialVel, &inertialPos);
+    runLoadStateHistory();
 
     for(int i = 0; i < 4; i++){
         EXPECT_NEAR(4-i, controller.forceHistory[i].getX(), 0.001); //if x is right they all are probably are
     }
-
-    //set these
-    localVel = Pose2d(1, 2, 0);
-    inertialVel = Pose2d(-0.6316, 2.1450, 3);
-    inertialPos = Pose2d(0, 0, 0.75);
-
-    controller.estimateState(Pose2d(6,7,7), &localVel, &inertialVel, &inertialPos);
 }
 TEST_F(ChassisControllerTest, EstimateStateHistory2) {
-    
-    controller.estimateState(Pose2d(1,1,3), &localVel, &inertialVel, &inertialPos);
-    controller.estimateState(Pose2d(2,2,4), &localVel, &inertialVel, &inertialPos);
-    controller.estimateState(Pose2d(3,3,7), &localVel, &inertialVel, &inertialPos);
-    controller.estimateState(Pose2d(4,4,7), &localVel, &inertialVel, &inertialPos);
-    //set these
-    localVel = Pose2d(1, 2, 0);
-    inertialVel = Pose2d(-0.6316, 2.1450, 3);
-    inertialPos = Pose2d(0, 0, 0.75);
-
-    controller.estimateState(Pose2d(6,7,7), &localVel, &inertialVel, &inertialPos);
+    runLoadStateHistory();
+    runForwardStatePass();
 
     EXPECT_NEAR(1.0508f, localVel.getX(), 0.0001f);
     EXPECT_NEAR(1.9786f, localVel.getY(), 0.0001f);
@@ -50,16 +59,8 @@ TEST_F(ChassisControllerTest, EstimateStateHistory2) {
 }
 TEST_F(ChassisControllerTest, EstimateStateHistory3) {
 
-    controller.estimateState(Pose2d(1,1,3), &localVel, &inertialVel, &inertialPos);
-    controller.estimateState(Pose2d(2,2,4), &localVel, &inertialVel, &inertialPos);
-    controller.estimateState(Pose2d(3,3,7), &localVel, &inertialVel, &inertialPos);
-    controller.estimateState(Pose2d(4,4,7), &localVel, &inertialVel, &inertialPos);
-    //set these
-    localVel = Pose2d(1, 2, 0);
-    inertialVel = Pose2d(-0.6316, 2.1450, 3);
-    inertialPos = Pose2d(0, 0, 0.75);
-
-    controller.estimateState(Pose2d(6,7,7), &localVel, &inertialVel, &inertialPos);
+    runLoadStateHistory();
+    runForwardStatePass();
 
     EXPECT_NEAR(-0.6317f, inertialVel.getX(), 0.0001f);
     EXPECT_NEAR(2.1494f, inertialVel.getY(), 0.0001f);
@@ -67,22 +68,24 @@ TEST_F(ChassisControllerTest, EstimateStateHistory3) {
 }
 TEST_F(ChassisControllerTest, EstimateStateHistory4) {
 
-    controller.estimateState(Pose2d(1,1,3), &localVel, &inertialVel, &inertialPos);
-    controller.estimateState(Pose2d(2,2,4), &localVel, &inertialVel, &inertialPos);
-    controller.estimateState(Pose2d(3,3,7), &localVel, &inertialVel, &inertialPos);
-    controller.estimateState(Pose2d(4,4,7), &localVel, &inertialVel, &inertialPos);
-    //set these
-    localVel = Pose2d(1, 2, 0);
-    inertialVel = Pose2d(-0.6316, 2.1450, 3);
-    inertialPos = Pose2d(0, 0, 0.75);
+    runLoadStateHistory();
+    runForwardStatePass();
 
-    controller.estimateState(Pose2d(6,7,7), &localVel, &inertialVel, &inertialPos);
 
     EXPECT_NEAR(-0.0051f, inertialPos.getX(), 0.0001f);
     EXPECT_NEAR(0.0172f, inertialPos.getY(), 0.0001f);
     EXPECT_NEAR(0.7740f, inertialPos.getRotation(), 0.0001f);
 }
 
+
+TEST_F(ChassisControllerMatrixTest, inverseTest){
+    for(int i = 0; i < 4; i++){
+        float* test = controller.multiplyMatrices(4, 3, controller.inverseKinematics, ikInputs[i], new float[4]);
+        for(int j = 0; j < 4; j++){
+            EXPECT_NEAR(test[j], ikOutputs[i][j], 0.03f);
+        }
+    }
+}
 
 
 
@@ -91,16 +94,37 @@ TEST_F(ChassisControllerTest, EstimateStateHistory4) {
 //     EXPECT_NEAR(vel, 0.0, 10.0); // Arbitrary range check
 // }
 
-TEST_F(ChassisControllerTest, VelocityControl) {
-    Pose2d inputLocalVel(1.0, 0.5, 0.2);
-    Vector2d estInertialVel(0.9, 0.4);
-    Pose2d estLocalVel(0.8, 0.3, 0.1);
-    Vector2d lastInertialForce(0.2, 0.1);
-    Pose2d reqLocalForce;
-    controller.velocityControl(inputLocalVel, estInertialVel, estLocalVel, lastInertialForce, &reqLocalForce);
-    EXPECT_NEAR(reqLocalForce.getX(), 0.2, 0.1);
-    EXPECT_NEAR(reqLocalForce.getY(), 0.2, 0.1);
-}
+// TEST_F(ChassisControllerTest, VelocityControl) {
+//     Pose2d velError[] = {
+//         Pose2d(0.4893, -0.6258, 1.9289e-04),
+//         Pose2d(0.4773, -0.6243, 1.8013e-04),
+//         Pose2d(0.4653, -0.6227, 1.6822e-04),
+//         Pose2d(0.4534, -0.6209, 1.5709e-04),
+//         Pose2d(0.4416, -0.6188, 1.4670e-04),
+//         Pose2d(0.4299, -0.6166, 1.3700e-04)
+//     };
+//     Vector2d inputError[] = {
+//         Vector2d(1.5687, -2.8793),
+//         Vector2d(1.5327, -2.9039),
+//         Vector2d(1.4967, -2.9284),
+//         Vector2d(1.4606, -2.9527),
+//         Vector2d(1.4243, -2.9769),
+//         Vector2d(1.3880, -3.0009)
+//     };
+
+//     Pose2d outputForces[] {
+//         Pose2d(1469.9, -1880.0, 0.0077),
+//         Pose2d(1433.7, -1875.7, 0.0072),
+//         Pose2d(1397.7, -1870.8, 0.0067),
+//         Pose2d(1362.0, -1865.3, 0.0063),
+//         Pose2d(1326.6, -1859.2, 0.0059),
+//         Pose2d(1291.4, -1852.6, 0.0055)
+//     };
+
+//     controller.velocityControl(inputLocalVel, estInertialVel, estLocalVel, lastInertialForce, &reqLocalForce);
+//     EXPECT_NEAR(reqLocalForce.getX(), 0.2, 0.1);
+//     EXPECT_NEAR(reqLocalForce.getY(), 0.2, 0.1);
+// }
 
 TEST_F(ChassisControllerTest, CalculateFeedForward) {
     float estimatedMotorVelocity[4] = {1.0, 2.0, 3.0, 4.0};

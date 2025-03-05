@@ -83,7 +83,9 @@
         "ranges": "cpp",
         "shared_mutex": "cpp",
         "span": "cpp",
-        "stop_token": "cpp"
+        "stop_token": "cpp",
+        "format": "cpp",
+        "semaphore": "cpp"
     },
     "files.exclude": {
         ".gitignore": true,
