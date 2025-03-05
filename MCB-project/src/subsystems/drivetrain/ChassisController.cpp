@@ -175,18 +175,17 @@ void ChassisController::calculatePowerLimiting(float V_m_FF[4], float I_m_FF[4],
     }
 }
 
-float estVelArr[3], estimatedMotorArr[4];
+float estVelArr[3], estMotorArr[4];
 void ChassisController::calculate(Pose2d targetVelLocal, float angle, float motorVelocity[4], float motorCurrent[4]) {
     // multiplyMatrices(4, 3, inverseKinematics, targetVelLocal.rotate(angle) * (0.01), motorCurrent);
-    
+    multiplyMatrices(3, 4, forwardKinematics, motorVelocity, estVelArr);
     // return;
-    Pose2d estVelLocal = multiplyMatrices(3, 4, forwardKinematics, motorVelocity, estVelArr);
+    Pose2d estVelLocal(estVelArr);
 
     //also feed in odometry but this will kind of estimate 
     estPosWorld.orientation() = angle;
 
     estVelWorld = estVelLocal.rotate(angle);
-
 
     //TESTED
     estimateState(lastForceLocal, &estVelLocal, &estVelWorld, &estPosWorld);
@@ -194,12 +193,12 @@ void ChassisController::calculate(Pose2d targetVelLocal, float angle, float moto
     estVelLocal.toArray(estVelArr);
 
     // inverse kinematics
-    multiplyMatrices(4, 3, inverseKinematics, estVelArr, estimatedMotorArr);
+    multiplyMatrices(4, 3, inverseKinematics, estVelArr, estMotorArr);
 
     // calculateBeybladeVelocity(0.0f, 0.0f);  // should be changed
     float V_m_FF[4], I_m_FF[4];  // motor feedforwards
 
-    calculateFeedForward(estimatedMotorArr, V_m_FF, I_m_FF);
+    calculateFeedForward(estMotorArr, V_m_FF, I_m_FF);
 
     // get last inertial force too
     Pose2d lastForceWorld = lastForceLocal.rotate(estPosWorld.getRotation());
@@ -210,19 +209,20 @@ void ChassisController::calculate(Pose2d targetVelLocal, float angle, float moto
     velocityControl(targetVelLocal, estVelWorld, estVelLocal, lastForceWorld, &forceLocal);
 
     // calculateTractionLimiting(forceLocal, &forceLocal);
+    Pose2d forceTimes = forceLocal * (R_WHEEL / GEAR_RATIO);
+    
+    forceTimes.toArray(forceArr);
 
-    (forceLocal * (R_WHEEL / GEAR_RATIO)).toArray(forceArr);
-
-    multiplyMatrices(4, 3, forceInverseKinematics, forceArr, estimatedMotorArr);
+    multiplyMatrices(4, 3, forceInverseKinematics, forceArr, estMotorArr);
 
     // calculatePowerLimiting(V_m_FF, I_m_FF, estimatedMotorArr, estimatedMotorArr);
 
     //have to reassign bc of how this works. Hopefully this gets garbage collected correctly
-    lastForceLocal = Pose2d(multiplyMatrices(3, 4, forceKinematics, estimatedMotorArr, forceArr));
+    lastForceLocal = Pose2d(multiplyMatrices(3, 4, forceKinematics, estMotorArr, forceArr));
 
     // set motor currents
     for (int i = 0; i < 4; i++) {
-        motorCurrent[i] = motorTorque[i] / KT + I_m_FF[i];
+        motorCurrent[i] = estMotorArr[i] / KT + I_m_FF[i];
     }
 }
 
