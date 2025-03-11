@@ -16,8 +16,8 @@ private:
     const float J = 0.44;                  // measured from sys id kg-m^2
     const float R_WHEEL = 0.048 / ROOT_2;  // wheel radius m
     const float J_WHEEL = 0.0009;          // wheel moment of inertia kg-m^2
-    const float C_MOTOR = 0.00003;         // motor damping kg-s/m^2
-    const float UK_MOTOR = 0.004;          // motor dry friction N-m
+    const float C_MOTOR = 1.6e-4;         // motor damping kg-s/m^2
+    const float UK_MOTOR = 0.12;          // motor dry friction N-m
     const float COF_WHEEL = 0.9;           // unitless COF
 
     const float KB = 0.02361;       // V-s/rad backemf
@@ -34,8 +34,8 @@ private:
 
     // Feedforward gains from fundamental system constants
     const float K_V = KB;              // Velocity feedforward gain (back EMF constant)
-    const float K_VIS = C_MOTOR / KT;  // Viscous damping feedforward gain
-    const float K_S = UK_MOTOR / KT;   // Static friction feedforward g
+    const float K_VIS = C_MOTOR * KT;  // Viscous damping feedforward gain
+    const float K_S = UK_MOTOR * KT;   // Static friction feedforward g
 
     // Tunable Parameters
     const float KP_V_XY = 1500;  // proportional gain for velocity
