@@ -32,21 +32,59 @@ void DrivetrainSubsystem::refresh()
     }
 
 }
-
+#if defined(drivetrain_sysid)
+const float SAT_SECONDS = 5.0f, MAX_CURRENT = 1.0f, RAMP_TIME = 30.0f;
+float time, current;
+float motor1Vel, motor2Vel, motor3Vel, motor4Vel;
+float calculateCurrent(float time) {
+    if (time < 0) {
+        return 0.0;
+    } else if (time < SAT_SECONDS) {
+        return MAX_CURRENT;
+    } else if (time < SAT_SECONDS + RAMP_TIME) {
+        // Linearly decrease from MAX_CURRENT to 0
+        float progress = (time - SAT_SECONDS) / RAMP_TIME;
+        return MAX_CURRENT * (1.0 - progress);
+    } else if(time < 2 * SAT_SECONDS + RAMP_TIME) {
+        return 0.0;
+    } else if (time < 3 * SAT_SECONDS + RAMP_TIME) {
+        return -MAX_CURRENT;
+    } else if (time < 3 * SAT_SECONDS + 2 * RAMP_TIME) {
+        // Linearly increase from -MAX_CURRENT to 0
+        float progress = (time - (3 * SAT_SECONDS + RAMP_TIME)) / RAMP_TIME;
+        return -MAX_CURRENT * (1.0 - progress);
+    } else {
+        return 0.0; // Stay at 0 after the full cycle
+    }
+}
+#endif
 void DrivetrainSubsystem::setTargetTranslation(Pose2d drive)
 {       
     lastDrive = drive;
 
+#if defined(drivetrain_sysid)
+    current = calculateCurrent(time);
+    time += 0.002f;
+    for(int i = 0; i < 4; i++) motorCurrent[i] = current;
+    motor1Vel = motorVel[0];
+    motor2Vel = motorVel[1];
+    motor3Vel = motorVel[2];
+    motor4Vel = motorVel[3];
+#else
     controller.calculate(lastDrive, imuAngle, motorVel, motorCurrent);
-    
-    // motorCurrent[0] = 1.0f;
-    // motorCurrent[0] = 10.0f;
+
+#endif
+
 }
 
 
 //fix function
 void DrivetrainSubsystem::stopMotors()
 {
+    #if defined(drivetrain_sysid)
+    time = 0;
+    #endif
+
     for(int i = 0; i < 4; i++) motorCurrent[i] = 0;
 }
 
