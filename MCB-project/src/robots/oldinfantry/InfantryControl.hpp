@@ -1,6 +1,8 @@
 #include "robots/RobotControl.hpp"
 #include "robots/oldinfantry/InfantryHardware.hpp"
 
+#include "subsystems/ui/UISubsystem.hpp"
+
 #include "subsystems/gimbal/JoystickMoveCommand.hpp"
 #include "subsystems/gimbal/MouseMoveCommand.hpp"
 
@@ -30,12 +32,14 @@ public:
         flywheel.initialize();
         indexer.initialize();
         drivetrain.initialize();
+        ui.initialize();
 
         // Register subsystems;
         drivers->commandScheduler.registerSubsystem(&gimbal);
         drivers->commandScheduler.registerSubsystem(&flywheel);
         drivers->commandScheduler.registerSubsystem(&indexer);
         drivers->commandScheduler.registerSubsystem(&drivetrain);
+        drivers->commandScheduler.registerSubsystem(&ui);
 
         // Run startup commands
         gimbal.setDefaultCommand(&look);
@@ -50,6 +54,7 @@ public:
     }
     // Subsystems
 
+    subsystems::UISubsystem ui{drivers};
 
     // //commands
     commands::JoystickMoveCommand look{drivers, &gimbal};
