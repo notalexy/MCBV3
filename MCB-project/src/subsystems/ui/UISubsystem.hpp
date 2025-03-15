@@ -54,7 +54,13 @@ public:  // Public Methods
 
 private:  // Private Methods
     bool run(); 
-    void getUnusedGraphicName(uint8_t graphicName[3]);
+
+    uint32_t getUnusedGraphicName();
+
+    /*
+     * Puts name into array (changing it in place), and returns array
+     */
+    uint8_t* formatGraphicName(uint8_t array[3], uint32_t name);
 
 };
 }  // namespace subsystems

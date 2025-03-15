@@ -10,19 +10,21 @@ UISubsystem::UISubsystem(tap::Drivers* drivers)
 {
 }
 
-void UISubsystem::getUnusedGraphicName(uint8_t graphicName[3])
-{
-    if (currGraphicName > 0xffffff)
-    {
-        return;
+uint32_t UISubsystem::getUnusedGraphicName() {
+    if (currGraphicName > 0xffffff) {
+        //maybe signal some error? turn on the red led?
+        return currGraphicName;
+    } else {
+        return currGraphicName++;
     }
-    else
-    {
-        graphicName[0] = static_cast<uint8_t>((currGraphicName >> 16) & 0xff);
-        graphicName[1] = static_cast<uint8_t>((currGraphicName >> 8) & 0xff);
-        graphicName[2] = static_cast<uint8_t>(currGraphicName & 0xff);
-        currGraphicName++;
-    }
+}
+
+uint8_t* UISubsystem::formatGraphicName(uint8_t array[3], uint32_t name) {
+    //shifts and bitwise and
+    array[0] = static_cast<uint8_t>((name >> 16) & 0xff);
+    array[1] = static_cast<uint8_t>((name >> 8) & 0xff);
+    array[2] = static_cast<uint8_t>(name & 0xff);
+    return array;
 }
 
 void UISubsystem::initialize()
@@ -33,10 +35,9 @@ void UISubsystem::initialize()
     bulletsRemainingText[3]='t';
     bulletsRemainingText[4]='\0';
 
-    getUnusedGraphicName(graphicName);
     RefSerialTransmitter::configGraphicGenerics(
         &textGraphic.graphicData,
-        graphicName,
+        formatGraphicName(graphicName, getUnusedGraphicName()),
         Tx::GRAPHIC_ADD,
         0, //graphic layer
         Tx::GraphicColor::ORANGE);
@@ -70,10 +71,12 @@ bool UISubsystem::run() {
     PT_BEGIN();
 
     PT_WAIT_UNTIL(drivers->refSerial.getRefSerialReceivingData());
-    // if(needToDelete){
-    //     PT_CALL(refSerialTransmitter.deleteGraphicLayer(RefSerialTransmitter::Tx::DELETE_ALL, 0));
-    //     needToDelete = false;
-    // }
+
+    //need to figure out delete at start. It seems like it wants to delete every time run is called
+    if(needToDelete){
+        needToDelete = false; //probably this needs to be first to not go in this branch next time, so set it to false before the pt call
+        PT_CALL(refSerialTransmitter.deleteGraphicLayer(RefSerialTransmitter::Tx::DELETE_ALL, 0));
+    }
 
     
     // If we try to restart the hud, break out of the loop
