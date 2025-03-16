@@ -28,7 +28,9 @@ class InfantryControl : public ControlInterface
 {
 public:
     //pass drivers back to root robotcontrol to store
-    InfantryControl(src::Drivers* drivers, InfantryHardware hardware) {}
+    InfantryControl(src::Drivers *drivers) :
+        drivers(drivers),
+        hardware(InfantryHardware{drivers}) {}
     //functions we are using
     void initialize() override {
 
@@ -57,9 +59,16 @@ public:
         drivers->commandMapper.addMap(&controllerToKeyboardMouseMapping);
 
     }
-    // Subsystems
 
+    src::Drivers *drivers;
+    InfantryHardware hardware;
+
+    // Subsystems
     subsystems::UISubsystem ui{drivers};
+    subsystems::GimbalSubsystem gimbal{drivers, &hardware.yawMotor, &hardware.pitchMotor};
+    subsystems::FlywheelSubsystem flywheel{drivers, &hardware.flywheelMotor1, &hardware.flywheelMotor2};
+    subsystems::IndexerSubsystem indexer{drivers, &hardware.indexMotor};
+    subsystems::DrivetrainSubsystem drivetrain{drivers, &hardware.driveMotor1, &hardware.driveMotor2, &hardware.driveMotor3, &hardware.driveMotor4};
 
     // //commands
     commands::JoystickMoveCommand look{drivers, &gimbal};

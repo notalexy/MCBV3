@@ -15,11 +15,11 @@
 
 namespace robots
 {
-class SentryControl : public ControlInterface, public SentryHardware
+class SentryControl : public ControlInterface
 {
 public:
     //pass drivers back to root robotcontrol to store
-    SentryControl(src::Drivers* drivers) : SentryHardware(drivers) {}
+    SentryControl(src::Drivers *drivers) : drivers(drivers), hardware(SentryHardware{drivers}) {}
     //functions we are using
     void initialize() override {
 
@@ -46,8 +46,15 @@ public:
         drivers->commandMapper.addMap(&controllerToKeyboardMouseMapping);
 
     }
-    // Subsystems
 
+    src::Drivers *drivers;
+    SentryHardware hardware;
+
+    //subsystems
+    subsystems::GimbalSubsystem gimbal{drivers, &hardware.yawMotor, &hardware.pitchMotor};
+    subsystems::FlywheelSubsystem flywheel{drivers, &hardware.flywheelMotor1, &hardware.flywheelMotor2};
+    subsystems::DoubleIndexerSubsystem indexer{drivers, &hardware.indexMotor1, &hardware.indexMotor2};
+    subsystems::DrivetrainSubsystem drivetrain{drivers, &hardware.driveMotor1, &hardware.driveMotor2, &hardware.driveMotor3, &hardware.driveMotor4};
 
     //commands
     commands::JoystickMoveCommand look{drivers, &gimbal};

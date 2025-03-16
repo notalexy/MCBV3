@@ -38,12 +38,6 @@ public:
     DjiMotor driveMotor3{drivers, MotorId::MOTOR4, CanBus::CAN_BUS1, true, "Motor 3", 0, 0};
     DjiMotor driveMotor4{drivers, MotorId::MOTOR2, CanBus::CAN_BUS1, true, "Motor 4", 0, 0};
 
-
-    //subsystems
-    subsystems::GimbalSubsystem gimbal{drivers, &yawMotor, &pitchMotor};
-    subsystems::FlywheelSubsystem flywheel{drivers, &flywheelMotor1, &flywheelMotor2};
-    subsystems::IndexerSubsystem indexer{drivers, &indexMotor};
-    subsystems::DrivetrainSubsystem drivetrain{drivers, &driveMotor1, &driveMotor2, &driveMotor3, &driveMotor4};
 };
 
 }  // namespace ThornBots
