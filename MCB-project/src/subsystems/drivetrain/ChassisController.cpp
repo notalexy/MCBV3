@@ -150,7 +150,7 @@ void ChassisController::calculateTractionLimiting(Pose2d localForce, Pose2d* lim
 }
 
 // Calculates scaling factor based on the equations in the notion
-void ChassisController::calculatePowerLimiting(float V_m_FF[4], float I_m_FF[4], float T_req_m[4], float T_req_m2[4]) {
+void ChassisController::calculatePowerLimiting(float powerLimit, float V_m_FF[4], float I_m_FF[4], float T_req_m[4], float T_req_m2[4]) {
     // // Get all the summations out of the way first
     float aSum = 0, bSumFirst = 0, bSumSecond = 0, cSumFirst = 0, cSumSecond = 0;
     for (int i = 0; i < 4; i++) {
@@ -164,7 +164,7 @@ void ChassisController::calculatePowerLimiting(float V_m_FF[4], float I_m_FF[4],
     // Then get a, b, c to calculate the scaling factor with
     float a = (RA / (KT * KT)) * aSum;                              // KT^-2 T^2
     float b = ((2 * RA) / KT) * bSumFirst + (1 / KT) * bSumSecond;  // KT^-1 T^1 IV^1
-    float c = RA * cSumFirst + cSumSecond - P_MAX;                  // IV^2
+    float c = RA * cSumFirst + cSumSecond - powerLimit*P_FOS + P_IDLE;                  // IV^2
 
     float s_scaling = 1.0f;
     if(a > 0 && b * b - 4 * a * c > 0) s_scaling =  clamp((-b + std::sqrt(b * b - 4 * a * c)) / (2 * a), 0.0f, 1.0f);
@@ -176,7 +176,7 @@ void ChassisController::calculatePowerLimiting(float V_m_FF[4], float I_m_FF[4],
 }
 
 float estVelArr[3], estMotorArr[4];
-void ChassisController::calculate(Pose2d targetVelLocal, float angle, float motorVelocity[4], float motorCurrent[4]) {
+void ChassisController::calculate(Pose2d targetVelLocal, float powerLimit, float angle, float motorVelocity[4], float motorCurrent[4]) {
     // multiplyMatrices(4, 3, inverseKinematics, targetVelLocal.rotate(angle) * (0.01), motorCurrent);
     multiplyMatrices(3, 4, forwardKinematics, motorVelocity, estVelArr);
     // return;
@@ -216,7 +216,7 @@ void ChassisController::calculate(Pose2d targetVelLocal, float angle, float moto
 
     multiplyMatrices(4, 3, forceInverseKinematics, forceArr, estMotorArr);
 
-    calculatePowerLimiting(V_m_FF, I_m_FF, estMotorArr, estMotorArr);
+    calculatePowerLimiting(powerLimit, V_m_FF, I_m_FF, estMotorArr, estMotorArr);
 
     //have to reassign bc of how this works. Hopefully this gets garbage collected correctly
     lastForceLocal = Pose2d(multiplyMatrices(3, 4, forceKinematics, estMotorArr, forceArr));

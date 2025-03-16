@@ -150,7 +150,7 @@ TEST_F(ChassisControllerTest, CalculatePowerLimiting) {
     float I_m_FF[4] = {0.5, 0.6, 0.55, 0.65};
     float T_req_m[4] = {2.0, 2.5, 2.2, 2.8};
     float T_req_m2[4];
-    controller.calculatePowerLimiting(V_m_FF, I_m_FF, T_req_m, T_req_m2);
+    controller.calculatePowerLimiting(60, V_m_FF, I_m_FF, T_req_m, T_req_m2);
     for (int i = 0; i < 4; i++) {
         EXPECT_LE(T_req_m2[i], T_req_m[i]);
     }
