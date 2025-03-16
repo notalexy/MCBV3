@@ -43,8 +43,7 @@ static void updateIo(src::Drivers *drivers)
 }
 
 src::Drivers drivers;
- 
-RobotHardware hardware{&drivers};
+
 RobotControl control{&drivers};
 
 int main()
