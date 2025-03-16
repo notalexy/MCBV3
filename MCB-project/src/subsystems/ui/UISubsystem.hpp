@@ -7,38 +7,33 @@
 #include "tap/communication/serial/ref_serial_transmitter.hpp"
 
 #include "drivers.hpp"
+#include "util/ui/GraphicsContainer.hpp"
 
 namespace subsystems
 {
 using namespace tap::communication::serial;
 
-class UISubsystem : public tap::control::Subsystem, ::modm::pt::Protothread, tap::communication::serial::RefSerialData
+class UISubsystem : public tap::control::Subsystem, ::modm::pt::Protothread
 {
 
-private:                                            // Private Variables
+public:
+    static constexpr uint16_t SCREEN_WIDTH = 1920; //pixels
+    static constexpr uint16_t SCREEN_HEIGHT = 1080; //pixels
+
+private:  // Private Variables
     tap::Drivers* drivers;
     RefSerialTransmitter refSerialTransmitter;
+    tap::arch::MilliTimeout delayTimeout; //for not sending things too fast and dropping packets
 
-    uint32_t currGraphicName = 0;
-    uint8_t graphicName[3];
-
+    static uint32_t curGraphicName;
+    
+    //for protothread
     bool restarting = false; 
     bool needToDelete = true; 
-    float fps = 0.0f;
-    uint32_t startTime = 0;
 
-    Tx::GraphicCharacterMessage textGraphic;
-    char *bulletsRemainingText =(char*) malloc(5*sizeof(char));
+    //when get a/the command, it should set this
+    GraphicsContainer* topLevelContainer = nullptr;
 
-    /** Width of the screen, in pixels. */
-    static constexpr uint16_t SCREEN_WIDTH = 1920;
-    /** Height of the screen, in pixels. */
-    static constexpr uint16_t SCREEN_HEIGHT = 1080;
-
-    int i = 0;
-
-    tap::arch::MilliTimeout delayTimeout;
-   
 
 public:  // Public Methods
     UISubsystem(tap::Drivers* driver);
@@ -52,15 +47,18 @@ public:  // Public Methods
 
     void refresh() override;
 
-private:  // Private Methods
-    bool run(); 
-
-    uint32_t getUnusedGraphicName();
+    static uint32_t getUnusedGraphicName();
 
     /*
      * Puts name into array (changing it in place), and returns array
      */
-    uint8_t* formatGraphicName(uint8_t array[3], uint32_t name);
+    static uint8_t* formatGraphicName(uint8_t array[3], uint32_t name);
 
+    void setTopLevelContainer(GraphicsContainer* container){
+        topLevelContainer = container;
+    }
+
+private:  // Private Methods
+    bool run(); //for protothread
 };
 }  // namespace subsystems

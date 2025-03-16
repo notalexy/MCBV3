@@ -1,0 +1,48 @@
+#pragma once
+
+#include <vector>
+
+#include "util/ui/GraphicsObject.hpp"
+
+class GraphicsContainer : public GraphicsObject {
+public:
+    int countNeedRedrawn() final {  // final here means no more overriding, if more overriding is wanted replace final with override
+        // sum all contained objects counts
+        int r = 0;
+        for (GraphicsObject* p : objects) {
+            r += p->countNeedRedrawn();
+        }
+        return r;
+    }
+
+    GraphicsObject* getNext() final {
+        GraphicsObject* r = nullptr;
+
+        // note that it is possible to skip this loop entirely if countIndex==objects.size(),
+        // allowing the container above this one to check the container after this one
+        // no int i = something, so start with semicolon
+        for (; countIndex < objects.size(); countIndex++) {
+            if (r) break;
+            r = objects.at(countIndex)->getNext();
+        }
+
+        // we found something in the loop: return it
+        // we didn't find something in the loop: return nullptr, unchanged through the loop
+        return r;
+    }
+
+    // not just objects.size() because containers can contain other containers
+    int size() final {
+        int r = 0;
+        for (GraphicsObject* p : objects) {
+            r += p->size();
+        }
+        return r;
+    }
+
+    /* When adding, make sure you don't lose the object from leaving scope */
+    void addGraphicsObject(GraphicsObject* obj) { objects.push_back(obj); }
+
+private:
+    std::vector<GraphicsObject*> objects;
+};
