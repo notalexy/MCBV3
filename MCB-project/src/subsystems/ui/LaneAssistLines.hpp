@@ -14,6 +14,11 @@ public:
         addGraphicsObject(&right);
     }
 
+    void update() final {
+        //these lines could change with the gimbal looking up and down
+        //but that is currently unimplemented
+    }
+
 private:
     const uint16_t BOTTOM_OFFSET = 480;
     const uint16_t TOP_OFFSET = 320;

@@ -1,9 +1,14 @@
 #pragma once
 
+#include "subsystems/ui/UISubsystem.hpp"
 #include "util/ui/GraphicsObject.hpp"
 
+using namespace tap::communication::serial;
+using namespace subsystems;
 class SimpleGraphicsObject : public GraphicsObject {
 public:
+    SimpleGraphicsObject(RefSerialData::Tx::GraphicColor color) : color(color) { UISubsystem::formatGraphicName(graphicNameArray, UISubsystem::getUnusedGraphicName()); }
+
     int countNeedRedrawn() final { return needsRedrawn(); }
 
     /*
@@ -26,7 +31,7 @@ public:
 
     virtual void finishConfigGraphicData(RefSerialData::Tx::GraphicData* graphicData) = 0;
 
-    void configGraphicData(RefSerialData::Tx::GraphicData* graphicData) final  {
+    void configGraphicData(RefSerialData::Tx::GraphicData* graphicData) final {
         RefSerialTransmitter::configGraphicGenerics(
             graphicData,
             graphicNameArray,
@@ -36,14 +41,15 @@ public:
         hasDrawn = true;
         finishConfigGraphicData(graphicData);
     }
-    
+
     void resetIteration() final { countIndex = 0; }
-    
-    RefSerialData::Tx::GraphicColor color; //can set this directly, will appear next time drawn
+
+    void hasBeenCleared() final { hasDrawn = false; }
+
+    RefSerialData::Tx::GraphicColor color;  // can set this directly, will appear next time drawn
 
 protected:
+    bool hasDrawn = false;  // to determine if we need to modify or add
 
-    bool hasDrawn = false; //to determine if we need to modify or add
-    
     uint8_t graphicNameArray[3];
 };

@@ -17,8 +17,8 @@ class UISubsystem : public tap::control::Subsystem, ::modm::pt::Protothread
 {
 
 public:
-    static constexpr uint16_t SCREEN_WIDTH = 1920; //pixels
-    static constexpr uint16_t SCREEN_HEIGHT = 1080; //pixels
+    static constexpr uint16_t SCREEN_WIDTH = 1920; //pixels. x=0 is left
+    static constexpr uint16_t SCREEN_HEIGHT = 1080; //pixels. y=0 is bottom
 
 private:  // Private Variables
     tap::Drivers* drivers;
@@ -28,9 +28,9 @@ private:  // Private Variables
     static uint32_t currGraphicName;
     
     //for protothread
-    bool restarting = false; 
+    bool restarting = true; 
     bool needToDelete = true; 
-    static constexpr int TARGET_NUM_OBJECTS = 7;
+    static constexpr int TARGET_NUM_OBJECTS = 7; //could change this to test if 7 is the most efficient, and test wasteIsBetterForX's, but don't make this larger than 7
     GraphicsObject* objectsToSend[TARGET_NUM_OBJECTS];
     int graphicsIndex=0;
     int innerGraphicsIndex=0;
@@ -42,7 +42,11 @@ private:  // Private Variables
     bool wasteIsBetterFor3, wasteIsBetterFor4, wasteIsBetterFor6 = false;
     uint8_t wasteNameArray[3];
 
-    //when get a/the command, it should set this
+    //fps calc
+    float fps = 0.0f;
+    uint32_t startTime = 0;
+
+    //when get UIDrawCommand, it should set this
     GraphicsContainer* topLevelContainer = nullptr;
 
 
@@ -72,6 +76,8 @@ public:  // Public Methods
     
 private:  // Private Methods
     bool run(); //for protothread
+
+    void updateFPS();
 
 };
 }  // namespace subsystems

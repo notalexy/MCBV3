@@ -6,6 +6,7 @@ void UIDrawCommand::initialize() {
     subsystem->setTopLevelContainer(this); 
 
     addGraphicsObject(&laneAssistLines);
+    //add more here
 }
 
 void UIDrawCommand::execute() {}

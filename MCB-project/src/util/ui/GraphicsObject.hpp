@@ -51,7 +51,7 @@ public:
      */
     virtual GraphicsObject* getNext() = 0;
 
-    virtual void resetIteration()=0;
+    virtual void resetIteration() = 0;
 
     /*
      * For facilitating flattening of containers of containers. Simple
@@ -63,10 +63,31 @@ public:
     virtual int size() = 0;
 
     /*
-     * Containers do nothing, SimpleGraphicsObject's 
+     * Containers do nothing, SimpleGraphicsObject's
      */
-    virtual void configGraphicData(__attribute__((unused)) RefSerialData::Tx::GraphicData* graphicData) {(void) graphicData;}
+    virtual void configGraphicData(__attribute__((unused)) RefSerialData::Tx::GraphicData* graphicData) { (void)graphicData; }
+
+    /*
+     * For objects contained by the UIDrawCommand, like the reticle,
+     * the beyblade indicator, the supercap bar. They need to be able
+     * to update when the UISubsytem updates.
+     *
+     * For those objects, they need to override this and change the
+     * numbers associated with their objects, like changing the x2
+     * of the line for the supercap bar. UISubsytem will notice
+     * next time it looks at that line that it needs to be redrawn.
+     *
+     * Containers will call update() on all contained objects.
+     */
+    virtual void update() {}
+
+    /*
+     * For when everything gets cleared. This should make it so next
+     * time this object or all contained objects are told to draw,
+     * they use GRAPHIC_ADD and not GRAPHIC_MODIFY
+     */
+    virtual void hasBeenCleared() {}
 
 protected:
-    u_int16_t countIndex=0;
+    u_int16_t countIndex = 0;
 };

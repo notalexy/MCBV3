@@ -30,24 +30,30 @@ uint8_t* UISubsystem::formatGraphicName(uint8_t array[3], uint32_t name) {
     return array;
 }
 
-void UISubsystem::initialize() { this->restarting = false; }
+void UISubsystem::initialize() { this->restarting = true; }
 
-// guaranteed to be called
-void UISubsystem::refresh() { run(); }
+// guaranteed to be called, whether we have a command (topLevelContainer) or not
+void UISubsystem::refresh() { 
+    if(topLevelContainer){
+        if(!startTime) startTime = tap::arch::clock::getTimeMicroseconds();
+        topLevelContainer->update();
+        run(); 
+    }
+}
 
 bool UISubsystem::run() {
     // The thread has exited the loop, meaning that there are no locked resources
     if (!this->isRunning()) {
-        // Restart the thread
-        restart();
+        restart();// Restart the thread
+
         // Reset the HUD elements
-        // this->restartHud();
-        currGraphicName = 0;
+        // don't reset currGraphicName because old objects don't lose their names they just need to re-add themselves
         restarting = false;
         needToDelete = true;
     }
 
     PT_BEGIN();
+    // inside of a protothread, you aren't able to make new variables
 
     PT_WAIT_UNTIL(drivers->refSerial.getRefSerialReceivingData());
 
@@ -55,11 +61,12 @@ bool UISubsystem::run() {
     //  if(needToDelete){
     //      needToDelete = false; //probably this needs to be first to not go in this branch next time, so set it to false before the pt call
     //      PT_CALL(refSerialTransmitter.deleteGraphicLayer(RefSerialTransmitter::Tx::DELETE_ALL, 0));
+    //      topLevelContainer->hasBeenCleared();
     //  }
 
     // If we try to restart the hud, break out of the loop
     while (!this->restarting) {
-        graphicsIndex = 0;                                  // inside of a protothread, you aren't able to make new variables
+        graphicsIndex = 0;                                  
         nextGraphicsObject = topLevelContainer->getNext();  // if nullptr on first call, the first while loop is skipped
         while (nextGraphicsObject) {
             objectsToSend[graphicsIndex++] = nextGraphicsObject;
@@ -70,6 +77,7 @@ bool UISubsystem::run() {
         if (graphicsIndex != 7) {
             // so calling getNext would return nullptr
             topLevelContainer->resetIteration();
+            updateFPS();
             nextGraphicsObject = topLevelContainer->getNext();  // if nullptr again after reset iteration, the second while loop is skipped
             while (nextGraphicsObject) {
                 objectsToSend[graphicsIndex++] = nextGraphicsObject;
@@ -206,6 +214,14 @@ bool UISubsystem::run() {
     // Breaking out of the loop successfully calls this method,
     // allowing us to know that all execution is over.
     PT_END();
+}
+
+void UISubsystem::updateFPS() {
+    //the timer wraps every 72 minutes, when it does just don't update fps that frame
+    uint32_t currentTime = tap::arch::clock::getTimeMicroseconds();
+    if((currentTime - startTime)>0)
+        fps = 1e6f / (currentTime - startTime);
+    startTime = currentTime;
 }
 
 }  // namespace subsystems
