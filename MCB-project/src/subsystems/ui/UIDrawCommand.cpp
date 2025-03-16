@@ -2,14 +2,13 @@
 
 namespace commands {
 
-void UIDrawCommand::initialize() { 
-    subsystem->setTopLevelContainer(this); 
 
+void UIDrawCommand::initialize() {
     addGraphicsObject(&laneAssistLines);
-    //add more here
+    // add more here
 }
 
-void UIDrawCommand::execute() {}
+void UIDrawCommand::execute() { subsystem->setTopLevelContainer(this); }
 
 void UIDrawCommand::end(bool) { subsystem->setTopLevelContainer(nullptr); }
 

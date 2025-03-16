@@ -2,6 +2,7 @@
 #include "robots/oldinfantry/InfantryHardware.hpp"
 
 #include "subsystems/ui/UISubsystem.hpp"
+#include "subsystems/ui/UIDrawCommand.hpp"
 
 #include "subsystems/gimbal/JoystickMoveCommand.hpp"
 #include "subsystems/gimbal/MouseMoveCommand.hpp"
@@ -45,6 +46,7 @@ public:
         gimbal.setDefaultCommand(&look);
         flywheel.setDefaultCommand(&shooterStop);
         drivetrain.setDefaultCommand(&driveCommand);
+        ui.setDefaultCommand(&draw);
 
         // drivers->commandMapper.addMap(&startShootMapping);
         // drivers->commandMapper.addMap(&idleShootMapping);
@@ -66,7 +68,9 @@ public:
     commands::IndexerNBallsCommand indexer10Hz{drivers, &indexer, -1, 10};
     commands::IndexerUnjamCommand indexerUnjam{drivers, &indexer};
 
-   commands::JoystickDriveCommand driveCommand{drivers, &drivetrain, &gimbal};
+    commands::JoystickDriveCommand driveCommand{drivers, &drivetrain, &gimbal};
+
+    commands::UIDrawCommand draw{drivers, &ui};
 
     //mappings
     ToggleCommandMapping controllerToKeyboardMouseMapping {
