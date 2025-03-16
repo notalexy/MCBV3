@@ -19,7 +19,8 @@ private:
     const uint16_t TOP_OFFSET = 320;
     const uint16_t HEIGHT = 360;
     const uint16_t THICKNESS = 2;
+    const uint16_t HALF_WIDTH = UISubsystem::SCREEN_WIDTH / 2;
 
-    Line left{RefSerialData::Tx::GraphicColor::CYAN, UISubsystem::SCREEN_WIDTH / 2 - BOTTOM_OFFSET, 0, UISubsystem::SCREEN_WIDTH / 2 - TOP_OFFSET, HEIGHT, THICKNESS};
-    Line right{RefSerialData::Tx::GraphicColor::CYAN, UISubsystem::SCREEN_WIDTH / 2 + BOTTOM_OFFSET, 0, UISubsystem::SCREEN_WIDTH / 2 + TOP_OFFSET, HEIGHT, THICKNESS};
+    Line left{RefSerialData::Tx::GraphicColor::CYAN, static_cast<uint16_t>(HALF_WIDTH - BOTTOM_OFFSET), 0, static_cast<uint16_t>(HALF_WIDTH - TOP_OFFSET), HEIGHT, THICKNESS};
+    Line right{RefSerialData::Tx::GraphicColor::CYAN, static_cast<uint16_t>(HALF_WIDTH + BOTTOM_OFFSET), 0, static_cast<uint16_t>(HALF_WIDTH + TOP_OFFSET), HEIGHT, THICKNESS};
 };

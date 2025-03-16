@@ -25,11 +25,22 @@ private:  // Private Variables
     RefSerialTransmitter refSerialTransmitter;
     tap::arch::MilliTimeout delayTimeout; //for not sending things too fast and dropping packets
 
-    static uint32_t curGraphicName;
+    static uint32_t currGraphicName;
     
     //for protothread
     bool restarting = false; 
     bool needToDelete = true; 
+    static constexpr int TARGET_NUM_OBJECTS = 7;
+    GraphicsObject* objectsToSend[TARGET_NUM_OBJECTS];
+    int graphicsIndex=0;
+    int innerGraphicsIndex=0;
+    GraphicsObject* nextGraphicsObject=nullptr;
+    RefSerialData::Tx::Graphic1Message message1;
+    RefSerialData::Tx::Graphic2Message message2;
+    RefSerialData::Tx::Graphic5Message message5;
+    RefSerialData::Tx::Graphic7Message message7;
+    bool wasteIsBetterFor3, wasteIsBetterFor4, wasteIsBetterFor6 = false;
+    uint8_t wasteNameArray[3];
 
     //when get a/the command, it should set this
     GraphicsContainer* topLevelContainer = nullptr;
@@ -58,7 +69,9 @@ public:  // Public Methods
         topLevelContainer = container;
     }
 
+    
 private:  // Private Methods
     bool run(); //for protothread
+
 };
 }  // namespace subsystems

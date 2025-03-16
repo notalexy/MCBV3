@@ -51,7 +51,7 @@ public:
      */
     virtual GraphicsObject* getNext() = 0;
 
-    void resetIteration() { countIndex = 0; }
+    virtual void resetIteration()=0;
 
     /*
      * For facilitating flattening of containers of containers. Simple
@@ -65,8 +65,8 @@ public:
     /*
      * Containers do nothing, SimpleGraphicsObject's 
      */
-    virtual void configGraphicData(RefSerialData::Tx::GraphicData* graphicData) {}
+    virtual void configGraphicData(__attribute__((unused)) RefSerialData::Tx::GraphicData* graphicData) {(void) graphicData;}
 
 protected:
-    int countIndex=0;
+    u_int16_t countIndex=0;
 };

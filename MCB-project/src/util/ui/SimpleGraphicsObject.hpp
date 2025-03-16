@@ -37,12 +37,13 @@ public:
         finishConfigGraphicData(graphicData);
     }
     
+    void resetIteration() final { countIndex = 0; }
     
     RefSerialData::Tx::GraphicColor color; //can set this directly, will appear next time drawn
 
 protected:
 
-    bool hasDrawn = false; //to determine if we need to create or update
+    bool hasDrawn = false; //to determine if we need to modify or add
     
     uint8_t graphicNameArray[3];
 };

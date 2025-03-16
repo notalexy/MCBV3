@@ -40,6 +40,13 @@ public:
         return r;
     }
 
+    void resetIteration() final { 
+        countIndex = 0; 
+        for (GraphicsObject* p : objects) {
+            p->resetIteration();
+        }
+    }
+
     /* When adding, make sure you don't lose the object from leaving scope */
     void addGraphicsObject(GraphicsObject* obj) { objects.push_back(obj); }
 
