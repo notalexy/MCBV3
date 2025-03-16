@@ -1,3 +1,6 @@
+// Theoretically, this should not be necessary since oldinfantry control can be used
+
+/**
 #include "robots/RobotControl.hpp"
 #include "robots/infantry/InfantryHardware.hpp"
 
@@ -98,3 +101,4 @@ public:
 };
 
 }
+*/

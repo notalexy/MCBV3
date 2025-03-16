@@ -1,5 +1,10 @@
 #include "robots/RobotControl.hpp"
+
+#if defined(INFANTRY) // i cant tell if the compiler is tweaking or not
+#include "robots/infantry/InfantryHardware.hpp"
+#else
 #include "robots/oldinfantry/InfantryHardware.hpp"
+#endif
 
 #include "subsystems/ui/UISubsystem.hpp"
 #include "subsystems/ui/UIDrawCommand.hpp"
