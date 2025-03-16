@@ -69,9 +69,7 @@ public:  // Public Methods
      */
     static uint8_t* formatGraphicName(uint8_t array[3], uint32_t name);
 
-    void setTopLevelContainer(GraphicsContainer* container){
-        topLevelContainer = container;
-    }
+    void setTopLevelContainer(GraphicsContainer* container);
 
     
 private:  // Private Methods

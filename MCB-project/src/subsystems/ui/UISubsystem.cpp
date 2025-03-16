@@ -224,4 +224,8 @@ void UISubsystem::updateFPS() {
     startTime = currentTime;
 }
 
+void UISubsystem::setTopLevelContainer(GraphicsContainer* container) {
+    topLevelContainer = container;
+}
+
 }  // namespace subsystems
