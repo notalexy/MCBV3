@@ -1,8 +1,12 @@
-// Theoretically, this should not be necessary since oldinfantry control can be used
-
-/**
 #include "robots/RobotControl.hpp"
+
+#if defined(INFANTRY)
 #include "robots/infantry/InfantryHardware.hpp"
+#else
+#include "robots/infantry/MechInfantryHardware.hpp"
+#endif
+
+#include "subsystems/ui/UISubsystem.hpp"
 
 #include "subsystems/gimbal/JoystickMoveCommand.hpp"
 #include "subsystems/gimbal/MouseMoveCommand.hpp"
@@ -20,11 +24,11 @@
 
 namespace robots
 {
-class InfantryControl : public ControlInterface, public InfantryHardware
+class InfantryControl : public ControlInterface
 {
 public:
     //pass drivers back to root robotcontrol to store
-    InfantryControl(src::Drivers* drivers) : InfantryHardware(drivers) {}
+    InfantryControl(src::Drivers* drivers, InfantryHardware hardware) {}
     //functions we are using
     void initialize() override {
 
@@ -33,26 +37,29 @@ public:
         flywheel.initialize();
         indexer.initialize();
         drivetrain.initialize();
+        ui.initialize();
 
         // Register subsystems;
         drivers->commandScheduler.registerSubsystem(&gimbal);
         drivers->commandScheduler.registerSubsystem(&flywheel);
         drivers->commandScheduler.registerSubsystem(&indexer);
         drivers->commandScheduler.registerSubsystem(&drivetrain);
+        drivers->commandScheduler.registerSubsystem(&ui);
 
         // Run startup commands
         gimbal.setDefaultCommand(&look);
         flywheel.setDefaultCommand(&shooterStop);
         drivetrain.setDefaultCommand(&driveCommand);
 
-        drivers->commandMapper.addMap(&startShootMapping);
-        drivers->commandMapper.addMap(&idleShootMapping);
-        drivers->commandMapper.addMap(&stopShootMapping);
+        // drivers->commandMapper.addMap(&startShootMapping);
+        // drivers->commandMapper.addMap(&idleShootMapping);
+        // drivers->commandMapper.addMap(&stopShootMapping);
         drivers->commandMapper.addMap(&controllerToKeyboardMouseMapping);
 
     }
     // Subsystems
 
+    subsystems::UISubsystem ui{drivers};
 
     // //commands
     commands::JoystickMoveCommand look{drivers, &gimbal};
@@ -101,4 +108,3 @@ public:
 };
 
 }
-*/

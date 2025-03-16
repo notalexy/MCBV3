@@ -2,7 +2,7 @@
 #include "tap/architecture/profiler.hpp"
 
 #include "robots/RobotControl.hpp"
-
+#include "robots/RobotHardware.hpp"
 
 #include "drivers.hpp"
 #include "tap/communication/sensors/buzzer/buzzer.hpp"
@@ -44,6 +44,7 @@ static void updateIo(src::Drivers *drivers)
 
 src::Drivers drivers;
  
+RobotHardware hardware{&drivers};
 RobotControl control{&drivers};
 
 int main()

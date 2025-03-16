@@ -1,12 +1,8 @@
+// shouldn't need to be used
+
+/**
 #include "robots/RobotControl.hpp"
-
-#if defined(INFANTRY) // i cant tell if the compiler is tweaking or not
 #include "robots/infantry/InfantryHardware.hpp"
-#else
-#include "robots/oldinfantry/InfantryHardware.hpp"
-#endif
-
-#include "subsystems/ui/UISubsystem.hpp"
 
 #include "subsystems/gimbal/JoystickMoveCommand.hpp"
 #include "subsystems/gimbal/MouseMoveCommand.hpp"
@@ -37,29 +33,26 @@ public:
         flywheel.initialize();
         indexer.initialize();
         drivetrain.initialize();
-        ui.initialize();
 
         // Register subsystems;
         drivers->commandScheduler.registerSubsystem(&gimbal);
         drivers->commandScheduler.registerSubsystem(&flywheel);
         drivers->commandScheduler.registerSubsystem(&indexer);
         drivers->commandScheduler.registerSubsystem(&drivetrain);
-        drivers->commandScheduler.registerSubsystem(&ui);
 
         // Run startup commands
         gimbal.setDefaultCommand(&look);
         flywheel.setDefaultCommand(&shooterStop);
         drivetrain.setDefaultCommand(&driveCommand);
 
-        // drivers->commandMapper.addMap(&startShootMapping);
-        // drivers->commandMapper.addMap(&idleShootMapping);
-        // drivers->commandMapper.addMap(&stopShootMapping);
+        drivers->commandMapper.addMap(&startShootMapping);
+        drivers->commandMapper.addMap(&idleShootMapping);
+        drivers->commandMapper.addMap(&stopShootMapping);
         drivers->commandMapper.addMap(&controllerToKeyboardMouseMapping);
 
     }
     // Subsystems
 
-    subsystems::UISubsystem ui{drivers};
 
     // //commands
     commands::JoystickMoveCommand look{drivers, &gimbal};
@@ -108,3 +101,4 @@ public:
 };
 
 }
+*/
