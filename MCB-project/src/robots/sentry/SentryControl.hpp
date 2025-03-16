@@ -19,78 +19,82 @@ class SentryControl : public ControlInterface
 {
 public:
     //pass drivers back to root robotcontrol to store
-    SentryControl(SentryHardware *hardware) : hardware(hardware) {}
+    SentryControl(src::Drivers *drivers) : drivers(drivers), hardware(SentryHardware{drivers}) {}
     //functions we are using
     void initialize() override {
 
         // Initialize subsystems
-        hardware->gimbal.initialize();
-        hardware->flywheel.initialize();
-        hardware->indexer.initialize();
-        hardware->drivetrain.initialize();
+        gimbal.initialize();
+        flywheel.initialize();
+        indexer.initialize();
+        drivetrain.initialize();
 
         // Register subsystems;
-        hardware->drivers->commandScheduler.registerSubsystem(&hardware->gimbal);
-        hardware->drivers->commandScheduler.registerSubsystem(&hardware->flywheel);
-        hardware->drivers->commandScheduler.registerSubsystem(&hardware->indexer);
-        hardware->drivers->commandScheduler.registerSubsystem(&hardware->drivetrain);
+        drivers->commandScheduler.registerSubsystem(&gimbal);
+        drivers->commandScheduler.registerSubsystem(&flywheel);
+        drivers->commandScheduler.registerSubsystem(&indexer);
+        drivers->commandScheduler.registerSubsystem(&drivetrain);
 
         // Run startup commands
-        hardware->gimbal.setDefaultCommand(&look);
-        hardware->flywheel.setDefaultCommand(&shooterStop);
+        gimbal.setDefaultCommand(&look);
+        flywheel.setDefaultCommand(&shooterStop);
 
 
-        hardware->drivers->commandMapper.addMap(&startShootMapping);
-        hardware->drivers->commandMapper.addMap(&idleShootMapping);
-        hardware->drivers->commandMapper.addMap(&stopShootMapping);
-        hardware->drivers->commandMapper.addMap(&controllerToKeyboardMouseMapping);
+        drivers->commandMapper.addMap(&startShootMapping);
+        drivers->commandMapper.addMap(&idleShootMapping);
+        drivers->commandMapper.addMap(&stopShootMapping);
+        drivers->commandMapper.addMap(&controllerToKeyboardMouseMapping);
 
     }
 
-    SentryHardware *hardware;
+    src::Drivers *drivers;
+    SentryHardware hardware;
 
-    // Subsystems
-
+    //subsystems
+    subsystems::GimbalSubsystem gimbal{drivers, &hardware.yawMotor, &hardware.pitchMotor};
+    subsystems::FlywheelSubsystem flywheel{drivers, &hardware.flywheelMotor1, &hardware.flywheelMotor2};
+    subsystems::DoubleIndexerSubsystem indexer{drivers, &hardware.indexMotor1, &hardware.indexMotor2};
+    subsystems::DrivetrainSubsystem drivetrain{drivers, &hardware.driveMotor1, &hardware.driveMotor2, &hardware.driveMotor3, &hardware.driveMotor4};
 
     //commands
-    commands::JoystickMoveCommand look{hardware->drivers, &hardware->gimbal};
-    commands::MouseMoveCommand look2{hardware->drivers, &hardware->gimbal};
+    commands::JoystickMoveCommand look{drivers, &gimbal};
+    commands::MouseMoveCommand look2{drivers, &gimbal};
 
-    commands::ShooterStartCommand shooterStart{hardware->drivers, &hardware->flywheel};
-    commands::ShooterStopCommand shooterStop{hardware->drivers, &hardware->flywheel};
+    commands::ShooterStartCommand shooterStart{drivers, &flywheel};
+    commands::ShooterStopCommand shooterStop{drivers, &flywheel};
 
-    commands::IndexerNBallsCommand indexer10Hz{hardware->drivers, &hardware->indexer, -1, 10};
-    commands::IndexerUnjamCommand indexerUnjam{hardware->drivers, &hardware->indexer};
+    commands::IndexerNBallsCommand indexer10Hz{drivers, &indexer, -1, 10};
+    commands::IndexerUnjamCommand indexerUnjam{drivers, &indexer};
 
     //mappings
     ToggleCommandMapping controllerToKeyboardMouseMapping {
-        hardware->drivers,
+        drivers,
         {&look2},
         RemoteMapState({Remote::Key::CTRL, Remote::Key::Z})};
 
     HoldCommandMapping startShootMapping {
-        hardware->drivers,
+        drivers,
         {&indexer10Hz},
         RemoteMapState(Remote::Switch::RIGHT_SWITCH, Remote::SwitchState::UP)};
 
     HoldCommandMapping idleShootMapping {
-        hardware->drivers,
+        drivers,
         {&shooterStart},
         RemoteMapState(Remote::Switch::LEFT_SWITCH, Remote::SwitchState::UP)};
 
     HoldCommandMapping stopShootMapping {
-        hardware->drivers,
+        drivers,
         {&indexerUnjam, &shooterStop},
         RemoteMapState(Remote::Switch::RIGHT_SWITCH, Remote::SwitchState::DOWN)};
 
     HoldCommandMapping startShootMappingMouse {
-        hardware->drivers,
+        drivers,
         {&shooterStart, &indexer10Hz},
         RemoteMapState(RemoteMapState::MouseButton::LEFT)
     };
     
     HoldCommandMapping stopShootMappingMouse {
-        hardware->drivers,
+        drivers,
         {&shooterStop, &indexerUnjam},
         RemoteMapState(RemoteMapState::MouseButton::LEFT)
     };

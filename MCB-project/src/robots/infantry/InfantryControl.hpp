@@ -30,31 +30,28 @@ public:
     //pass drivers back to root robotcontrol to store
     InfantryControl(src::Drivers *drivers) :
         drivers(drivers),
-        gimbal(&hardware.gimbal),
-        flywheel(&hardware.flywheel),
-        indexer(&hardware.indexer),
-        drivetrain(&hardware.drivetrain) {}
+        hardware(InfantryHardware{drivers}) {}
     //functions we are using
     void initialize() override {
 
         // Initialize subsystems
-        gimbal->initialize();
-        flywheel->initialize();
-        indexer->initialize();
-        drivetrain->initialize();
+        gimbal.initialize();
+        flywheel.initialize();
+        indexer.initialize();
+        drivetrain.initialize();
         ui.initialize();
 
         // Register subsystems;
-        drivers->commandScheduler.registerSubsystem(gimbal);
-        drivers->commandScheduler.registerSubsystem(flywheel);
-        drivers->commandScheduler.registerSubsystem(indexer);
-        drivers->commandScheduler.registerSubsystem(drivetrain);
+        drivers->commandScheduler.registerSubsystem(&gimbal);
+        drivers->commandScheduler.registerSubsystem(&flywheel);
+        drivers->commandScheduler.registerSubsystem(&indexer);
+        drivers->commandScheduler.registerSubsystem(&drivetrain);
         drivers->commandScheduler.registerSubsystem(&ui);
 
         // Run startup commands
-        gimbal->setDefaultCommand(&look);
-        flywheel->setDefaultCommand(&shooterStop);
-        drivetrain->setDefaultCommand(&driveCommand);
+        gimbal.setDefaultCommand(&look);
+        flywheel.setDefaultCommand(&shooterStop);
+        drivetrain.setDefaultCommand(&driveCommand);
 
         // drivers->commandMapper.addMap(&startShootMapping);
         // drivers->commandMapper.addMap(&idleShootMapping);
@@ -64,26 +61,26 @@ public:
     }
 
     src::Drivers *drivers;
-    InfantryHardware hardware{drivers};
+    InfantryHardware hardware;
 
     // Subsystems
     subsystems::UISubsystem ui{drivers};
-    subsystems::GimbalSubsystem *gimbal;
-    subsystems::FlywheelSubsystem *flywheel;
-    subsystems::DrivetrainSubsystem *drivetrain;
-    subsystems::IndexerSubsystem *indexer;
+    subsystems::GimbalSubsystem gimbal{drivers, &hardware.yawMotor, &hardware.pitchMotor};
+    subsystems::FlywheelSubsystem flywheel{drivers, &hardware.flywheelMotor1, &hardware.flywheelMotor2};
+    subsystems::IndexerSubsystem indexer{drivers, &hardware.indexMotor};
+    subsystems::DrivetrainSubsystem drivetrain{drivers, &hardware.driveMotor1, &hardware.driveMotor2, &hardware.driveMotor3, &hardware.driveMotor4};
 
     // //commands
-    commands::JoystickMoveCommand look{drivers, gimbal};
-    commands::MouseMoveCommand look2{drivers, gimbal};
+    commands::JoystickMoveCommand look{drivers, &gimbal};
+    commands::MouseMoveCommand look2{drivers, &gimbal};
 
-    commands::ShooterStartCommand shooterStart{drivers, flywheel};
-    commands::ShooterStopCommand shooterStop{drivers, flywheel};
+    commands::ShooterStartCommand shooterStart{drivers, &flywheel};
+    commands::ShooterStopCommand shooterStop{drivers, &flywheel};
 
-    commands::IndexerNBallsCommand indexer10Hz{drivers, indexer, -1, 10};
-    commands::IndexerUnjamCommand indexerUnjam{drivers, indexer};
+    commands::IndexerNBallsCommand indexer10Hz{drivers, &indexer, -1, 10};
+    commands::IndexerUnjamCommand indexerUnjam{drivers, &indexer};
 
-   commands::JoystickDriveCommand driveCommand{drivers, drivetrain, gimbal};
+   commands::JoystickDriveCommand driveCommand{drivers, &drivetrain, &gimbal};
 
     //mappings
     ToggleCommandMapping controllerToKeyboardMouseMapping {
