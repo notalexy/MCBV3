@@ -1,5 +1,14 @@
+// shouldn't need to be used
+
+/**
 #include "robots/RobotControl.hpp"
+#include "robots/infantry/InfantryHardware.hpp"
+#else
 #include "robots/oldinfantry/InfantryHardware.hpp"
+#endif
+
+#include "subsystems/ui/UISubsystem.hpp"
+#include "subsystems/ui/UIDrawCommand.hpp"
 
 #include "subsystems/gimbal/JoystickMoveCommand.hpp"
 #include "subsystems/gimbal/MouseMoveCommand.hpp"
@@ -41,10 +50,11 @@ public:
         gimbal.setDefaultCommand(&look);
         flywheel.setDefaultCommand(&shooterStop);
         drivetrain.setDefaultCommand(&driveCommand);
+        ui.setDefaultCommand(&draw);
 
-        // drivers->commandMapper.addMap(&startShootMapping);
-        // drivers->commandMapper.addMap(&idleShootMapping);
-        // drivers->commandMapper.addMap(&stopShootMapping);
+        drivers->commandMapper.addMap(&startShootMapping);
+        drivers->commandMapper.addMap(&idleShootMapping);
+        drivers->commandMapper.addMap(&stopShootMapping);
         drivers->commandMapper.addMap(&controllerToKeyboardMouseMapping);
 
     }
@@ -61,7 +71,9 @@ public:
     commands::IndexerNBallsCommand indexer10Hz{drivers, &indexer, -1, 10};
     commands::IndexerUnjamCommand indexerUnjam{drivers, &indexer};
 
-   commands::JoystickDriveCommand driveCommand{drivers, &drivetrain, &gimbal};
+    commands::JoystickDriveCommand driveCommand{drivers, &drivetrain, &gimbal};
+
+    commands::UIDrawCommand draw{drivers, &ui};
 
     //mappings
     ToggleCommandMapping controllerToKeyboardMouseMapping {
@@ -98,3 +110,4 @@ public:
 };
 
 }
+*/
