@@ -2,10 +2,9 @@
 
 namespace commands {
 
-
 void UIDrawCommand::initialize() {
+    // we can't use new here because we don't want to reconstruct the top level graphics objects if the command is stopped and restarted
     addGraphicsObject(&laneAssistLines);
-    // add more here
 }
 
 void UIDrawCommand::execute() { subsystem->setTopLevelContainer(this); }

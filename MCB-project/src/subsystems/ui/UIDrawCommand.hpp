@@ -6,23 +6,14 @@
 #include "util/ui/GraphicsContainer.hpp"
 
 #include "LaneAssistLines.hpp"
-
-
 #include "drivers.hpp"
 
-namespace commands
-{
+namespace commands {
 using subsystems::UISubsystem;
 
-class UIDrawCommand : public tap::control::Command, GraphicsContainer
-{
+class UIDrawCommand : public tap::control::Command, GraphicsContainer {
 public:
-UIDrawCommand(src::Drivers* drivers, UISubsystem* subsystem)
-        : drivers(drivers),
-          subsystem(subsystem)
-    {
-        addSubsystemRequirement(subsystem);
-    }
+    UIDrawCommand(UISubsystem* subsystem) : subsystem(subsystem) { addSubsystemRequirement(subsystem); }
 
     void initialize() override;
 
@@ -35,12 +26,9 @@ UIDrawCommand(src::Drivers* drivers, UISubsystem* subsystem)
     const char* getName() const override { return "ui draw command"; }
 
 private:
-    src::Drivers* drivers;
     UISubsystem* subsystem;
 
+    // add top level graphics objects here and in initialize()
     LaneAssistLines laneAssistLines{};
-    //add more here
-
-    
 };
 }  // namespace commands
