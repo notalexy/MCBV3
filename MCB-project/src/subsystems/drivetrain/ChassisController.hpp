@@ -10,14 +10,14 @@ namespace subsystems {
 class ChassisController {
 private:
     // START getters and setters
-    const float TRACKWIDTH = 0.5017;       // in m. We need to measure
+    const float TRACKWIDTH = 0.49739;       // in m. We need to measure
     const float ROOT_2 = sqrt(2);          // sqrt 2
     const float M = 14.0;                  // robot mass kg
     const float J = 0.44;                  // measured from sys id kg-m^2
     const float R_WHEEL = 0.048 / ROOT_2;  // wheel radius m
     const float J_WHEEL = 0.0009;          // wheel moment of inertia kg-m^2
-    const float C_MOTOR = 1.6e-4;         // motor damping kg-s/m^2
-    const float UK_MOTOR = 0.12;          // motor dry friction N-m
+    const float C_MOTOR = 2.5e-4;         // motor damping kg-s/m^2
+    const float UK_MOTOR = 0.14;          // motor dry friction N-m
     const float COF_WHEEL = 0.9;           // unitless COF
 
     const float KB = 0.02361;       // V-s/rad backemf
@@ -26,6 +26,8 @@ private:
     const float GEAR_RATIO = 13.7;  // gear ratio
     const float VOLT_MAX = 24;      // V, maximum                                                                                         v
     const float P_MAX = 60;         // W, maximum power
+    const float P_IDLE = 3;         // W, idle power
+    const float P_FOS = 0.87;        // unitless, power factor of safety
 
     const float M_EFFECTIVE = M + 4 * J_WHEEL * std::pow(GEAR_RATIO / R_WHEEL, 2.0f);
     const float J_EFFECTIVE = J + 4 * J_WHEEL * std::pow((TRACKWIDTH / 2.0f) * (GEAR_RATIO / R_WHEEL), 2.0f);
@@ -107,7 +109,7 @@ public:
 
     ~ChassisController();
     //~YawController();
-    void calculate(Pose2d targetVelLocal, float angle, float motorVelocity[4], float motorCurrent[4]);
+    void calculate(Pose2d targetVelLocal, float powerLimit, float angle, float motorVelocity[4], float motorCurrent[4]);
     float calculateBeybladeVelocity(float bb_freq, float bb_amp);
 
     // intermediate functions
@@ -119,7 +121,7 @@ public:
 
     void calculateTractionLimiting(Pose2d localForce, Pose2d *limitedForce);
 
-    void calculatePowerLimiting(float V_m_FF[4], float I_m_FF[4], float T_req_m[4], float T_req_m2[4]);
+    void calculatePowerLimiting(float powerLimit, float V_m_FF[4], float I_m_FF[4], float T_req_m[4], float T_req_m2[4]);
 
     const float *inverseKinematics[4] = {ikr1, ikr2, ikr3, ikr4};
     const float *forwardKinematics[3] = {fkr1, fkr2, fkr3};

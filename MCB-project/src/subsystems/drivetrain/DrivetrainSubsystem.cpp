@@ -22,7 +22,7 @@ void DrivetrainSubsystem::refresh()
     imuAngle = (drivers->bmi088.getYaw()-180) * PI/180;
 
     if (drivers->refSerial.getRefSerialReceivingData())  // check for uart disconnected
-        powerLimit = drivers->refSerial.getRobotData().chassis.powerConsumptionLimit;
+        powerLimit = std::min((uint16_t)120, drivers->refSerial.getRobotData().chassis.powerConsumptionLimit);
 
     for(int i = 0; i < 4; i ++){
         float adjustedCurrent = std::clamp(motorCurrent[i], -20.0f, 20.0f) * 819.2f;
@@ -71,7 +71,7 @@ void DrivetrainSubsystem::setTargetTranslation(Pose2d drive)
     motor3Vel = motorVel[2];
     motor4Vel = motorVel[3];
 #else
-    controller.calculate(lastDrive, imuAngle, motorVel, motorCurrent);
+    controller.calculate(lastDrive, powerLimit, imuAngle, motorVel, motorCurrent);
 
 #endif
 

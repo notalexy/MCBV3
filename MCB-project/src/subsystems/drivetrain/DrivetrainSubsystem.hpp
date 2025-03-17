@@ -19,7 +19,7 @@ private:                                            // Private Variables
 
     tap::motor::DjiMotor* motorArray[4];
 
-    float powerLimit = 100;
+    float powerLimit = 100; //default value
 
     Pose2d lastDrive;
 
