@@ -40,23 +40,25 @@ typedef struct {
 } ChassisConstants;
 
 typedef struct {
-    const int YAW_MOTOR_MAX_SPEED;     // TODO: Make this value relevent
-    const int YAW_MOTOR_MAX_VOLTAGE;  // Should be the voltage of the battery. Unless the motor maxes out below that.
-                                                         // //TODO: Check the datasheets
+    struct Gimbal {
+        const int YAW_MOTOR_MAX_SPEED;     // TODO: Make this value relevent
+        const int YAW_MOTOR_MAX_VOLTAGE;  // Should be the voltage of the battery. Unless the motor maxes out below that.
+        // //TODO: Check the datasheets
+        
+        // standard looks down 17 degrees, 15 is safe
+        const float MAX_PITCH_UP;
+        // looks up 20, 18 is safe
+        const float MAX_PITCH_DOWN;
 
-    // standard looks down 17 degrees, 15 is safe
-    const float MAX_PITCH_UP;
-    // looks up 20, 18 is safe
-    const float MAX_PITCH_DOWN;
-
-    const float YAW_OFFSE;
-
-    const float dt;
-    const float PITCH_OFFSET;  // to make gimbal horizontal when told to go to 0
-
-    // for sysid
-    const int YAW_DIST_RANGE;
-    const int PITCH_DIST_RANGE;
+        const float YAW_OFFSET;
+        
+        const float dt;
+        const float PITCH_OFFSET;  // to make gimbal horizontal when told to go to 0
+        
+        // for sysid
+        const int YAW_DIST_RANGE;
+        const int PITCH_DIST_RANGE;
+    } GIMBAL;
     
     struct Pitch {
         // Physical constants
@@ -80,6 +82,7 @@ typedef struct {
         const float INT_THRESH;  // V
         const float TAKEBACK;                // unitless
     } PITCH;
+    
     struct Yaw {
         // Physical constants
         const float C;                           // kg-s/m^2
