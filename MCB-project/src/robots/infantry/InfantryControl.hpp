@@ -20,6 +20,7 @@
 #include "subsystems/indexer/IndexerNBallsCommand.hpp"
 #include "subsystems/indexer/IndexerUnjamCommand.hpp"
 #include "subsystems/ui/UISubsystem.hpp"
+#include "subsystems/drivetrain/DrivetrainFollowTurretCommand.hpp"
 #include "util/trigger.hpp"
 
 #include "drivers.hpp"
@@ -52,12 +53,13 @@ public:
 
         shootButton.onTrue(&shooterStart).whileTrue(&indexer10Hz);
         unjamButton.onTrue(&shooterStop).whileTrue(&indexerUnjam);
-        
-        // drivers->commandMapper.addMap(&startShootMapping);
-        // drivers->commandMapper.addMap(&idleShootMapping);
-        // drivers->commandMapper.addMap(&stopShootMapping);
-        drivers->commandMapper.addMap(&controllerToKeyboardMouseMapping);
 
+        //peeking
+        peekLeftButton.whileTrue(&peekLeft);
+        peekRightButton.whileTrue(&peekRight);
+        peekCenterButton.whileTrue(&peekCenter);
+        
+        // drivers->commandMapper.addMap(&controllerToKeyboardMouseMapping);
         
     }
 
@@ -89,6 +91,11 @@ public:
     commands::IndexerNBallsCommand indexer10Hz{drivers, &indexer, -1, 10};
     commands::IndexerUnjamCommand indexerUnjam{drivers, &indexer};
 
+    //CHANGE NUMBERS LATER
+    commands::DrivetrainFollowTurretCommand peekRight{drivers, &drivetrain, &gimbal, 1};
+    commands::DrivetrainFollowTurretCommand peekLeft{drivers, &drivetrain, &gimbal, -1};
+    commands::DrivetrainFollowTurretCommand peekCenter{drivers, &drivetrain, &gimbal, 0};
+
     commands::JoystickDriveCommand driveCommand{drivers, &drivetrain, &gimbal};
 
     // mappings
@@ -101,23 +108,21 @@ public:
     Trigger leftSwitchUp{drivers, Remote::Switch::LEFT_SWITCH, Remote::SwitchState::UP};
     Trigger leftSwitchDown{drivers, Remote::Switch::LEFT_SWITCH, Remote::SwitchState::DOWN};
 
-    //peek
-    Trigger pressedQE = Trigger(drivers, Remote::Key::Q) & Trigger(drivers, Remote::Key::E);
+    //peeking
+    Trigger peekLeftButton = Trigger(drivers, Remote::Key::Q);
+    Trigger peekRightButton = Trigger(drivers, Remote::Key::E);
+    Trigger peekCenterButton = Trigger(drivers, Remote::Key::Q) & Trigger(drivers, Remote::Key::E) | Trigger(drivers, Remote::Switch::LEFT_SWITCH, Remote::SwitchState::UP);
 
+    //shooting
     Trigger shootButton = Trigger(drivers, Remote::Channel::WHEEL, 0.5) & Trigger(drivers, MouseButton::LEFT);
-
+    //unjamming
     Trigger unjamButton = Trigger(drivers, Remote::Channel::WHEEL, -0.5) & Trigger(drivers, Remote::Key::Z);
 
-    std::vector<Trigger*> triggers{&rightSwitchDown, &leftClick, &leftSwitchUp};
+    std::vector<Trigger*> triggers{&rightSwitchUp, &rightSwitchDown, &leftSwitchUp, &leftSwitchDown, &peekLeftButton, &peekRightButton, &peekCenterButton, &shootButton, &unjamButton};
 
 
-    ToggleCommandMapping controllerToKeyboardMouseMapping{drivers, {&look2}, RemoteMapState({Remote::Key::CTRL, Remote::Key::Z})};
+    // ToggleCommandMapping controllerToKeyboardMouseMapping{drivers, {&look2}, RemoteMapState({Remote::Key::CTRL, Remote::Key::Z})};
 
-    // HoldCommandMapping startShootMapping{drivers, {&indexer10Hz}, RemoteMapState(Remote::Switch::RIGHT_SWITCH, Remote::SwitchState::UP)};
-    // HoldCommandMapping idleShootMapping{drivers, {&shooterStart}, RemoteMapState(Remote::Switch::LEFT_SWITCH, Remote::SwitchState::UP)};
-    // HoldCommandMapping stopShootMapping{drivers, {&indexerUnjam, &shooterStop}, RemoteMapState(Remote::Switch::RIGHT_SWITCH, Remote::SwitchState::DOWN)};
-    // HoldCommandMapping startShootMappingMouse{drivers, {&shooterStart, &indexer10Hz}, RemoteMapState(RemoteMapState::MouseButton::LEFT)};
-    // HoldCommandMapping stopShootMappingMouse{drivers, {&shooterStop, &indexerUnjam}, RemoteMapState(RemoteMapState::MouseButton::LEFT)};
 };
 
 }  // namespace robots

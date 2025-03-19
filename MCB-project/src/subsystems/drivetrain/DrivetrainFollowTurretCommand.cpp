@@ -10,7 +10,18 @@ void DrivetrainFollowTurretCommand::execute()
 
         x = drivers->remote.getChannel(Remote::Channel::LEFT_HORIZONTAL);
         y = drivers->remote.getChannel(Remote::Channel::LEFT_VERTICAL);
-        r = drivers->remote.getSwitch(Remote::Switch::LEFT_SWITCH) == Remote::SwitchState::DOWN ? 0.5 : 0;
+        float angleError = angleOffset - referenceAngle;
+
+        if (angleError > M_PI)
+        {
+                angleError -= 2 * M_PI;
+        }
+        else if (angleError < -M_PI)
+        {
+                angleError += 2 * M_PI;
+        }
+
+        r = angleError * 2;
 
         Pose2d drive(x, y, r);
 

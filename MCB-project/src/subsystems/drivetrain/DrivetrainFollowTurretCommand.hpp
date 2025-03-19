@@ -42,6 +42,7 @@ private:
     src::Drivers* drivers;
     DrivetrainSubsystem* drivetrain;
     GimbalSubsystem* gimbal;
+    //counterclockwise
     float angleOffset;
 
     float x, y, r;
