@@ -12,29 +12,25 @@
 #include "subsystems/gimbal/JoystickMoveCommand.hpp"
 #include "subsystems/gimbal/MouseMoveCommand.hpp"
 
+#include "subsystems/drivetrain/JoystickDriveCommand.hpp"
 #include "subsystems/flywheel/ShooterStartCommand.hpp"
 #include "subsystems/flywheel/ShooterStopCommand.hpp"
-
+#include "subsystems/gimbal/JoystickMoveCommand.hpp"
+#include "subsystems/gimbal/MouseMoveCommand.hpp"
 #include "subsystems/indexer/IndexerNBallsCommand.hpp"
 #include "subsystems/indexer/IndexerUnjamCommand.hpp"
-
-#include "subsystems/drivetrain/JoystickDriveCommand.hpp"
+#include "subsystems/ui/UISubsystem.hpp"
+#include "util/trigger.hpp"
 
 #include "drivers.hpp"
 
-
-namespace robots
-{
-class InfantryControl : public ControlInterface
-{
+namespace robots {
+class InfantryControl : public ControlInterface {
 public:
-    //pass drivers back to root robotcontrol to store
-    InfantryControl(src::Drivers *drivers) :
-        drivers(drivers),
-        hardware(InfantryHardware{drivers}) {}
-    //functions we are using
+    // pass drivers back to root robotcontrol to store
+    InfantryControl(src::Drivers *drivers) : drivers(drivers), hardware(InfantryHardware{drivers}) {}
+    // functions we are using
     void initialize() override {
-
         // Initialize subsystems
         gimbal.initialize();
         flywheel.initialize();
@@ -54,11 +50,20 @@ public:
         flywheel.setDefaultCommand(&shooterStop);
         drivetrain.setDefaultCommand(&driveCommand);
 
+        leftSwitchUp.onTrue(&shooterStart).whileTrue(&indexer10Hz);
+        
         // drivers->commandMapper.addMap(&startShootMapping);
         // drivers->commandMapper.addMap(&idleShootMapping);
         // drivers->commandMapper.addMap(&stopShootMapping);
         drivers->commandMapper.addMap(&controllerToKeyboardMouseMapping);
 
+        
+    }
+
+    void update() override {
+        for (auto trigger : triggers) {
+            trigger->update();
+        }
     }
 
     src::Drivers *drivers;
@@ -83,40 +88,36 @@ public:
     commands::IndexerNBallsCommand indexer10Hz{drivers, &indexer, -1, 10};
     commands::IndexerUnjamCommand indexerUnjam{drivers, &indexer};
 
-   commands::JoystickDriveCommand driveCommand{drivers, &drivetrain, &gimbal};
+    commands::JoystickDriveCommand driveCommand{drivers, &drivetrain, &gimbal};
 
-    //mappings
-    ToggleCommandMapping controllerToKeyboardMouseMapping {
-        drivers,
-        {&look2},
-        RemoteMapState({Remote::Key::CTRL, Remote::Key::Z})};
+    // mappings
 
-    HoldCommandMapping startShootMapping {
-        drivers,
-        {&indexer10Hz},
-        RemoteMapState(Remote::Switch::RIGHT_SWITCH, Remote::SwitchState::UP)};
 
-    HoldCommandMapping idleShootMapping {
-        drivers,
-        {&shooterStart},
-        RemoteMapState(Remote::Switch::LEFT_SWITCH, Remote::SwitchState::UP)};
+    Trigger rightSwitchDown{drivers, Remote::Switch::RIGHT_SWITCH, Remote::SwitchState::DOWN};
+    Trigger leftClick{drivers, MouseButton::LEFT};
 
-    HoldCommandMapping stopShootMapping {
-        drivers,
-        {&indexerUnjam, &shooterStop},
-        RemoteMapState(Remote::Switch::RIGHT_SWITCH, Remote::SwitchState::DOWN)};
+    Trigger leftSwitchUp{drivers, Remote::Switch::LEFT_SWITCH, Remote::SwitchState::UP};
 
-    HoldCommandMapping startShootMappingMouse {
-        drivers,
-        {&shooterStart, &indexer10Hz},
-        RemoteMapState(RemoteMapState::MouseButton::LEFT)
-    };
-    
-    HoldCommandMapping stopShootMappingMouse {
-        drivers,
-        {&shooterStop, &indexerUnjam},
-        RemoteMapState(RemoteMapState::MouseButton::LEFT)
-    };
+    Trigger scrollWheelUp{drivers, Remote::Channel::WHEEL, 0.5};
+
+    Trigger scrollWheelDown{drivers, Remote::Channel::WHEEL, -0.5};
+
+    Trigger pressedQE = Trigger(drivers, Remote::Key::Q) & Trigger(drivers, Remote::Key::E);
+
+    std::vector<Trigger*> triggers{&rightSwitchDown, &leftClick, &leftSwitchUp};
+
+
+    ToggleCommandMapping controllerToKeyboardMouseMapping{drivers, {&look2}, RemoteMapState({Remote::Key::CTRL, Remote::Key::Z})};
+
+    HoldCommandMapping startShootMapping{drivers, {&indexer10Hz}, RemoteMapState(Remote::Switch::RIGHT_SWITCH, Remote::SwitchState::UP)};
+
+    HoldCommandMapping idleShootMapping{drivers, {&shooterStart}, RemoteMapState(Remote::Switch::LEFT_SWITCH, Remote::SwitchState::UP)};
+
+    HoldCommandMapping stopShootMapping{drivers, {&indexerUnjam, &shooterStop}, RemoteMapState(Remote::Switch::RIGHT_SWITCH, Remote::SwitchState::DOWN)};
+
+    HoldCommandMapping startShootMappingMouse{drivers, {&shooterStart, &indexer10Hz}, RemoteMapState(RemoteMapState::MouseButton::LEFT)};
+
+    HoldCommandMapping stopShootMappingMouse{drivers, {&shooterStop, &indexerUnjam}, RemoteMapState(RemoteMapState::MouseButton::LEFT)};
 };
 
-}
+}  // namespace robots
