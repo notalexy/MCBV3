@@ -6,6 +6,12 @@
 #include "robots/infantry/MechInfantryHardware.hpp"
 #endif
 
+#include "subsystems/ui/UISubsystem.hpp"
+#include "subsystems/ui/UIDrawCommand.hpp"
+
+#include "subsystems/gimbal/JoystickMoveCommand.hpp"
+#include "subsystems/gimbal/MouseMoveCommand.hpp"
+
 #include "subsystems/drivetrain/JoystickDriveCommand.hpp"
 #include "subsystems/flywheel/ShooterStartCommand.hpp"
 #include "subsystems/flywheel/ShooterStopCommand.hpp"
@@ -71,6 +77,8 @@ public:
     subsystems::DrivetrainSubsystem drivetrain{drivers, &hardware.driveMotor1, &hardware.driveMotor2, &hardware.driveMotor3, &hardware.driveMotor4};
 
     // //commands
+    commands::UIDrawCommand draw{&ui};
+
     commands::JoystickMoveCommand look{drivers, &gimbal};
     commands::MouseMoveCommand look2{drivers, &gimbal};
 
