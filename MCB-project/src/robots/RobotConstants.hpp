@@ -1,4 +1,8 @@
-constexpr float ROOT_2 = 1.414;          // sqrt 2
+#pragma once
+#include "tap/algorithms/smooth_pid.hpp"
+
+constexpr float ROOT_2 = 1.41421356;          // sqrt 2
+constexpr float PI = 3.14159265;
 int signum(float num) { return (num > 0) ? 1 : ((num < 0) ? -1 : 0); }
 
 typedef struct {
@@ -36,6 +40,26 @@ typedef struct {
 } ChassisConstants;
 
 typedef struct {
+    struct Gimbal {
+        const int YAW_MOTOR_MAX_SPEED;     // TODO: Make this value relevent
+        const int YAW_MOTOR_MAX_VOLTAGE;  // Should be the voltage of the battery. Unless the motor maxes out below that.
+        // //TODO: Check the datasheets
+        
+        // standard looks down 17 degrees, 15 is safe
+        const float MAX_PITCH_UP;
+        // looks up 20, 18 is safe
+        const float MAX_PITCH_DOWN;
+
+        const float YAW_OFFSET;
+        
+        const float dt;
+        const float PITCH_OFFSET;  // to make gimbal horizontal when told to go to 0
+        
+        // for sysid
+        const int YAW_DIST_RANGE;
+        const int PITCH_DIST_RANGE;
+    } GIMBAL;
+    
     struct Pitch {
         // Physical constants
         const float KB;                          // V-rad/s
@@ -58,6 +82,7 @@ typedef struct {
         const float INT_THRESH;  // V
         const float TAKEBACK;                // unitless
     } PITCH;
+    
     struct Yaw {
         // Physical constants
         const float C;                           // kg-s/m^2
@@ -89,3 +114,17 @@ typedef struct {
         const float A_DECEL;  // experimental per Alex_Y
     } YAW;
 } GimbalConstants;
+
+typedef struct {
+    const int INDEXER_MOTOR_MAX_SPEED; // With the 2006, this should give
+    const float REV_PER_BALL; // revolutions per ball = ratio / chambers
+    const float UNJAM_BALL_PER_SECOND; // in unjam mode, spin backwards at 1 balls per second (this is a guess)
+    const tap::algorithms::SmoothPidConfig PID_CONF_INDEX;
+} IndexerConstants;
+
+typedef struct {
+    const int FLYWHEEL_MOTOR_MAX_RPM;  // We had 5000 last year, and we can go 30/18 times as fast. So 5000 * 30/18
+    const int FLYWHEEL_RADIUS_MM;
+    
+    const tap::algorithms::SmoothPidConfig PID_CONF_FLYWHEEL;
+} FlywheelConstants;
