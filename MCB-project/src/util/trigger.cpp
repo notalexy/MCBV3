@@ -82,9 +82,9 @@ Trigger Trigger::operator^(std::function<bool()> trigger)
     return Trigger(m_drivers, [this, trigger]() { return this->m_condition() ^ trigger(); });
 }
 
-Trigger Trigger::schedule(Command* command, std::vector<Command*> commands)
+Trigger Trigger::schedule(Command* command, std::vector<Command*>* commands)
 {
-    commands.push_back(command);
+    commands->push_back(command);
     return *this;
 
 }  // namespace control
@@ -92,6 +92,7 @@ Trigger Trigger::schedule(Command* command, std::vector<Command*> commands)
 void Trigger::update()
 {
     bool value = getAsBoolean();
+
     bool changed = value != m_lastValue;
     m_lastValue = value;
     m_toggleState = (changed && value) ? !m_toggleState : m_toggleState;

@@ -51,22 +51,31 @@ public:
         flywheel.setDefaultCommand(&shooterStop);
         drivetrain.setDefaultCommand(&driveCommand);
 
+        // unjamButton = Trigger(drivers, [this](){ return this->drivers->remote.getSwitch(Remote::Switch::RIGHT_SWITCH) == Remote::SwitchState::UP;});
+
         shootButton.onTrue(&shooterStart).whileTrue(&indexer10Hz);
         unjamButton.onTrue(&shooterStop).whileTrue(&indexerUnjam);
 
-        //peeking
-        peekLeftButton.whileTrue(&peekLeft);
-        peekRightButton.whileTrue(&peekRight);
-        peekCenterButton.whileTrue(&peekCenter);
+        // //peeking
+        // peekLeftButton.whileTrue(&peekLeft);
+        // peekRightButton.whileTrue(&peekRight);
+        // peekCenterButton.whileTrue(&peekCenter);
         
         // drivers->commandMapper.addMap(&controllerToKeyboardMouseMapping);
-        
+        // drivers->commandScheduler.addCommand(&indexerUnjam);
     }
 
     void update() override {
-        for (auto trigger : triggers) {
-            trigger->update();
-        }
+
+        shootButton.update();
+
+        // if(unjamButton.getAsBoolean()){
+        //     drivers->commandScheduler.addCommand(&indexerUnjam);
+        // }
+        unjamButton.update();
+        // for (Trigger* trigger : triggers) {
+        //     trigger->update();
+        // }
     }
 
     src::Drivers *drivers;
@@ -109,16 +118,17 @@ public:
     Trigger leftSwitchDown{drivers, Remote::Switch::LEFT_SWITCH, Remote::SwitchState::DOWN};
 
     //peeking
-    Trigger peekLeftButton = Trigger(drivers, Remote::Key::Q);
-    Trigger peekRightButton = Trigger(drivers, Remote::Key::E);
-    Trigger peekCenterButton = Trigger(drivers, Remote::Key::Q) & Trigger(drivers, Remote::Key::E) | Trigger(drivers, Remote::Switch::LEFT_SWITCH, Remote::SwitchState::UP);
+    Trigger peekLeftButton{drivers, Remote::Key::Q};
+    Trigger peekRightButton{drivers, Remote::Key::E};
+    // Trigger peekCenterButton = (Trigger(drivers, Remote::Key::Q) & Trigger(drivers, Remote::Key::E)) | Trigger(drivers, Remote::Switch::LEFT_SWITCH, Remote::SwitchState::UP);
 
-    //shooting
-    Trigger shootButton = Trigger(drivers, Remote::Channel::WHEEL, 0.5) & Trigger(drivers, MouseButton::LEFT);
-    //unjamming
-    Trigger unjamButton = Trigger(drivers, Remote::Channel::WHEEL, -0.5) & Trigger(drivers, Remote::Key::Z);
+    // //shooting
+    Trigger shootButton{drivers, Remote::Channel::WHEEL, 0.5};// = Trigger(drivers, Remote::Channel::WHEEL, 0.5) | Trigger(drivers, MouseButton::LEFT);
+    // //unjamming
+    Trigger unjamButton{drivers, Remote::Switch::RIGHT_SWITCH, Remote::SwitchState::UP};// = Trigger(drivers, Remote::Channel::WHEEL, -0.5) | Trigger(drivers, Remote::Key::Z);
 
-    std::vector<Trigger*> triggers{&rightSwitchUp, &rightSwitchDown, &leftSwitchUp, &leftSwitchDown, &peekLeftButton, &peekRightButton, &peekCenterButton, &shootButton, &unjamButton};
+    //Trigger indexSpinButton;// = Trigger(drivers, Remote::Switch::RIGHT_SWITCH, Remote::SwitchState::UP) & Trigger(drivers, Remote::Switch::LEFT_SWITCH, Remote::SwitchState::UP);
+    Trigger* triggers[8] = {&rightSwitchUp, &rightSwitchDown, &leftSwitchUp, &leftSwitchDown, &peekLeftButton, &peekRightButton, &shootButton, &unjamButton};//, &indexSpinButton};
 
 
     // ToggleCommandMapping controllerToKeyboardMouseMapping{drivers, {&look2}, RemoteMapState({Remote::Key::CTRL, Remote::Key::Z})};

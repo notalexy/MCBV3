@@ -22,7 +22,7 @@ public:
     void setTargetMotorRPM(int targetMotorRPM) override;
 
 private:
-tap::algorithms::SmoothPid indexPIDController2{PID_CONF_INDEX};
+tap::algorithms::SmoothPid indexPIDController2;
 int32_t indexerVoltage2 = 0;
 
 };
