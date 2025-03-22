@@ -5,6 +5,8 @@
 
 using namespace tap::communication::serial;
 using namespace subsystems;
+
+/* Simple as in not containing anything else. Maybe AtomicGraphicsObject is a better name. */
 class SimpleGraphicsObject : public GraphicsObject {
 public:
     SimpleGraphicsObject(RefSerialData::Tx::GraphicColor color) : color(color) { UISubsystem::formatGraphicName(graphicNameArray, UISubsystem::getUnusedGraphicName()); }
