@@ -14,7 +14,7 @@ using subsystems::GimbalSubsystem;
 
 using tap::communication::serial::Remote;
 
-enum DriveMode { BEYBLADE, FOLLOW_TURRET, PEEK_LEFT, PEEK_RIGHT };
+enum DriveMode { BEYBLADE, BEYBLADE2, FOLLOW_TURRET, PEEK_LEFT, PEEK_RIGHT };
 enum ControlMode { KEYBOARD, CONTROLLER, DISABLED  };
 
 class DrivetrainDriveCommand : public tap::control::Command {

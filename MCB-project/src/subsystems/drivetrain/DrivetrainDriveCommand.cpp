@@ -20,7 +20,9 @@ void DrivetrainDriveCommand::execute() {
     }
 
     if (driveMode == DriveMode::BEYBLADE) {
-        r = 0.5;
+        r = 0.4;
+    } else if(driveMode == DriveMode::BEYBLADE2) {
+        r = 0.8;
     } else {
         float targetAngle = 0.0f;
         if (driveMode == DriveMode::PEEK_LEFT) {
@@ -30,6 +32,7 @@ void DrivetrainDriveCommand::execute() {
         }
         r = drivetrain->calculateRotationPID(targetAngle + referenceAngle);
     }
+
 
 
     Pose2d drive(x, y, r);
