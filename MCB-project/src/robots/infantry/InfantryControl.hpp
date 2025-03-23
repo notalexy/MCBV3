@@ -53,7 +53,6 @@ public:
         indexer.setDefaultCommand(&indexerStopCommand);
         
 
-
         shootButton.whileTrue(&indexer10Hz)->onTrue(&shooterStart);
         unjamButton.whileTrue(&indexerUnjam)->onTrue(&shooterStop);
 

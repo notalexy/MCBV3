@@ -15,7 +15,7 @@ using subsystems::GimbalSubsystem;
 using tap::communication::serial::Remote;
 
 enum DriveMode { BEYBLADE, FOLLOW_TURRET, PEEK_LEFT, PEEK_RIGHT };
-enum ControlMode { KEYBOARD, CONTROLLER};
+enum ControlMode { KEYBOARD, CONTROLLER, DISABLED  };
 
 class DrivetrainDriveCommand : public tap::control::Command {
 public:
@@ -37,6 +37,10 @@ public:
     bool isFinished() const { return !drivers->remote.isConnected(); };
 
     const char* getName() const override { return "drive command"; }
+
+    void setDriveMode(DriveMode newDriveMode) { driveMode = newDriveMode; } 
+
+    void setControlMode(ControlMode newControlMode) { controlMode = newControlMode; }
 
 private:
     src::Drivers* drivers;

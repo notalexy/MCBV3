@@ -14,6 +14,9 @@ void DrivetrainDriveCommand::execute() {
     } else if (controlMode == ControlMode::CONTROLLER) {
         x = drivers->remote.getChannel(Remote::Channel::LEFT_HORIZONTAL);
         y = drivers->remote.getChannel(Remote::Channel::LEFT_VERTICAL);
+    } else {
+        drivetrain->stopMotors();
+        return;
     }
 
     if (driveMode == DriveMode::BEYBLADE) {
@@ -25,7 +28,7 @@ void DrivetrainDriveCommand::execute() {
         } else if (driveMode == DriveMode::PEEK_RIGHT) {
             targetAngle = subsystems::PEEK_RIGHT_AMT;
         }
-        r = drivetrain->calculateRotationPID(r - referenceAngle);
+        r = drivetrain->calculateRotationPID(targetAngle + referenceAngle);
     }
 
 

@@ -80,6 +80,7 @@ void DrivetrainSubsystem::stopMotors() {
 #endif
 
     for (int i = 0; i < 4; i++) motorCurrent[i] = 0;
+    rotationPIDController.reset();
 }
 
 float DrivetrainSubsystem::calculateRotationPID(float error) {
@@ -89,5 +90,5 @@ float DrivetrainSubsystem::calculateRotationPID(float error) {
         error += 2 * M_PI;
     }
     return rotationPIDController.runControllerDerivateError(error, 0.002f);
-
+}
 }  // namespace subsystems
