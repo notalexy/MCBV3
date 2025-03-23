@@ -16,15 +16,17 @@ using tap::communication::serial::Remote;
 
 enum DriveMode { BEYBLADE, FOLLOW_TURRET, PEEK_LEFT, PEEK_RIGHT };
 enum ControlMode { KEYBOARD, CONTROLLER, DISABLED  };
+enum SpeedMode { SLOW, NORMAL, FAST };
 
 class DrivetrainDriveCommand : public tap::control::Command {
 public:
-    DrivetrainDriveCommand(src::Drivers* drivers, DrivetrainSubsystem* drive, GimbalSubsystem* gimbal, DriveMode driveMode, ControlMode controlMode)
+    DrivetrainDriveCommand(src::Drivers* drivers, DrivetrainSubsystem* drive, GimbalSubsystem* gimbal, DriveMode driveMode, ControlMode controlMode, SpeedMode speedMode)
         : drivers(drivers),
           drivetrain(drive),
           gimbal(gimbal),
           driveMode(driveMode),
-          controlMode(controlMode) {
+          controlMode(controlMode),
+          speedMode(speedMode) {
         addSubsystemRequirement(drive);
     }
 
@@ -42,12 +44,15 @@ public:
 
     void setControlMode(ControlMode newControlMode) { controlMode = newControlMode; }
 
+    void setSpeedMode(SpeedMode newSpeedMode) { speedMode = newSpeedMode; }
+
 private:
     src::Drivers* drivers;
     DrivetrainSubsystem* drivetrain;
     GimbalSubsystem* gimbal;
     DriveMode driveMode;
     ControlMode controlMode;
+    SpeedMode speedMode;
     float x, y, r;
 };
 }  // namespace commands
