@@ -9,8 +9,8 @@
 #include "tap/control/subsystem.hpp"
 #include "tap/motor/dji_motor.hpp"
 
-#include "PitchController.hpp"
-#include "YawController.hpp"
+#include "controllers/PitchController.hpp"
+#include "controllers/YawController.hpp"
 #include "drivers.hpp"
 
 namespace subsystems
@@ -19,25 +19,6 @@ namespace subsystems
 static tap::arch::PeriodicMilliTimer turretControllerTimer(2);
 class GimbalSubsystem : public tap::control::Subsystem
 {
-public:  // Public Variables
-    // constexpr static float PI = 3.14159;
-    constexpr static int YAW_MOTOR_MAX_SPEED = 1000;     // TODO: Make this value relevent
-    constexpr static int YAW_MOTOR_MAX_VOLTAGE = 24000;  // Should be the voltage of the battery. Unless the motor maxes out below that.
-                                                         // //TODO: Check the datasheets
-
-    // standard looks down 17 degrees, 15 is safe
-    static constexpr float MAX_PITCH_UP = PI / 180 * 15;
-    // looks up 20, 18 is safe
-    static constexpr float MAX_PITCH_DOWN = PI / 180 * 18;
-
-    static constexpr float YAW_OFFSET = 3 * PI / 4;
-
-    static constexpr float dt = 0.002f;
-    static constexpr float PITCH_OFFSET = -0.48 * PI;  // to make gimbal horizontal when told to go to 0
-
-    // for sysid
-    static constexpr int YAW_DIST_RANGE = 18000;
-    static constexpr int PITCH_DIST_RANGE = 0;
 
 private:  // Private Variables
     tap::Drivers* drivers;

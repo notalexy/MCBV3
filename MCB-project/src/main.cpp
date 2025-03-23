@@ -2,7 +2,6 @@
 #include "tap/architecture/profiler.hpp"
 
 #include "robots/RobotControl.hpp"
-#include "robots/RobotHardware.hpp"
 
 #include "drivers.hpp"
 #include "tap/communication/sensors/buzzer/buzzer.hpp"

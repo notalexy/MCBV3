@@ -1,11 +1,13 @@
 #include "DoubleIndexerSubsystem.hpp"
+#include "IndexerSubsystemConstants.hpp"
 
 namespace subsystems
 {
 
 DoubleIndexerSubsystem::DoubleIndexerSubsystem(tap::Drivers* drivers, tap::motor::DjiMotor* index1, tap::motor::DjiMotor* index2)
     : IndexerSubsystem(drivers, index1), // Call base class constructor
-    motorIndexer2(index2)
+    motorIndexer2(index2),
+    indexPIDController2(PID_CONF_INDEX)
 {
 
     // Any additional initialization for the second motor, if necessary

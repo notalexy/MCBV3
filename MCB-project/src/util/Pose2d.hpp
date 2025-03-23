@@ -1,3 +1,4 @@
+#pragma once
 #include <util/Orientation2d.hpp>
 #include <util/Vector2d.hpp>
 

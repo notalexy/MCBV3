@@ -1,4 +1,5 @@
 #include "ChassisController.hpp"
+#include "ChassisControllerConstants.hpp"
 
 #include <cmath>
 #include <iostream>
@@ -64,12 +65,12 @@ float ChassisController::calculateBeybladeVelocity(float bb_freq, float bb_amp) 
 
     // If fixed-speed beyblade or variable-speed beyblade with velocity != 0
     // Variable-speed beyblade behavior when velmagMax == 0
-    if (BEYBLADE_FIXED_SPEED || velmagMax != 0)
-        dotThetaBeyblade -= velmagMax * dotThetaGain;
-    else if (!BEYBLADE_FIXED_SPEED && velmagMax == 0)
-        dotThetaBeyblade -= (bb_amp / 2) + sawtooth(bb_freq, bb_amp);
-    else
-        dotThetaBeyblade = 0;
+    // if (BEYBLADE_FIXED_SPEED || velmagMax != 0)
+    //     dotThetaBeyblade -= velmagMax * dotThetaGain;
+    // else if (!BEYBLADE_FIXED_SPEED && velmagMax == 0)
+    //     dotThetaBeyblade -= (bb_amp / 2) + sawtooth(bb_freq, bb_amp);
+    // else
+    //     dotThetaBeyblade = 0;
 
     // Update target velocity queue
     // targetVelocityQueue.emplace_back(VEL_TARGET);

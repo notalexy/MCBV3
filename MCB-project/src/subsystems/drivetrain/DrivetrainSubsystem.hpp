@@ -19,7 +19,7 @@ private:                                            // Private Variables
 
     tap::motor::DjiMotor* motorArray[4];
 
-    float powerLimit = 100; //default value
+    float powerLimit; //default value
 
     Pose2d lastDrive;
 
@@ -29,11 +29,14 @@ private:                                            // Private Variables
     float motorVel[4] = {0.0f,0.0f,0.0f,0.0f};
 
     ChassisController controller;
+
+    tap::algorithms::SmoothPid rotationPIDController;
    
 
 public:  // Public Methods
     DrivetrainSubsystem(tap::Drivers* driver, tap::motor::DjiMotor* motorOne, tap::motor::DjiMotor* motorTwo, tap::motor::DjiMotor* motorThree, tap::motor::DjiMotor* motorFour);
-    ~DrivetrainSubsystem() {}  // Intentionally blank
+    
+    // ~DrivetrainSubsystem() override {}  // Intentionally blank
 
     float imuAngle;
 
@@ -59,6 +62,8 @@ public:  // Public Methods
      * THIS TO WORK
      */
     void stopMotors();
+
+    float calculateRotationPID(float error);
 
 private:  // Private Methods
     

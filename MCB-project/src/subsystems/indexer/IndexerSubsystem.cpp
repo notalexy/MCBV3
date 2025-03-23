@@ -1,11 +1,13 @@
 #include "IndexerSubsystem.hpp"
+#include "IndexerSubsystemConstants.hpp"
 
 namespace subsystems {
     
 IndexerSubsystem::IndexerSubsystem(tap::Drivers* drivers, tap::motor::DjiMotor* index)
     : tap::control::Subsystem(drivers),
     drivers(drivers),
-    motorIndexer(index)
+    motorIndexer(index),
+    indexPIDController(PID_CONF_INDEX)
     {}
 
 void IndexerSubsystem::initialize() {

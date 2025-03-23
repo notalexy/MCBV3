@@ -1,4 +1,5 @@
 #include "GimbalSubsystem.hpp"
+#include "constants/GimbalSubsystemConstants.hpp"
 
 int voltage;
 float velocity;

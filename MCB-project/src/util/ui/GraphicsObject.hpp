@@ -4,6 +4,7 @@
 
 using namespace tap::communication::serial;
 
+/* Both containers and non containers are a GraphicsObject. The UISubsystem deals with most things at a GraphicsObject level. */
 class GraphicsObject {
 public:
     /*
@@ -46,8 +47,9 @@ public:
      * and Z are not containers: A looks like [X, Y, Z, Q] when traversing.
      *
      * This will only return SimpleGraphicsObject's, but making the return
-     * type that might lead to a problematic circle, with SimpleGraphicsObject
-     * and GraphicsObject including eachother.
+     * type that will lead to a problematic circle, with SimpleGraphicsObject
+     * and GraphicsObject including eachother. Might be fixed with separate
+     * cpp and hpp files.
      */
     virtual GraphicsObject* getNext() = 0;
 
@@ -63,9 +65,10 @@ public:
     virtual int size() = 0;
 
     /*
-     * Containers do nothing, SimpleGraphicsObject's
+     * Containers do nothing, SimpleGraphicsObject's fill the graphic data
      */
-    virtual void configGraphicData(__attribute__((unused)) RefSerialData::Tx::GraphicData* graphicData) { (void)graphicData; }
+    virtual void configGraphicData(__attribute__((unused)) RefSerialData::Tx::GraphicData* graphicData) {}
+    virtual void configCharacterData(__attribute__((unused)) RefSerialData::Tx::GraphicCharacterMessage* graphicData) {}
 
     /*
      * For objects contained by the UIDrawCommand, like the reticle,
@@ -87,6 +90,12 @@ public:
      * they use GRAPHIC_ADD and not GRAPHIC_MODIFY
      */
     virtual void hasBeenCleared() {}
+
+    /*
+     * Graphics representing strings need to be sent as a CharacterMessage,
+     * and can't be sent in a group of 7 like other graphics can.
+     */
+    virtual bool isStringGraphic() { return false; }
 
 protected:
     u_int16_t countIndex = 0;
