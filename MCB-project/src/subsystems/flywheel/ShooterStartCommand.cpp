@@ -12,5 +12,5 @@ void ShooterStartCommand::execute()
 void ShooterStartCommand::end(bool) {}
 
 // doesn't have a real end condition
-bool ShooterStartCommand::isFinished(void) const { return false; }
+bool ShooterStartCommand::isFinished(void) const { return !drivers->remote.isConnected(); }
 }  // namespace commands

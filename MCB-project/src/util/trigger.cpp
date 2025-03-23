@@ -64,28 +64,32 @@ Trigger::Trigger(Drivers* drivers, MouseButton mouseButton)
 }
 Trigger Trigger::operator&(std::function<bool()> trigger)
 {
-    return Trigger(m_drivers, [this, trigger]() { return this->m_condition() && trigger(); });
+    auto triggerCpy = m_condition; //done to lower context switching. Allows dealloc of triggers made in the lambda
+    return Trigger(m_drivers, [triggerCpy, trigger]() { return triggerCpy() && trigger(); });
 }
 
 Trigger Trigger::operator!()
-{
-    return Trigger(m_drivers, [this]() { return !this->m_condition(); });
+{   
+    auto triggerCpy = m_condition; //done to lower context switching. Allows dealloc of triggers made in the lambda
+    return Trigger(m_drivers, [triggerCpy]() { return !triggerCpy(); });
 }
 
 Trigger Trigger::operator|(std::function<bool()> trigger)
-{
-    return Trigger(m_drivers, [this, trigger]() { return this->m_condition() || trigger(); });
+{   
+    auto triggerCpy = m_condition; //done to lower context switching. Allows dealloc of triggers made in the lambda
+    return Trigger(m_drivers, [triggerCpy, trigger]() { return triggerCpy() || trigger(); });
 }
 
 Trigger Trigger::operator^(std::function<bool()> trigger)
 {
-    return Trigger(m_drivers, [this, trigger]() { return this->m_condition() ^ trigger(); });
+    auto triggerCpy = m_condition; //done to lower context switching. Allows dealloc of triggers made in the lambda
+    return Trigger(m_drivers, [triggerCpy, trigger]() { return triggerCpy() ^ trigger(); });
 }
 
-Trigger Trigger::schedule(Command* command, std::vector<Command*>* commands)
+Trigger* Trigger::schedule(Command* command, std::vector<Command*>* commands)
 {
-    commands->push_back(command);
-    return *this;
+    commands->emplace_back(command);
+    return this;
 
 }  // namespace control
 
@@ -107,14 +111,15 @@ void Trigger::update()
 
     // cancel commands as needed
     safeCancel(value ? m_whileFalseCommands : m_whileTrueCommands);
+    safeCancel((m_toggleState && value) ? m_toggleOnFalseCommands : m_toggleOnTrueCommands);
 }
 
 void Trigger::safeSchedule(std::vector<Command*> commands)
 {
     for (auto command : commands)
     {
-        // already scheduled? dont reschedule
-        if (m_drivers->commandScheduler.isCommandScheduled(command)) continue;
+
+        m_drivers->commandScheduler.removeCommand(command, true);
         m_drivers->commandScheduler.addCommand(command);
     }
 }
@@ -123,8 +128,6 @@ void Trigger::safeCancel(std::vector<Command*> commands)
 {
     for (auto command : commands)
     {
-        // not scheduled? no need to cancel
-        if (!m_drivers->commandScheduler.isCommandScheduled(command)) continue;
         m_drivers->commandScheduler.removeCommand(command, true);
     }
 }
