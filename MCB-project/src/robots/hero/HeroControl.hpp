@@ -1,10 +1,6 @@
 #include "robots/RobotControl.hpp"
 
-#if defined(INFANTRY)
-#include "robots/infantry/InfantryHardware.hpp"
-#else
-#include "robots/infantry/MechInfantryHardware.hpp"
-#endif
+#include "robots/hero/HeroHardware.hpp"
 
 #include "subsystems/ui/UISubsystem.hpp"
 #include "subsystems/ui/UIDrawCommand.hpp"
@@ -27,10 +23,10 @@
 #include "drivers.hpp"
 
 namespace robots {
-class InfantryControl : public ControlInterface {
+class HeroControl : public ControlInterface {
 public:
     // pass drivers back to root robotcontrol to store
-    InfantryControl(src::Drivers *drivers) : drivers(drivers), hardware(InfantryHardware{drivers}) {}
+    HeroControl(src::Drivers *drivers) : drivers(drivers), hardware(HeroHardware{drivers}) {}
     // functions we are using
     void initialize() override {
         // Initialize subsystems
@@ -50,37 +46,17 @@ public:
         // Run startup commands
         gimbal.setDefaultCommand(&look);
         flywheel.setDefaultCommand(&shooterStop);
-        drivetrain.setDefaultCommand(&driveCommand);
         indexer.setDefaultCommand(&indexerStopCommand);
-        ui.setDefaultCommand(&draw);
+        
 
-        // unjamButton = Trigger(drivers, [this](){ return this->drivers->remote.getSwitch(Remote::Switch::RIGHT_SWITCH) == Remote::SwitchState::UP;});
+        shootButton.whileTrue(&indexer10Hz)->onTrue(&shooterStart);
+        unjamButton.whileTrue(&indexerUnjam)->onTrue(&shooterStop);
 
-        shootButton.onTrue(&shooterStart).whileTrue(&indexer10Hz);
-        unjamButton.onTrue(&shooterStop).whileTrue(&indexerUnjam);
 
-        //peeking
+        // //peeking
         peekLeftButton.whileTrue(&peekLeft);
         peekRightButton.whileTrue(&peekRight);
-
-        //Mouse and Keyboard mappings
-        unjamKey.whileTrue(&indexerUnjam)->onTrue(&shooterStop);
-        //implement autoaim
-        shootKey.whileTrue(&indexer10Hz)->onTrue(&shooterStart);
-        //implement speed mode
-        //implement beyblade types
-        beybladeType0Key.onTrue(&drivetrainFollowKeyboard);
-        beybladeType1Key.onTrue(&beybladeSlowKeyboard);
-        beybladeType2Key.onTrue(&beybladeFastKeyboard);
         
-        toggleUIKey.toggleOnFalse(&draw);
-        drivers->commandScheduler.addCommand(&draw);
-        //implement toggle UI
-        
-        joystickDrive0.whileTrue(&drivetrainFollowKeyboard);
-        joystickDrive1.whileTrue(&drivetrainFollowJoystick);
-        joystickDrive2.whileTrue(&beybladeJoystick);
-
         // drivers->commandMapper.addMap(&controllerToKeyboardMouseMapping);
         // drivers->commandScheduler.addCommand(&indexerUnjam);
     }
@@ -93,7 +69,7 @@ public:
     }
 
     src::Drivers *drivers;
-    InfantryHardware hardware;
+    HeroHardware hardware;
 
     // Subsystems
     subsystems::UISubsystem ui{drivers};
@@ -118,11 +94,8 @@ public:
     //CHANGE NUMBERS LATER
     commands::DrivetrainDriveCommand peekRight{drivers, &drivetrain, &gimbal, commands::DriveMode::PEEK_RIGHT, commands::ControlMode::KEYBOARD};
     commands::DrivetrainDriveCommand peekLeft{drivers, &drivetrain, &gimbal, commands::DriveMode::PEEK_LEFT, commands::ControlMode::KEYBOARD};
-    commands::DrivetrainDriveCommand drivetrainFollowKeyboard{drivers, &drivetrain, &gimbal, commands::DriveMode::FOLLOW_TURRET, commands::ControlMode::KEYBOARD};
-    commands::DrivetrainDriveCommand drivetrainFollowJoystick{drivers, &drivetrain, &gimbal, commands::DriveMode::FOLLOW_TURRET, commands::ControlMode::CONTROLLER};
-    commands::DrivetrainDriveCommand beybladeJoystick{drivers, &drivetrain, &gimbal, commands::DriveMode::BEYBLADE, commands::ControlMode::CONTROLLER};
-    commands::DrivetrainDriveCommand beybladeSlowKeyboard{drivers, &drivetrain, &gimbal, commands::DriveMode::BEYBLADE, commands::ControlMode::KEYBOARD};
-    commands::DrivetrainDriveCommand beybladeFastKeyboard{drivers, &drivetrain, &gimbal, commands::DriveMode::BEYBLADE2, commands::ControlMode::KEYBOARD};
+    commands::DrivetrainDriveCommand peekCenterWASD{drivers, &drivetrain, &gimbal, commands::DriveMode::FOLLOW_TURRET, commands::ControlMode::KEYBOARD};
+    commands::DrivetrainDriveCommand peekCenterJoystick{drivers, &drivetrain, &gimbal, commands::DriveMode::FOLLOW_TURRET, commands::ControlMode::CONTROLLER};
 
     commands::DrivetrainStopCommand stopDriveCommand{drivers, &drivetrain};
 
@@ -134,32 +107,16 @@ public:
     //peeking
     Trigger peekLeftButton{drivers, Remote::Key::Q};
     Trigger peekRightButton{drivers, Remote::Key::E};
-    Trigger joystickDrive0{drivers, Remote::Switch::RIGHT_SWITCH, Remote::SwitchState::UP};// = (Trigger(drivers, Remote::Key::Q) & Trigger(drivers, Remote::Key::E)) | Trigger(drivers, Remote::Switch::LEFT_SWITCH, Remote::SwitchState::UP);
-    Trigger joystickDrive1{drivers, Remote::Switch::RIGHT_SWITCH, Remote::SwitchState::MID};
-    Trigger joystickDrive2{drivers, Remote::Switch::RIGHT_SWITCH, Remote::SwitchState::DOWN};
+    Trigger peekCenterButton{drivers, Remote::Switch::RIGHT_SWITCH, Remote::SwitchState::UP};// = (Trigger(drivers, Remote::Key::Q) & Trigger(drivers, Remote::Key::E)) | Trigger(drivers, Remote::Switch::LEFT_SWITCH, Remote::SwitchState::UP);
+
+    //shooting
     //shooting
     Trigger shootButton{drivers, Remote::Channel::WHEEL, 0.5};// = Trigger(drivers, Remote::Channel::WHEEL, 0.5) | Trigger(drivers, MouseButton::LEFT);
     //unjamming we know the button reacts 
     Trigger unjamButton{drivers, Remote::Channel::WHEEL, -0.5};// = Trigger(drivers, Remote::Channel::WHEEL, -0.5) | Trigger(drivers, MouseButton::RIGHT);
 
-    //find keyboard unjam button 
-    //figure out how to switch kb/m and controller
-    //find speed mode button
-    //buttons to change beyblade type (variable, fast, none) (3 buttons)
-    //find auto aim button for both kb/m and controller
-    //
-
-    Trigger unjamKey{drivers, Remote::Key::Z}; //or R if based
-    Trigger autoAimKey{drivers, MouseButton::RIGHT};
-    Trigger shootKey{drivers, MouseButton::LEFT};
-    Trigger speedModeKey{drivers, Remote::Key::SHIFT};
-    Trigger beybladeType0Key{drivers, Remote::Key::X};
-    Trigger beybladeType1Key{drivers, Remote::Key::C};
-    Trigger beybladeType2Key{drivers, Remote::Key::V};
-    Trigger toggleUIKey{drivers, Remote::Key::G};
-
     //Trigger indexSpinButton;// = Trigger(drivers, Remote::Switch::RIGHT_SWITCH, Remote::SwitchState::UP) & Trigger(drivers, Remote::Switch::LEFT_SWITCH, Remote::SwitchState::UP);
-    Trigger* triggers[15] = {&peekLeftButton, &peekRightButton, &joystickDrive0, &joystickDrive1, &joystickDrive2, &shootButton, &unjamButton, &unjamKey, &shootKey, &autoAimKey, &speedModeKey, &beybladeType0Key, &beybladeType1Key, &beybladeType2Key, &toggleUIKey};//, &indexSpinButton};
+    Trigger* triggers[5] = {&peekLeftButton, &peekRightButton, &peekCenterButton, &shootButton, &unjamButton};//, &indexSpinButton};
 
 
     // ToggleCommandMapping controllerToKeyboardMouseMapping{drivers, {&look2}, RemoteMapState({Remote::Key::CTRL, Remote::Key::Z})};

@@ -6,6 +6,8 @@
 #include "util/ui/GraphicsContainer.hpp"
 
 #include "LaneAssistLines.hpp"
+#include "TestGraphics.hpp"
+#include "TestFill.hpp"
 #include "drivers.hpp"
 
 namespace commands {
@@ -13,7 +15,7 @@ using subsystems::UISubsystem;
 
 class UIDrawCommand : public tap::control::Command, GraphicsContainer {
 public:
-    UIDrawCommand(UISubsystem* subsystem) : subsystem(subsystem) { addSubsystemRequirement(subsystem); }
+    UIDrawCommand(UISubsystem* subsystem);
 
     void initialize() override;
 
@@ -28,7 +30,9 @@ public:
 private:
     UISubsystem* subsystem;
 
-    // add top level graphics objects here and in initialize()
+    // add top level graphics objects here and in the constructor
+    // TestGraphics testGraphics{};
+    // TestFill testFill{};
     LaneAssistLines laneAssistLines{};
 };
 }  // namespace commands
