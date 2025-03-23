@@ -106,42 +106,42 @@ public:
      * @param command Command to be executed.
      * @return Updated Trigger object.
      */
-    Trigger onFalse(Command* command) { return schedule(command, &m_onFalseCommands); }
+    Trigger* onFalse(Command* command) { return schedule(command, &m_onFalseCommands); }
 
     /**
      * @brief Schedules a command to execute when the trigger transitions from false to true.
      * @param command Command to be executed.
      * @return Updated Trigger object.
      */
-    Trigger onTrue(Command* command) { return schedule(command, &m_onTrueCommands); }
+    Trigger* onTrue(Command* command) { return schedule(command, &m_onTrueCommands); }
 
     /**
      * @brief Toggles the execution of a command when the trigger toggles from true to false.
      * @param command Command to be toggled.
      * @return Updated Trigger object.
      */
-    Trigger toggleOnFalse(Command* command) { return schedule(command, &m_toggleOnFalseCommands); }
+    Trigger* toggleOnFalse(Command* command) { return schedule(command, &m_toggleOnFalseCommands); }
 
     /**
      * @brief Toggles the execution of a command when the trigger toggles from false to true.
      * @param command Command to be toggled.
      * @return Updated Trigger object.
      */
-    Trigger toggleOnTrue(Command* command) { return schedule(command, &m_toggleOnTrueCommands); }
+    Trigger* toggleOnTrue(Command* command) { return schedule(command, &m_toggleOnTrueCommands); }
 
     /**
      * @brief Executes a command while the trigger is false and cancels it when it is true
      * @param command Command to be executed.
      * @return Updated Trigger object.
      */
-    Trigger whileFalse(Command* command) { return schedule(command, &m_whileFalseCommands); }
+    Trigger* whileFalse(Command* command) { return schedule(command, &m_whileFalseCommands); }
 
     /**
      * @brief Executes a command while the trigger is true and cancels it when it is false
      * @param command Command to be executed.
      * @return Updated Trigger object.
      */
-    Trigger whileTrue(Command* command) { return schedule(command, &m_whileTrueCommands); }
+    Trigger* whileTrue(Command* command) { return schedule(command, &m_whileTrueCommands); }
 
     /**
      * @brief Evaluates the trigger condition and returns its boolean state.
@@ -175,7 +175,7 @@ private:
      * @param commands Vector of commands to store it in.
      * @return Updated Trigger object.
      */
-    Trigger schedule(Command* command, std::vector<Command*>* commands);
+    Trigger* schedule(Command* command, std::vector<Command*>* commands);
 
     /**
      * @brief Safely schedules commands for execution.

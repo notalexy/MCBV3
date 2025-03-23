@@ -82,7 +82,7 @@ typedef struct {
         const float INT_THRESH;  // V
         const float TAKEBACK;                // unitless
     } PITCH;
-    
+
     struct Yaw {
         // Physical constants
         const float C;                           // kg-s/m^2
