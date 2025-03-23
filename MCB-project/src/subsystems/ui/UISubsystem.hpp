@@ -40,7 +40,6 @@ private:  // Private Variables
     RefSerialData::Tx::Graphic5Message message5;
     RefSerialData::Tx::Graphic7Message message7;
     RefSerialData::Tx::GraphicCharacterMessage messageCharacter;
-    bool wasteIsBetterFor3, wasteIsBetterFor4, wasteIsBetterFor6 = false;
     uint8_t wasteNameArray[3];
 
     //fps calc
@@ -49,10 +48,6 @@ private:  // Private Variables
 
     //when get UIDrawCommand, it should set this
     GraphicsContainer* topLevelContainer = nullptr;
-
-    //temp for testing
-    int timesDeleted = 0;
-
 
 public:  // Public Methods
     UISubsystem(tap::Drivers* driver);

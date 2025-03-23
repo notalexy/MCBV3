@@ -50,6 +50,7 @@ public:
         gimbal.setDefaultCommand(&look);
         flywheel.setDefaultCommand(&shooterStop);
         drivetrain.setDefaultCommand(&driveCommand);
+        ui.setDefaultCommand(&draw);
 
         // unjamButton = Trigger(drivers, [this](){ return this->drivers->remote.getSwitch(Remote::Switch::RIGHT_SWITCH) == Remote::SwitchState::UP;});
 

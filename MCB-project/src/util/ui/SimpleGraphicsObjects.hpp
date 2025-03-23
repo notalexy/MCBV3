@@ -144,7 +144,7 @@ public:
         setPrev();
     }
 
-    bool needsRedrawn() final { return !(prevThickness == thickness && prevCx == cx && prevCy == cy && prevWidth == width && prevHeight == height && prevColor == color && hasDrawn); }
+    bool needsRedrawn() final { return !(prevThickness == thickness && prevCx == cx && prevCy == cy && prevWidth == width && prevHeight == height && prevColor == color && prevStartAngle == startAngle&&prevEndAngle == endAngle&&hasDrawn); }
 
     uint16_t cx, cy, width, height, startAngle, endAngle, thickness;  // can set this directly, will appear next time drawn
 
@@ -182,6 +182,7 @@ public:
 
     /* resizes the given rect to bound this text, will include width */
     void outputRect(UnfilledRectangle* rect) {
+        calculateNumbers();
         rect->x = x;
         rect->y = y;
         rect->width = width;
@@ -189,31 +190,20 @@ public:
     }
 
 private:
-    // void setTextNumbers(uint16_t newFontSize, uint16_t newTextX, uint16_t newTextY) {
-    //     fontSize = newFontSize;
-    //     textX = newTextX;
-    //     textY = newTextY;
-    //     height = fontSize * HEIGHT_MULT / HEIGHT_DIV;
-    //     x = textX + X_OFFSET;
-    //     y = textY - height;
-    //     calculateWidth();
-    // }
 
     // need to test/tune, was from ui website
-    static constexpr uint16_t HEIGHT_MULT = 195;
-    static constexpr uint16_t HEIGHT_DIV = 160;
-    static constexpr uint16_t X_OFFSET = 2;
-    static constexpr uint16_t WIDTH_OFFSET_DIV = 8;
+    static constexpr uint16_t WIDTH_OFFSET_MULT = 19;
+    static constexpr uint16_t WIDTH_OFFSET_DIV = 47;
 
-    void calculateWidth() { width = fontSize * len - fontSize / WIDTH_OFFSET_DIV; }
+    void calculateWidth() { width = fontSize * len - fontSize*WIDTH_OFFSET_MULT / WIDTH_OFFSET_DIV; }
 
 protected:
     uint16_t fontSize, textX, textY = 0;  // can read these, but don't set these, set with setTextNumbers
     uint16_t len = 0;                     // for sending integer 123 or text ABC, len would be 3. Not sure about floats yet, need to test
 
     void calculateNumbers() {
-        fontSize = height * HEIGHT_DIV / HEIGHT_MULT;
-        textX = x - X_OFFSET;
+        fontSize = height;
+        textX = x;
         textY = y + height;
         calculateWidth();
     }
@@ -243,7 +233,7 @@ protected:
     }
 };
 
-class IntegerGraphic : public SimpleGraphicsObject, TextSizer {
+class IntegerGraphic : public SimpleGraphicsObject, public TextSizer {
 public:
     IntegerGraphic(int32_t newInteger, UnfilledRectangle* rect) : SimpleGraphicsObject(rect->color), TextSizer(intLen(newInteger)), thickness(rect->thickness), integer(newInteger) { inputRect(rect); }
 
@@ -279,7 +269,7 @@ private:
     RefSerialData::Tx::GraphicColor prevColor;
 };
 
-class FloatGraphic : public SimpleGraphicsObject, TextSizer {
+class FloatGraphic : public SimpleGraphicsObject, public TextSizer {
 public:
     FloatGraphic(float newFloat, UnfilledRectangle* rect) : SimpleGraphicsObject(rect->color), TextSizer(floatLen(newFloat)), thickness(rect->thickness), _float(newFloat) { inputRect(rect); }
 
@@ -316,18 +306,25 @@ private:
     RefSerialData::Tx::GraphicColor prevColor;
 };
 
-class StringGraphic : public SimpleGraphicsObject, TextSizer {
+class StringGraphic : public SimpleGraphicsObject, public TextSizer {
+private:
+    static constexpr int STRING_SIZE = 31; //not sure if it should be 30 or 31
+
 public:
     StringGraphic(const char* newString, UnfilledRectangle* rect) : SimpleGraphicsObject(rect->color), TextSizer(stringLen(newString)), thickness(rect->thickness) {
         inputRect(rect);
-        strncpy(string, newString, 30);
+        setString(newString);
     }
 
     StringGraphic(RefSerialData::Tx::GraphicColor color, const char* newString, uint16_t x, uint16_t y, uint16_t height, uint16_t thickness)
         : SimpleGraphicsObject(color),
           TextSizer(stringLen(newString), x, y, height),
           thickness(thickness) {
-        strncpy(string, newString, 30);
+        setString(newString);
+    }
+
+    void setString(const char* newString) {
+        strncpy(string, newString, STRING_SIZE);
     }
 
     void configCharacterData(RefSerialData::Tx::GraphicCharacterMessage* characterData) final {
@@ -341,10 +338,10 @@ public:
     // StringGraphics fill the data differently. configGraphicGenerics still needs called, but finishConfigGraphicData shouldn't do anything extra
     void finishConfigGraphicData(__attribute__((unused)) RefSerialData::Tx::GraphicData* graphicData) final {}
 
-    bool needsRedrawn() final { return !(prevThickness == thickness && prevX == x && prevY == y && prevHeight == height && prevColor == color && !std::strncmp(string, oldString, 30) && hasDrawn); }
+    bool needsRedrawn() final { return !(prevThickness == thickness && prevX == x && prevY == y && prevHeight == height && prevColor == color && !std::strncmp(string, oldString, STRING_SIZE) && hasDrawn); }
 
     uint16_t thickness = 0;
-    char string[30];
+    char string[STRING_SIZE];
 
     bool isStringGraphic() final { return true; }
 
@@ -355,10 +352,11 @@ private:
         prevY = y;
         prevHeight = height;
         prevColor = color;
-        strncpy(oldString, string, 30);
+        strncpy(oldString, string, STRING_SIZE);
     }
 
     uint16_t prevX, prevY, prevHeight, prevThickness = 0;
-    char oldString[30];
+    char oldString[STRING_SIZE];
     RefSerialData::Tx::GraphicColor prevColor;
+
 };

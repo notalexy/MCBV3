@@ -22,8 +22,9 @@ public:
         // allowing the container above this one to check the container after this one
         // no int i = something, so start with semicolon
         for (; countIndex < objects.size(); countIndex++) {
-            if (r) break;
+            if (r) break; //if we have something, don't ask for a new thing
             r = objects.at(countIndex)->getNext();
+            if(r) countIndex--; //if the container returned something, it might return more
         }
 
         // we found something in the loop: return it

@@ -1,13 +1,18 @@
 #include "UIDrawCommand.hpp"
 
+//this cpp file doesn't have much, might move stuff in here to the hpp and not have a cpp
 namespace commands {
 
-void UIDrawCommand::initialize() {
-    // we can't use new here because we don't want to reconstruct the top level graphics objects if the command is stopped and restarted
+UIDrawCommand::UIDrawCommand(UISubsystem* subsystem) : subsystem(subsystem) {
+    addSubsystemRequirement(subsystem);
+    // addGraphicsObject(&testGraphics);
+    // addGraphicsObject(&testFill);
     addGraphicsObject(&laneAssistLines);
 }
 
-void UIDrawCommand::execute() { subsystem->setTopLevelContainer(this); }
+void UIDrawCommand::initialize() { subsystem->setTopLevelContainer(this); }
+
+void UIDrawCommand::execute() {}
 
 void UIDrawCommand::end(bool) { subsystem->setTopLevelContainer(nullptr); }
 
