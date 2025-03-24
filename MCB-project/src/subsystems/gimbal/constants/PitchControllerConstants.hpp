@@ -1,7 +1,9 @@
 namespace subsystems {
-    #if defined(HERO)
     constexpr float KB = 0.716;                          // V-rad/s
     constexpr float RA = 8.705;                          // ohm
+
+    #if defined(HERO)
+   
     constexpr float RATIO = 1;                           // unitless
     constexpr float VOLT_MAX = 22.2;                     // V
     constexpr float ACCEL_MAX = 40.0;                    // rad/s
@@ -20,8 +22,7 @@ namespace subsystems {
     constexpr float INT_THRESH = VOLT_MAX * 0.85l;  // V
     constexpr float TAKEBACK = 0.01;                // unitless
     #elif defined(SENTRY)
-    constexpr float KB = 0.716;                          // V-rad/s
-    constexpr float RA = 8.705;                          // ohm
+
     constexpr float RATIO = 1;                           // unitless
     constexpr float VOLT_MAX = 22.2;                     // V
     constexpr float ACCEL_MAX = 40.0;                    // rad/s
@@ -40,8 +41,7 @@ namespace subsystems {
     constexpr float INT_THRESH = VOLT_MAX * 0.85l;  // V
     constexpr float TAKEBACK = 0.01;                // unitless
     #elif defined(INFANTRY)
-    constexpr float KB = 0.716;                          // V-rad/s
-    constexpr float RA = 8.705;                          // ohm
+
     constexpr float RATIO = 1;                           // unitless
     constexpr float VOLT_MAX = 22.2;                     // V
     constexpr float ACCEL_MAX = 40.0;                    // rad/s
@@ -60,8 +60,7 @@ namespace subsystems {
     constexpr float INT_THRESH = VOLT_MAX * 0.85l;  // V
     constexpr float TAKEBACK = 0.01;                // unitless
     #else
-    constexpr float KB = 0.716;                          // V-rad/s
-    constexpr float RA = 8.705;                          // ohm
+
     constexpr float RATIO = 1;                           // unitless
     constexpr float VOLT_MAX = 22.2;                     // V
     constexpr float ACCEL_MAX = 40.0;                    // rad/s

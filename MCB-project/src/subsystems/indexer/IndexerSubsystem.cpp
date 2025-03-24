@@ -12,6 +12,8 @@ IndexerSubsystem::IndexerSubsystem(tap::Drivers* drivers, tap::motor::DjiMotor* 
 
 void IndexerSubsystem::initialize() {
     motorIndexer->initialize();
+    drivers->commandScheduler.registerSubsystem(this);
+
 }
 
 void IndexerSubsystem::refresh() {

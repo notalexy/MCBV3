@@ -28,6 +28,7 @@ uint8_t* UISubsystem::formatGraphicName(uint8_t array[3], uint32_t name) {
 
 void UISubsystem::initialize() {
     this->restarting = true;
+    drivers->commandScheduler.registerSubsystem(this);
 
     // temp for testing
     drivers->leds.init();
