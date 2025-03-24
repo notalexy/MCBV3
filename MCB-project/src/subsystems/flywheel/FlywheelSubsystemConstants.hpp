@@ -1,3 +1,4 @@
+#pragma once
 #include "tap/algorithms/smooth_pid.hpp"
 
 namespace subsystems {

@@ -6,11 +6,15 @@ namespace commands {
 UIDrawCommand::UIDrawCommand(UISubsystem* subsystem) : subsystem(subsystem) {
     addSubsystemRequirement(subsystem);
     // addGraphicsObject(&testGraphics);
-    // addGraphicsObject(&testFill);
-    addGraphicsObject(&laneAssistLines);
+    addGraphicsObject(&testFill);
+    // addGraphicsObject(&laneAssistLines);
 }
 
-void UIDrawCommand::initialize() { subsystem->setTopLevelContainer(this); }
+void UIDrawCommand::initialize() { 
+    resetIteration();
+    
+    subsystem->setTopLevelContainer(this); 
+}
 
 void UIDrawCommand::execute() {}
 

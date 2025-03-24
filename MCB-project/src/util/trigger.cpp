@@ -107,11 +107,15 @@ void Trigger::update()
     // schedule commands as needed
     safeSchedule(value ? m_onTrueCommands : m_onFalseCommands);
     safeSchedule(value ? m_whileTrueCommands : m_whileFalseCommands);
-    safeSchedule((m_toggleState && value) ? m_toggleOnTrueCommands : m_toggleOnFalseCommands);
+   
 
     // cancel commands as needed
     safeCancel(value ? m_whileFalseCommands : m_whileTrueCommands);
-    safeCancel((m_toggleState && value) ? m_toggleOnFalseCommands : m_toggleOnTrueCommands);
+
+    if(value){
+        safeCancel(m_toggleState ? m_toggleOnFalseCommands : m_toggleOnTrueCommands);
+        safeSchedule(m_toggleState ? m_toggleOnTrueCommands : m_toggleOnFalseCommands);
+    }
 }
 
 void Trigger::safeSchedule(std::vector<Command*> commands)

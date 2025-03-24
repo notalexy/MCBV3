@@ -28,13 +28,13 @@ public:
         addSubsystemRequirement(drive);
     }
 
-    void initialize() override {};
+    void initialize() override;
 
     void execute() override;
 
-    void end(bool interrupted) override {};
+    void end(bool interrupted) override;
 
-    bool isFinished() const { return !drivers->remote.isConnected(); };
+    bool isFinished() const override;
 
     const char* getName() const override { return "drive command"; }
 

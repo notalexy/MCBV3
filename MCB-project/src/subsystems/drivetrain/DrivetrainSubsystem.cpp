@@ -84,9 +84,10 @@ void DrivetrainSubsystem::stopMotors() {
 }
 
 float DrivetrainSubsystem::calculateRotationPID(float error) {
-    if (error > M_PI) {
+    while (error > M_PI) {
         error -= 2 * M_PI;
-    } else if (error < -M_PI) {
+    } 
+    while (error < -M_PI) {
         error += 2 * M_PI;
     }
     return rotationPIDController.runControllerDerivateError(error, 0.002f);

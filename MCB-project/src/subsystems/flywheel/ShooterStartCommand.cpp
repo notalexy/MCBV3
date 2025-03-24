@@ -6,7 +6,7 @@ namespace commands
 void ShooterStartCommand::initialize() {  }
 void ShooterStartCommand::execute()
 {
-    flywheel->setTargetVelocity(flywheel->FLYWHEEL_MOTOR_MAX_RPM);
+    flywheel->setTargetVelocity(subsystems::FLYWHEEL_MOTOR_MAX_RPM);
 }
 
 void ShooterStartCommand::end(bool) {}

@@ -32,7 +32,7 @@ private:
 
     // add top level graphics objects here and in the constructor
     // TestGraphics testGraphics{};
-    // TestFill testFill{};
-    LaneAssistLines laneAssistLines{};
+    TestFill testFill{};
+    // LaneAssistLines laneAssistLines{};
 };
 }  // namespace commands
