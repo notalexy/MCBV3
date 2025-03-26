@@ -81,7 +81,7 @@ constexpr float P_FOS = 0.87;       // unitless, power factor of safety
 
 // Tunable Parameters
 constexpr float KP_V_XY = 1500;  // proportional gain for velocity
-constexpr float KP_V_ROT = 20;   // proportional gain for rotational velocity
+constexpr float KP_V_ROT = 5;   // proportional gain for rotational velocity
 
 constexpr float KI_V = 0;  // integral gain for velocity
 
