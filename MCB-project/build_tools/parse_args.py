@@ -120,7 +120,7 @@ def parse_args():
     if rtype in ROBOT_TYPE_DEFINES:
         args["ROBOT_TYPE"] = ROBOT_TYPE_DEFINES[rtype]
     elif rtype != None:
-        raise Exception("You specified an invalid robot type.\n" + USAGE)
+        raise Exception(rtype+ " is an invalid robot type.\n" + USAGE)
     else: #nothing defined so do none
         print( "======================================================================================")
         print(f"          !!!WARNING!!!: No robot type was specified, defaulting to OLDINFANTRY          ")

@@ -9,7 +9,7 @@
             "presentation": {
                 "panel": "new"
             },
-            "command": "pipenv run scons build",
+            "command": "pipenv run scons build robot=${command:cpptools.activeConfigName}",
             "group": "build",
             "problemMatcher": [],
             "options": {
@@ -22,7 +22,7 @@
             "presentation": {
                 "panel": "new"
             },
-            "command": "pipenv run scons run",
+            "command": "pipenv run scons run robot=${command:cpptools.activeConfigName}",
             "group": {
                 "kind": "build",
                 "isDefault": true

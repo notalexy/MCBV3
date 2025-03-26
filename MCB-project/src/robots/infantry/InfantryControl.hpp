@@ -23,6 +23,7 @@
 #include "subsystems/indexer/IndexerStopCommand.hpp"
 #include "subsystems/ui/UISubsystem.hpp"
 #include "util/trigger.hpp"
+#include "subsystems/gimbal/GimbalStopCommand.hpp"
 
 #include "drivers.hpp"
 
@@ -97,6 +98,7 @@ public:
 
     commands::JoystickMoveCommand lookJoystick{drivers, &gimbal};
     commands::MouseMoveCommand lookMouse{drivers, &gimbal};
+    commands::GimbalStopCommand stopGimbal{drivers, &gimbal};
 
     commands::ShooterStartCommand shooterStart{drivers, &flywheel};
     commands::ShooterStopCommand shooterStop{drivers, &flywheel};

@@ -39,7 +39,7 @@
             }
         },
         {
-            "name": "Hardware",
+            "name": "INFANTRY",
             "includePath": [
                 "${default}",
                 "MCB-project/taproot/modm/src",
@@ -47,6 +47,66 @@
                 "MCB-project/taproot/modm/ext/cmsis/device",
                 "MCB-project/taproot/modm/ext/cmsis/dsp",
                 "MCB-project/src/*"
+            ],
+            "defines":[
+                "INFANTRY"
+            ],
+            "compilerPath": "arm-none-eabi-g++",
+            "intelliSenseMode": "gcc-arm",
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true
+            }
+        },
+        {
+            "name": "OLDINFANTRY",
+            "includePath": [
+                "${default}",
+                "MCB-project/taproot/modm/src",
+                "MCB-project/taproot/modm/ext/cmsis/core",
+                "MCB-project/taproot/modm/ext/cmsis/device",
+                "MCB-project/taproot/modm/ext/cmsis/dsp",
+                "MCB-project/src/*"
+            ],
+            "defines":[
+                "OLDINFANTRY"
+            ],
+            "compilerPath": "arm-none-eabi-g++",
+            "intelliSenseMode": "gcc-arm",
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true
+            }
+        },
+        {
+            "name": "HERO",
+            "includePath": [
+                "${default}",
+                "MCB-project/taproot/modm/src",
+                "MCB-project/taproot/modm/ext/cmsis/core",
+                "MCB-project/taproot/modm/ext/cmsis/device",
+                "MCB-project/taproot/modm/ext/cmsis/dsp",
+                "MCB-project/src/*"
+            ],
+            "defines":[
+                "HERO"
+            ],
+            "compilerPath": "arm-none-eabi-g++",
+            "intelliSenseMode": "gcc-arm",
+            "browse": {
+                "limitSymbolsToIncludedHeaders": true
+            }
+        },
+        {
+            "name": "SENTRY",
+            "includePath": [
+                "${default}",
+                "MCB-project/taproot/modm/src",
+                "MCB-project/taproot/modm/ext/cmsis/core",
+                "MCB-project/taproot/modm/ext/cmsis/device",
+                "MCB-project/taproot/modm/ext/cmsis/dsp",
+                "MCB-project/src/*"
+            ],
+            "defines":[
+                "SENTRY"
             ],
             "compilerPath": "arm-none-eabi-g++",
             "intelliSenseMode": "gcc-arm",
