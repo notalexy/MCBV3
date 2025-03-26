@@ -34,7 +34,11 @@ public:
 
     void end(bool interrupted) override;
 
+<<<<<<< HEAD
+    bool isFinished() const { return false; };
+=======
     bool isFinished() const override;
+>>>>>>> fdb5fb34b678057dd1df5f762472988d8c535be9
 
     const char* getName() const override { return "drive command"; }
 

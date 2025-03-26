@@ -9,7 +9,7 @@ using namespace subsystems;
 
 class LaneAssistLines : public GraphicsContainer {
 public:
-    LaneAssistLines() {
+    LaneAssistLines(GimbalSubsystem* gimbal) : gimbal (gimbal) {
         addGraphicsObject(&left);
         addGraphicsObject(&right);
     }
