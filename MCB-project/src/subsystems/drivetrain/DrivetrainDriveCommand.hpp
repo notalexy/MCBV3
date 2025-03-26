@@ -34,7 +34,7 @@ public:
 
     void end(bool interrupted) override {};
 
-    bool isFinished() const { return !drivers->remote.isConnected(); };
+    bool isFinished() const { return false; };
 
     const char* getName() const override { return "drive command"; }
 

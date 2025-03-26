@@ -50,14 +50,14 @@ public:
         // Run startup commands
         gimbal.setDefaultCommand(&look);
         flywheel.setDefaultCommand(&shooterStop);
-        drivetrain.setDefaultCommand(&driveCommand);
+        drivetrain.setDefaultCommand(&stopDriveCommand);
         indexer.setDefaultCommand(&indexerStopCommand);
         ui.setDefaultCommand(&draw);
 
         // unjamButton = Trigger(drivers, [this](){ return this->drivers->remote.getSwitch(Remote::Switch::RIGHT_SWITCH) == Remote::SwitchState::UP;});
 
-        shootButton.onTrue(&shooterStart).whileTrue(&indexer10Hz);
-        unjamButton.onTrue(&shooterStop).whileTrue(&indexerUnjam);
+        shootButton.onTrue(&shooterStart)->whileTrue(&indexer10Hz);
+        unjamButton.onTrue(&shooterStop)->whileTrue(&indexerUnjam);
 
         //peeking
         peekLeftButton.whileTrue(&peekLeft);
@@ -72,7 +72,7 @@ public:
         beybladeType0Key.onTrue(&drivetrainFollowKeyboard);
         beybladeType1Key.onTrue(&beybladeSlowKeyboard);
         beybladeType2Key.onTrue(&beybladeFastKeyboard);
-        
+
         toggleUIKey.toggleOnFalse(&draw);
         drivers->commandScheduler.addCommand(&draw);
         //implement toggle UI
@@ -103,7 +103,7 @@ public:
     subsystems::DrivetrainSubsystem drivetrain{drivers, &hardware.driveMotor1, &hardware.driveMotor2, &hardware.driveMotor3, &hardware.driveMotor4};
 
     // //commands
-    commands::UIDrawCommand draw{&ui};
+    commands::UIDrawCommand draw{&ui, &gimbal, &flywheel, &indexer, &drivetrain};
 
     commands::JoystickMoveCommand look{drivers, &gimbal};
     commands::MouseMoveCommand look2{drivers, &gimbal};
