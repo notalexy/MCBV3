@@ -14,7 +14,7 @@ using subsystems::GimbalSubsystem;
 
 using tap::communication::serial::Remote;
 
-enum DriveMode { BEYBLADE, BEYBLADE2, FOLLOW_TURRET, PEEK_LEFT, PEEK_RIGHT };
+enum DriveMode { BEYBLADE, BEYBLADE2, NO_SPIN, FOLLOW_TURRET, PEEK_LEFT, PEEK_RIGHT };
 enum ControlMode { KEYBOARD, CONTROLLER, DISABLED  };
 
 class DrivetrainDriveCommand : public tap::control::Command {
@@ -28,13 +28,17 @@ public:
         addSubsystemRequirement(drive);
     }
 
-    void initialize() override {};
+    void initialize() override;
 
     void execute() override;
 
-    void end(bool interrupted) override {};
+    void end(bool interrupted) override;
 
+<<<<<<< HEAD
     bool isFinished() const { return false; };
+=======
+    bool isFinished() const override;
+>>>>>>> fdb5fb34b678057dd1df5f762472988d8c535be9
 
     const char* getName() const override { return "drive command"; }
 

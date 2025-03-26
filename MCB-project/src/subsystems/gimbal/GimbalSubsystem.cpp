@@ -19,6 +19,7 @@ void GimbalSubsystem::initialize()
     motorYaw->initialize();
     imuOffset = getYawEncoderValue() + YAW_OFFSET;
     targetYawAngleWorld += yawAngleRelativeWorld;
+    drivers->commandScheduler.registerSubsystem(this);
 }
 
 void GimbalSubsystem::refresh()
@@ -75,7 +76,7 @@ int GimbalSubsystem::getPitchVoltage(float targetAngle, float dt)
 #endif
 }
 
-float GimbalSubsystem::getYawEncoderValue() { return tap::motor::DjiMotor::encoderToDegrees(motorYaw->getEncoderUnwrapped()) * PI / 180 - YAW_OFFSET; }
+float GimbalSubsystem::getYawEncoderValue() { return (tap::motor::DjiMotor::encoderToDegrees(motorYaw->getEncoderUnwrapped()) * PI / 180 - YAW_OFFSET) / YAW_TOTAL_RATIO; }
 float GimbalSubsystem::getPitchEncoderValue() { return tap::motor::DjiMotor::encoderToDegrees(motorPitch->getEncoderUnwrapped()) * PI / 180; }
 float GimbalSubsystem::getYawVel() { return motorYaw->getShaftRPM() * PI / 30; }
 float GimbalSubsystem::getPitchVel() { return motorPitch->getShaftRPM() * PI / 30; }

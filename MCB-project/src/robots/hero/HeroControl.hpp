@@ -36,13 +36,6 @@ public:
         drivetrain.initialize();
         ui.initialize();
 
-        // Register subsystems;
-        drivers->commandScheduler.registerSubsystem(&gimbal);
-        drivers->commandScheduler.registerSubsystem(&flywheel);
-        drivers->commandScheduler.registerSubsystem(&indexer);
-        drivers->commandScheduler.registerSubsystem(&drivetrain);
-        drivers->commandScheduler.registerSubsystem(&ui);
-
         // Run startup commands
         gimbal.setDefaultCommand(&look);
         flywheel.setDefaultCommand(&shooterStop);

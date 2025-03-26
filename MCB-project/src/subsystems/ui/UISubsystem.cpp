@@ -28,9 +28,10 @@ uint8_t* UISubsystem::formatGraphicName(uint8_t array[3], uint32_t name) {
 
 void UISubsystem::initialize() {
     this->restarting = true;
+    drivers->commandScheduler.registerSubsystem(this);
 
     // temp for testing
-    // drivers->leds.init();
+    drivers->leds.init();
 }
 
 // guaranteed to be called, whether we have a command (topLevelContainer) or not
@@ -63,7 +64,7 @@ bool UISubsystem::run() {
     if (needToDelete) {
         needToDelete = false;  // probably this needs to be first to not go in this branch next time, so set it to false before the pt call
         PT_CALL(refSerialTransmitter.deleteGraphicLayer(RefSerialTransmitter::Tx::DELETE_ALL, 0));
-        topLevelContainer->hasBeenCleared();
+        if (topLevelContainer) topLevelContainer->hasBeenCleared();
 
         //need to wait for graphics to delete. This might wait longer than is required, but it allows things to draw.
         delayTimeout.restart(RefSerialData::Tx::getWaitTimeAfterGraphicSendMs(&messageCharacter));
@@ -109,8 +110,8 @@ bool UISubsystem::run() {
             }
         }
 
-        // drivers->leds.set(tap::gpio::Leds::Red, graphicsIndex == 1);
-        // drivers->leds.set(tap::gpio::Leds::Green, graphicsIndex == 7);
+        drivers->leds.set(tap::gpio::Leds::Red, graphicsIndex == 1);
+        drivers->leds.set(tap::gpio::Leds::Green, graphicsIndex == 7);
 
         // so we have up to 7 objects to update. Would do a switch case but might confict with protothread's switch case
         if (graphicsIndex == 1) {
@@ -183,11 +184,15 @@ void UISubsystem::updateFPS() {
 // This is required for the UISubsystem to have anything to draw.
 // Use with to nullptr to remove the top level container.
 void UISubsystem::setTopLevelContainer(GraphicsContainer* container) {
+    
     if (container) {
         topLevelContainer->resetIteration();
+        drivers->leds.set(tap::gpio::Leds::Blue, true);
     } else {
-        needToDelete = true;
+        restarting=true;
     }
+    needToDelete = true;
     topLevelContainer = container;
+   // restart();
 }
 }  // namespace subsystems

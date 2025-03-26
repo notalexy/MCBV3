@@ -11,6 +11,8 @@ namespace subsystems {
          * initializes the 2 flywheels
          */
     void FlywheelSubsystem::initialize() {
+        drivers->commandScheduler.registerSubsystem(this);
+
         motorFlywheel1->initialize();
         motorFlywheel2->initialize();
     }

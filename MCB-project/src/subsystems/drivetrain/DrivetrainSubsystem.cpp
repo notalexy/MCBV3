@@ -12,6 +12,8 @@ DrivetrainSubsystem::DrivetrainSubsystem(tap::Drivers* drivers, tap::motor::DjiM
       rotationPIDController(drivetrainPIDConfig) {}
 
 void DrivetrainSubsystem::initialize() {
+    drivers->commandScheduler.registerSubsystem(this);
+
     for (tap::motor::DjiMotor* m : motorArray) m->initialize();
 }
 
@@ -84,11 +86,13 @@ void DrivetrainSubsystem::stopMotors() {
 }
 
 float DrivetrainSubsystem::calculateRotationPID(float error) {
-    if (error > M_PI) {
+    while (error > M_PI) {
         error -= 2 * M_PI;
-    } else if (error < -M_PI) {
+    }
+    while (error < -M_PI) {
         error += 2 * M_PI;
     }
-    return rotationPIDController.runControllerDerivateError(error, 0.002f);
+    rotationPIDController.runControllerDerivateError(error, 0.002f);
+    return rotationPIDController.getOutput();
 }
 }  // namespace subsystems
