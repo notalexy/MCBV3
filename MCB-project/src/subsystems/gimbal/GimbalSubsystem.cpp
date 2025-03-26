@@ -61,6 +61,8 @@ int GimbalSubsystem::getYawVoltage(float driveTrainRPM, float yawAngleRelativeWo
     voltage = distYaw(gen);
     velocity = yawRPM;
     return voltage;
+#elif defined(drivetrain_sysid)
+    return 0;
 #else
     return 1000 * yawController.calculate(yawAngleRelativeWorld, yawRPM, 0, desiredAngleWorld, inputVel, dt);
 #endif
@@ -71,6 +73,8 @@ int GimbalSubsystem::getPitchVoltage(float targetAngle, float dt)
 {
 #if defined(pitch_sysid)
     return distPitch(gen);
+#elif defined(drivetrain_sysid)
+    return 0;
 #else
     return 1000 * pitchController.calculate(getPitchEncoderValue(), getPitchVel(), targetAngle + PITCH_OFFSET, dt);
 #endif
