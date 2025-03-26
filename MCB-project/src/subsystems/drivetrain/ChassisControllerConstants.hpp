@@ -66,13 +66,13 @@ constexpr float BEYBLADE_DELAY = 0;  // delay for beyblade mode
 
 #elif defined(INFANTRY)
 // START getters and setters
-constexpr float TRACKWIDTH = 0.49739;      // in m. We need to measure
+constexpr float TRACKWIDTH = 0.504;      // in m. We need to measure
 constexpr float M = 14.0;                  // robot mass kg
 constexpr float J = 0.22;                  // measured from sys id kg-m^2
 constexpr float R_WHEEL = 0.06;  // wheel radius m
 constexpr float J_WHEEL = 0.0009;          // wheel moment of inertia kg-m^2
 constexpr float C_MOTOR = 2.5e-4;          // motor damping kg-s/m^2`
-constexpr float UK_MOTOR = 0.14;           // motor dry friction N-m
+constexpr float UK_MOTOR = 0.05;           // motor dry friction N-m
 constexpr float COF_WHEEL = 0.9;           // unitless COF
 
 constexpr float GEAR_RATIO = 19.2;  // gear ratio
@@ -81,7 +81,7 @@ constexpr float P_FOS = 0.87;       // unitless, power factor of safety
 
 // Tunable Parameters
 constexpr float KP_V_XY = 1500;  // proportional gain for velocity
-constexpr float KP_V_ROT = 30;   // proportional gain for rotational velocity
+constexpr float KP_V_ROT = 20;   // proportional gain for rotational velocity
 
 constexpr float KI_V = 0;  // integral gain for velocity
 

@@ -5,9 +5,9 @@ namespace commands {
 
 UIDrawCommand::UIDrawCommand(UISubsystem* subsystem) : subsystem(subsystem) {
     addSubsystemRequirement(subsystem);
-    // addGraphicsObject(&testGraphics);
-    addGraphicsObject(&testFill);
-    // addGraphicsObject(&laneAssistLines);
+    addGraphicsObject(&testGraphics);
+    // addGraphicsObject(&testFill);
+    addGraphicsObject(&laneAssistLines);
 }
 
 void UIDrawCommand::initialize() { 

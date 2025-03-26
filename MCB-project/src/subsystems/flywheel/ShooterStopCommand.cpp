@@ -6,7 +6,7 @@ namespace commands
 void ShooterStopCommand::initialize() {  }
 void ShooterStopCommand::execute()
 {
-    flywheel->stopMotors();
+    flywheel->setTargetVelocity(0);
 }
 
 void ShooterStopCommand::end(bool) {}

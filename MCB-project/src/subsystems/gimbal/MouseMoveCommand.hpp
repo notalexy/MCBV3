@@ -33,7 +33,7 @@ public:
     const char* getName() const override { return "move turret mouse command"; }
     
     static constexpr float MOUSE_YAW_PROPORTIONAL = -0.0001;
-    static constexpr float MOUSE_PITCH_PROPORTIONAL = 0.00001;
+    static constexpr float MOUSE_PITCH_PROPORTIONAL = 0.00003;
 
 private:
     src::Drivers* drivers;
