@@ -4,8 +4,9 @@
 
 namespace communication
 {
-    JetsonCommunication::JetsonCommunication(tap::Drivers *drivers) :
-        DJISerial(drivers, port, isRxCRCEnforcementEnabled),
+    JetsonCommunication::JetsonCommunication(tap::Drivers *drivers, tap::communication::serial::Uart::UartPort _port, bool isRxCRCEnforcementEnabled) :
+        DJISerial(drivers, _port, isRxCRCEnforcementEnabled),
+        port(_port),
         hasNewData(false)
     {
         // Good practice
@@ -16,16 +17,25 @@ namespace communication
 
     void JetsonCommunication::messageReceiveCallback(const ReceivedSerialMessage &completeMessage)
     {
-        // Serial message is 256 bytes at most. What are we tracking?
-        if (completeMessage.header.dataLength >= sizeof(CVData))
+        size_t bytesToCopy = completeMessage.header.dataLength;
+        if (bytesToCopy > sizeof(CVData))
         {
-            std::memcpy(&lastCVData, completeMessage.data, sizeof(CVData));
+            bytesToCopy = sizeof(CVData);
+        }
+        if (bytesToCopy > 0 && completeMessage.data != nullptr)
+        {
+            memcpy(&lastCVData, completeMessage.data, bytesToCopy);
+            if (bytesToCopy < sizeof(CVData))
+            {
+                // need to do this for pointer arithmetic
+                memset(reinterpret_cast<uint8_t*>(&lastCVData) + bytesToCopy, 0, sizeof(CVData) - bytesToCopy);
+            }
+            lastCVData.timestamp = getCurrentTime();
             hasNewData = true;
             lastReceivedTime = getCurrentTime();
         }
         else
         {
-            // What kind of error handling when message fails?
             hasNewData = false;
         }
     }
@@ -41,27 +51,19 @@ namespace communication
         }
     }
 
-    // Should I "consume" the CV data or continue to store it? (previous iteration consumed)
     const CVData* JetsonCommunication::getLastCVData()
     {
-        if (hasNewData)
-        {
-            hasNewData = false;
-            return &lastCVData;
-        }
-        else
-        {
-            return nullptr;
-        }
+        return hasNewData ? &lastCVData : nullptr;
     }
 
-    // Not really sure what this is doing and what the reinterpret cast is trying to do
-    bool JetsonCommunication::sendAutoAimOutput(const AutoAimOutput &output)
+    bool JetsonCommunication::sendAutoAimOutput(AutoAimOutput &output)
     {
         // Flexible ports?
-        tap::communication::serial::Uart::UartPort port = tap::communication::serial::Uart::Uart1;
+        tap::communication::serial::Uart::UartPort currentPort = port;
+        // Update the timestamp before sending.
+        output.timestamp = getCurrentTime();
         const uint8_t* msgData = reinterpret_cast<const uint8_t*>(&output);
-        int bytesWritten = drivers->uart.write(port, msgData, sizeof(AutoAimOutput));
+        int bytesWritten = drivers->uart.write(currentPort, msgData, sizeof(AutoAimOutput));
         return (bytesWritten == sizeof(AutoAimOutput));
     }
 
@@ -79,5 +81,10 @@ namespace communication
     {
         std::time_t currentTime = std::time(nullptr);
         return currentTime;
+    }
+
+    tap::communication::serial::Uart::UartPort JetsonCommunication::getPort() const
+    {
+        return port;
     }
 }
