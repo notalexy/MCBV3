@@ -8,7 +8,7 @@
 #include "tap/architecture/periodic_timer.hpp"
 #include "tap/board/board.hpp"
 #include "tap/motor/dji_motor.hpp"
-#include "../constants/YawControllerConstants.hpp"
+#include "YawControllerConstants.hpp"
 
 namespace subsystems
 {

@@ -26,6 +26,8 @@ private:
     static constexpr uint16_t THICKNESS = 2;
     static constexpr uint16_t HALF_WIDTH = UISubsystem::SCREEN_WIDTH / 2;
 
+    GimbalSubsystem* gimbal;
+
     Line left{RefSerialData::Tx::GraphicColor::CYAN, static_cast<uint16_t>(HALF_WIDTH - BOTTOM_OFFSET), 0, static_cast<uint16_t>(HALF_WIDTH - TOP_OFFSET), HEIGHT, THICKNESS};
     Line right{RefSerialData::Tx::GraphicColor::CYAN, static_cast<uint16_t>(HALF_WIDTH + BOTTOM_OFFSET), 0, static_cast<uint16_t>(HALF_WIDTH + TOP_OFFSET), HEIGHT, THICKNESS};
 };

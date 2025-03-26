@@ -35,9 +35,9 @@ void DrivetrainDriveCommand::execute() {
     } else {
         float targetAngle = 0.0f;
         if (driveMode == DriveMode::PEEK_LEFT) {
-            targetAngle = subsystems::PEEK_LEFT_AMT;
+            targetAngle = PEEK_LEFT_AMT;
         } else if (driveMode == DriveMode::PEEK_RIGHT) {
-            targetAngle = subsystems::PEEK_RIGHT_AMT;
+            targetAngle = PEEK_RIGHT_AMT;
         }
         r = drivetrain->calculateRotationPID(targetAngle + referenceAngle);  // + M_PI));
     }

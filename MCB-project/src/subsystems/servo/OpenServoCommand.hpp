@@ -6,27 +6,20 @@
 
 #include "drivers.hpp"
 
-namespace commands
-{
-using subsystems::OpenServoCommand;
+namespace commands {
+using subsystems::ServoSubsystem;
 
-class OpenServoCommand : public tap::control::Command
-{
+class OpenServoCommand : public tap::control::Command {
 public:
-OpenServoCommand(src::Drivers* drivers, ServoSubsystem* servo)
-        : drivers(drivers),
-          servo(servo)
-    {
-        addSubsystemRequirement(servo);
-    }
+    OpenServoCommand(src::Drivers* drivers, ServoSubsystem* servo) : drivers(drivers), servo(servo) { addSubsystemRequirement(servo); }
 
-    void initialize() override;
+    void initialize() override { servo->setTargetPosition(ServoSubsystem::OPEN_POSITION); };
 
-    void execute() override;
+    void execute() override {};
 
-    void end(bool interrupted) override;
+    void end(bool interrupted) override {};
 
-    bool isFinished() const override;
+    bool isFinished() const override { return false; };
 
     const char* getName() const override { return "open servo command"; }
 

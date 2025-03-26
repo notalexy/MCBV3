@@ -32,8 +32,7 @@ public:
 
     const char* getName() const override { return "move turret joystick command"; }
 
-    static constexpr float CONTROLLER_YAW_PROPORTIONAL = -0.02;
-    static constexpr float CONTROLLER_PITCH_PROPORTIONAL = 0.1 * PI;
+
 
 private:
     src::Drivers* drivers;

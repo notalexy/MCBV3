@@ -22,13 +22,13 @@ public:
         addSubsystemRequirement(indexer);
     }
 
-    void initialize() override;
+    void initialize() override {};
 
-    void execute() override;
+    void execute() override { indexer->unjam();}
 
-    void end(bool interrupted) override;
+    void end(bool interrupted) override {};
 
-    bool isFinished() const override;
+    bool isFinished() const override {return false;}
 
     const char* getName() const override { return "indexer unjam command"; }
 

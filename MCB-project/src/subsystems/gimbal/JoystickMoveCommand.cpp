@@ -1,4 +1,5 @@
 #include "JoystickMoveCommand.hpp"
+#include "GimbalSubsystemConstants.hpp"
 
 namespace commands
 {
@@ -10,11 +11,8 @@ void JoystickMoveCommand::execute()
         pitch = CONTROLLER_PITCH_PROPORTIONAL * drivers->remote.getChannel(tap::communication::serial::Remote::Channel::RIGHT_VERTICAL);
   
         //TODO this lmao
-        if(drivers->remote.isConnected()){
-                gimbal->updateMotors(&yaw, &pitch);
-        } else {
-                gimbal->stopMotors();
-        }
+        gimbal->updateMotors(&yaw, &pitch);
+
 
 
 }

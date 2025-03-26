@@ -31,6 +31,10 @@ void DoubleIndexerSubsystem::stopIndex() {
     indexerVoltage2 = 0;
 }
 
+void DoubleIndexerSubsystem::unjam(){
+    indexAtRate(UNJAM_BALL_PER_SECOND);    
+}
+
 void DoubleIndexerSubsystem::indexAtRate(float ballsPerSecond){
     this->ballsPerSecond = ballsPerSecond;
     //divided by 2 by using 30.0f instead of 60.0f

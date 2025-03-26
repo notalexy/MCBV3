@@ -42,42 +42,23 @@ public:
         ui.initialize();
 
         // Run startup commands
-        gimbal.setDefaultCommand(&lookJoystick);
+        gimbal.setDefaultCommand(&stopGimbal);
         flywheel.setDefaultCommand(&shooterStop);
         drivetrain.setDefaultCommand(&stopDriveCommand);
         indexer.setDefaultCommand(&indexerStopCommand);
         //ui.setDefaultCommand(&draw);
 
-<<<<<<< HEAD
         // unjamButton = Trigger(drivers, [this](){ return this->drivers->remote.getSwitch(Remote::Switch::RIGHT_SWITCH) == Remote::SwitchState::UP;});
 
         shootButton.onTrue(&shooterStart)->whileTrue(&indexer10Hz);
         unjamButton.onTrue(&shooterStop)->whileTrue(&indexerUnjam);
 
-        //peeking
-        peekLeftButton.whileTrue(&peekLeft);
-        peekRightButton.whileTrue(&peekRight);
-=======
->>>>>>> fdb5fb34b678057dd1df5f762472988d8c535be9
 
         //Mouse and Keyboard mappings
         unjamKey.whileTrue(&indexerUnjam)->onTrue(&shooterStop);
         shootKey.whileTrue(&indexer10Hz)->onTrue(&shooterStart);
-<<<<<<< HEAD
         //implement speed mode
-        //implement beyblade types
-        beybladeType0Key.onTrue(&drivetrainFollowKeyboard);
-        beybladeType1Key.onTrue(&beybladeSlowKeyboard);
-        beybladeType2Key.onTrue(&beybladeFastKeyboard);
 
-=======
-
-        shootButton.onTrue(&shooterStart)->whileTrue(&indexer10Hz);
-        unjamButton.onTrue(&shooterStop)->whileTrue(&indexerUnjam);
-
-
-        //toggle ui. Also force it to turn on
->>>>>>> fdb5fb34b678057dd1df5f762472988d8c535be9
         toggleUIKey.toggleOnFalse(&draw);
         drivers->commandScheduler.addCommand(&draw);
    

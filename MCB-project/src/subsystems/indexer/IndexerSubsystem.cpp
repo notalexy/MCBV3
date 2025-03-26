@@ -29,7 +29,9 @@ void IndexerSubsystem::stopIndex() {
     indexerVoltage = 0;
 }
 
-
+void IndexerSubsystem::unjam(){
+    indexAtRate(UNJAM_BALL_PER_SECOND);
+}
 //first 1800 degrees until first shot
 //need to tell it to go max speed until we get to 1800 degrees from where we started
 //so the first shot goes out asap

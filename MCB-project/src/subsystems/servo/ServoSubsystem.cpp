@@ -10,6 +10,7 @@ ServoSubsystem::ServoSubsystem(tap::Drivers* drivers, tap::motor::Servo* servo)
 
 void ServoSubsystem::initialize() {
     drivers->commandScheduler.registerSubsystem(this);
+    drivers->pwm.setTimerFrequency(tap::gpio::Pwm::Timer::TIMER1, 333); 
 }
 
 void ServoSubsystem::refresh() {
@@ -20,8 +21,5 @@ void ServoSubsystem::setTargetPosition(float position) {
     servo->setTargetPwm(position);
 }
 
-bool ServoSubsystem::movementComplete() {
-    return servo->isRampTargetMet();
-}
 
 } //namespace subsystems

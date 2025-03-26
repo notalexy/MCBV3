@@ -18,6 +18,7 @@ public:
     void initialize() override;
     void refresh() override;
     void stopIndex() override;
+    void unjam() override;
     void indexAtRate(float ballsPerSecond) override;
     void setTargetMotorRPM(int targetMotorRPM) override;
 

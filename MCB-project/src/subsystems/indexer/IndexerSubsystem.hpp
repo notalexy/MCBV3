@@ -6,6 +6,7 @@
 #include "tap/motor/servo.hpp"
 #include "tap/control/subsystem.hpp"
 
+
 #include "drivers.hpp"
 
 namespace subsystems
@@ -42,6 +43,8 @@ virtual void indexAtRate(float ballsPerSecond);
 virtual void setTargetMotorRPM(int targetMotorRPM);
 
 virtual void stopIndex();
+
+virtual void unjam();
 
 float getNumBallsShot();
 

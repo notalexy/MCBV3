@@ -10,7 +10,7 @@
 #include "tap/architecture/periodic_timer.hpp"
 #include "tap/board/board.hpp"
 #include "tap/motor/dji_motor.hpp"
-#include "../constants/PitchControllerConstants.hpp"
+#include "PitchControllerConstants.hpp"
 
 
 namespace subsystems
@@ -20,7 +20,7 @@ PitchController::PitchController() {}
 float PitchController::calculate(float currentPos, float currentVelo, float targetPos, float deltaT)
 {
     float positionError = targetPos - currentPos;
-
+    
     float targetVelo = KP * positionError;
 
     // model based motion profile

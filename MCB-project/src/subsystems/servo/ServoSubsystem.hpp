@@ -18,10 +18,10 @@ protected:  // Private Variables
 tap::Drivers* drivers;
 tap::motor::Servo* servo;
 
+public:  // Public Methods
+
 constexpr static float OPEN_POSITION = 1.0f;
 constexpr static float CLOSED_POSITION = 0.0f;
-
-public:  // Public Methods
 
 ServoSubsystem(tap::Drivers* drivers, tap::motor::Servo* servo);
 
@@ -32,8 +32,6 @@ void initialize();
 void refresh() override;
 
 virtual void setTargetPosition(float position);
-
-bool movementComplete();
 
 private:  // Private Methods
 };
