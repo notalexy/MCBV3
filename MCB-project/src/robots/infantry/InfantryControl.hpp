@@ -33,7 +33,7 @@ public:
     InfantryControl(src::Drivers *drivers) : drivers(drivers), hardware(InfantryHardware{drivers}) {}
     // functions we are using
     void initialize() override {
-        // Initialize subsystems
+        // Initialize subsystems (registration is internal)
         gimbal.initialize();
         flywheel.initialize();
         indexer.initialize();
@@ -52,12 +52,9 @@ public:
         unjamKey.whileTrue(&indexerUnjam)->onTrue(&shooterStop);
         shootKey.whileTrue(&indexer10Hz)->onTrue(&shooterStart);
 
-
         shootButton.onTrue(&shooterStart)->whileTrue(&indexer10Hz);
         unjamButton.onTrue(&shooterStop)->whileTrue(&indexerUnjam);
 
-        //implement autoaim
-        //implement speed mode
 
         //toggle ui. Also force it to turn on
         toggleUIKey.toggleOnFalse(&draw);
@@ -68,13 +65,13 @@ public:
         peekLeftButton.onTrue(&peekLeft)->onFalse(&beybladeSlowKeyboard);
         peekRightButton.onTrue(&peekRight)->onFalse(&beybladeSlowKeyboard);
 
-        beybladeType0Key.onTrue(&drivetrainFollowKeyboard);
-        beybladeType1Key.onTrue(&beybladeSlowKeyboard);
-        beybladeType2Key.onTrue(&beybladeFastKeyboard);
+        beybladeType0Key.onTrue(&drivetrainFollowKeyboard)->onTrue(&lookMouse);
+        beybladeType1Key.onTrue(&beybladeSlowKeyboard)->onTrue(&lookMouse);
+        beybladeType2Key.onTrue(&beybladeFastKeyboard)->onTrue(&lookMouse);
  
-        joystickDrive0.onTrue(&noSpinDriveCommand);
-        joystickDrive1.onTrue(&drivetrainFollowJoystick);
-        joystickDrive2.onTrue(&beybladeJoystick);
+        joystickDrive0.onTrue(&noSpinDriveCommand)->onTrue(&lookJoystick);
+        joystickDrive1.onTrue(&drivetrainFollowJoystick)->onTrue(&lookJoystick);
+        joystickDrive2.onTrue(&beybladeJoystick)->onTrue(&lookJoystick);
 
     }
 
@@ -104,7 +101,7 @@ public:
     commands::ShooterStartCommand shooterStart{drivers, &flywheel};
     commands::ShooterStopCommand shooterStop{drivers, &flywheel};
 
-    commands::IndexerNBallsCommand indexer10Hz{drivers, &indexer, -1, 10};
+    commands::IndexerNBallsCommand indexer10Hz{drivers, &indexer, -1, 20};
     commands::IndexerUnjamCommand indexerUnjam{drivers, &indexer};
 
     commands::IndexerStopCommand indexerStopCommand{drivers, &indexer};

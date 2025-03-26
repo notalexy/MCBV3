@@ -54,7 +54,7 @@ namespace subsystems {
     constexpr float KF = 0.05;        //-0.001;                     // A
 
     // Velocity feedback
-    constexpr float KPV = 0.5;                      // 0.3                  // A-s/rad
+    constexpr float KPV = 0.4;                      // 0.3                  // A-s/rad
     constexpr float KIV = 6;                        // 2                 // A/rad
     constexpr float IV_MAX = 0.1;                   // units TBD
     constexpr float INT_THRESH = VOLT_MAX * 0.85l;  // V
