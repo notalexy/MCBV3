@@ -47,16 +47,36 @@ public:
         indexer.setDefaultCommand(&indexerStopCommand);
         //ui.setDefaultCommand(&draw);
 
+<<<<<<< HEAD
+        // unjamButton = Trigger(drivers, [this](){ return this->drivers->remote.getSwitch(Remote::Switch::RIGHT_SWITCH) == Remote::SwitchState::UP;});
+
+        shootButton.onTrue(&shooterStart)->whileTrue(&indexer10Hz);
+        unjamButton.onTrue(&shooterStop)->whileTrue(&indexerUnjam);
+
+        //peeking
+        peekLeftButton.whileTrue(&peekLeft);
+        peekRightButton.whileTrue(&peekRight);
+=======
+>>>>>>> fdb5fb34b678057dd1df5f762472988d8c535be9
 
         //Mouse and Keyboard mappings
         unjamKey.whileTrue(&indexerUnjam)->onTrue(&shooterStop);
         shootKey.whileTrue(&indexer10Hz)->onTrue(&shooterStart);
+<<<<<<< HEAD
+        //implement speed mode
+        //implement beyblade types
+        beybladeType0Key.onTrue(&drivetrainFollowKeyboard);
+        beybladeType1Key.onTrue(&beybladeSlowKeyboard);
+        beybladeType2Key.onTrue(&beybladeFastKeyboard);
+
+=======
 
         shootButton.onTrue(&shooterStart)->whileTrue(&indexer10Hz);
         unjamButton.onTrue(&shooterStop)->whileTrue(&indexerUnjam);
 
 
         //toggle ui. Also force it to turn on
+>>>>>>> fdb5fb34b678057dd1df5f762472988d8c535be9
         toggleUIKey.toggleOnFalse(&draw);
         drivers->commandScheduler.addCommand(&draw);
    
@@ -93,7 +113,7 @@ public:
     subsystems::DrivetrainSubsystem drivetrain{drivers, &hardware.driveMotor1, &hardware.driveMotor2, &hardware.driveMotor3, &hardware.driveMotor4};
 
     // //commands
-    commands::UIDrawCommand draw{&ui};
+    commands::UIDrawCommand draw{&ui, &gimbal, &flywheel, &indexer, &drivetrain};
 
     commands::JoystickMoveCommand lookJoystick{drivers, &gimbal};
     commands::MouseMoveCommand lookMouse{drivers, &gimbal};
@@ -121,8 +141,8 @@ public:
     //mappings
 
     //shooting
-    Trigger shootButton{drivers, Remote::Channel::WHEEL, 0.5};
-    Trigger unjamButton{drivers, Remote::Channel::WHEEL, -0.5};
+    Trigger shootButton{drivers, Remote::Channel::WHEEL, -0.5};
+    Trigger unjamButton{drivers, Remote::Channel::WHEEL, 0.5};
     Trigger unjamKey{drivers, Remote::Key::Z}; //or R if based
     Trigger autoAimKey{drivers, MouseButton::RIGHT};
     Trigger shootKey{drivers, MouseButton::LEFT};
@@ -145,8 +165,6 @@ public:
     Trigger beybladeType0Key{drivers, Remote::Key::X};
     Trigger beybladeType1Key{drivers, Remote::Key::C};
     Trigger beybladeType2Key{drivers, Remote::Key::V};
-
-
 
     Trigger* triggers[15] = {&peekLeftButton, &peekRightButton, &joystickDrive0, &joystickDrive1, &joystickDrive2, &shootButton, &unjamButton, &unjamKey, &shootKey, &autoAimKey, &speedModeKey, &beybladeType0Key, &beybladeType1Key, &beybladeType2Key, &toggleUIKey};//, &indexSpinButton};
 

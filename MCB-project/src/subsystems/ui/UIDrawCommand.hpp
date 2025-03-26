@@ -3,6 +3,10 @@
 #include "tap/control/command.hpp"
 
 #include "subsystems/ui/UISubsystem.hpp"
+#include "subsystems/gimbal/GimbalSubsystem.hpp"
+#include "subsystems/flywheel/FlywheelSubsystem.hpp"
+#include "subsystems/indexer/IndexerSubsystem.hpp"
+#include "subsystems/drivetrain/DrivetrainSubsystem.hpp"
 #include "util/ui/GraphicsContainer.hpp"
 
 #include "LaneAssistLines.hpp"
@@ -15,7 +19,7 @@ using subsystems::UISubsystem;
 
 class UIDrawCommand : public tap::control::Command, GraphicsContainer {
 public:
-    UIDrawCommand(UISubsystem* subsystem);
+    UIDrawCommand(UISubsystem* ui, GimbalSubsystem* gimbal, FlywheelSubsystem* flywheel, IndexerSubsystem* indexer, DrivetrainSubsystem* drivetrain);
 
     void initialize() override;
 
@@ -28,11 +32,15 @@ public:
     const char* getName() const override { return "ui draw command"; }
 
 private:
-    UISubsystem* subsystem;
+    UISubsystem* ui; 
+    GimbalSubsystem* gimbal;
+    FlywheelSubsystem* flywheel;
+    IndexerSubsystem* indexer;
+    DrivetrainSubsystem* drivetrain;
 
     // add top level graphics objects here and in the constructor
     TestGraphics testGraphics{};
     // TestFill testFill{};
-    LaneAssistLines laneAssistLines{};
+    LaneAssistLines laneAssistLines;
 };
 }  // namespace commands
