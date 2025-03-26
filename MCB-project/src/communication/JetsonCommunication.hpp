@@ -6,7 +6,8 @@
 #include <cstdint>
 #include <cstring>
 
-namespace communication {
+namespace communication
+{
 
 // Incoming
 struct CVData 

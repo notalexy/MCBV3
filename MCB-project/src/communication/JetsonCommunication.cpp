@@ -1,6 +1,6 @@
 #include "JetsonCommunication.hpp"
-#include <ctime>
 #include <cstring> 
+#include <chrono>
 
 namespace communication
 {
@@ -79,8 +79,17 @@ namespace communication
 
     uint64_t JetsonCommunication::getCurrentTime() const
     {
-        std::time_t currentTime = std::time(nullptr);
-        return currentTime;
+        auto now = std::chrono::system_clock::now();
+
+        // Convert the current time to time since epoch
+        auto duration = now.time_since_epoch();
+    
+        // Convert duration to milliseconds
+        auto milliseconds
+            = std::chrono::duration_cast<std::chrono::milliseconds>(
+                  duration)
+                  .count();
+        return milliseconds;
     }
 
     tap::communication::serial::Uart::UartPort JetsonCommunication::getPort() const

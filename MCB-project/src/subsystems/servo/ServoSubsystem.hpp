@@ -1,0 +1,40 @@
+#pragma once
+#include "tap/algorithms/smooth_pid.hpp"
+#include "tap/architecture/periodic_timer.hpp"
+#include "tap/board/board.hpp"
+#include "tap/motor/dji_motor.hpp"
+#include "tap/motor/servo.hpp"
+#include "tap/control/subsystem.hpp"
+
+#include "drivers.hpp"
+
+namespace subsystems
+{
+
+class ServoSubsystem : public tap::control::Subsystem
+{
+
+protected:  // Private Variables
+tap::Drivers* drivers;
+tap::motor::Servo* servo;
+
+constexpr static float OPEN_POSITION = 1.0f;
+constexpr static float CLOSED_POSITION = 0.0f;
+
+public:  // Public Methods
+
+ServoSubsystem(tap::Drivers* drivers, tap::motor::Servo* servo);
+
+~ServoSubsystem() {}
+
+void initialize();
+
+void refresh() override;
+
+virtual void setTargetPosition(float position);
+
+bool movementComplete();
+
+private:  // Private Methods
+};
+} //namespace subsystems
