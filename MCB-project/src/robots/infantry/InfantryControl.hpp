@@ -121,8 +121,8 @@ public:
     //mappings
 
     //shooting
-    Trigger shootButton{drivers, Remote::Channel::WHEEL, 0.5};
-    Trigger unjamButton{drivers, Remote::Channel::WHEEL, -0.5};
+    Trigger shootButton{drivers, Remote::Channel::WHEEL, -0.5};
+    Trigger unjamButton{drivers, Remote::Channel::WHEEL, 0.5};
     Trigger unjamKey{drivers, Remote::Key::Z}; //or R if based
     Trigger autoAimKey{drivers, MouseButton::RIGHT};
     Trigger shootKey{drivers, MouseButton::LEFT};
@@ -145,8 +145,6 @@ public:
     Trigger beybladeType0Key{drivers, Remote::Key::X};
     Trigger beybladeType1Key{drivers, Remote::Key::C};
     Trigger beybladeType2Key{drivers, Remote::Key::V};
-
-
 
     Trigger* triggers[15] = {&peekLeftButton, &peekRightButton, &joystickDrive0, &joystickDrive1, &joystickDrive2, &shootButton, &unjamButton, &unjamKey, &shootKey, &autoAimKey, &speedModeKey, &beybladeType0Key, &beybladeType1Key, &beybladeType2Key, &toggleUIKey};//, &indexSpinButton};
 

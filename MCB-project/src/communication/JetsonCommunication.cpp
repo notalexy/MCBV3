@@ -1,6 +1,7 @@
 #include "JetsonCommunication.hpp"
 #include <ctime>
 #include <cstring> 
+#include <chrono>
 
 namespace communication
 {
@@ -77,6 +78,7 @@ namespace communication
         hasNewData = false;
     }
 
+    // Switch to chrono because it does not work correctly
     uint64_t JetsonCommunication::getCurrentTime() const
     {
         std::time_t currentTime = std::time(nullptr);
