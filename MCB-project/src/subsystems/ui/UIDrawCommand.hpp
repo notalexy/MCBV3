@@ -11,6 +11,7 @@
 
 #include "LaneAssistLines.hpp"
 #include "Reticle.hpp"
+#include "SupercapChargeIndicator.hpp"
 #include "TestGraphics.hpp"
 #include "TestFill.hpp"
 #include "drivers.hpp"

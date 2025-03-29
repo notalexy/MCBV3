@@ -55,9 +55,14 @@ float YawController::calculate(float currentPosition, float currentVelocity, flo
     }
     // calculation for setting target current aka velocity controller
     float targetCurrent = KVISC * targetRelativeVelocity + UK * signum(targetRelativeVelocity) + KA * targetAcceleration + KPV * velocityError + KIV * buildup;
-
     pastOutput = RA * targetCurrent + KV * targetRelativeVelocity;
+
+    //handles the fact that 6020 is voltage and the 3508 is current control 0.8192f is to handle taproots silly protocol
+#if defined(OLDINFANTRY)
     return std::clamp(pastOutput, -VOLT_MAX, VOLT_MAX);
+#else
+    return 0.8192f * std::clamp(targetCurrent, -CURRENT_MAX, CURRENT_MAX); 
+#endif
 }
 
 float YawController::decelProfile(float poserror, float thetadot, float thetadotinput){
@@ -73,8 +78,8 @@ float YawController::decelProfile(float poserror, float thetadot, float thetadot
         v2 = -std::sqrt(t2 - 2*A_DECEL*(-poserror - o)); //Negative left
     }
     if (t2 - 2*A_DECEL*(poserror + o2) >= 0) {
-        v3 = sqrt(t2 - 2*A_DECEL*(poserror + o2)); //Positive right
-        v4 = -sqrt(t2 - 2*A_DECEL*(poserror + o2)); //Negative right
+        v3 = std::sqrt(t2 - 2*A_DECEL*(poserror + o2)); //Positive right
+        v4 = -std::sqrt(t2 - 2*A_DECEL*(poserror + o2)); //Negative right
     }
     if (std::fabs(thetadot - thetadotinput) < THETA_DOT_BREAK)
         return KP*poserror + thetadotinput;

@@ -34,7 +34,7 @@ private:  // Private Variables
 
     float pitchMotorVoltage, yawMotorVoltage;
 
-    float driveTrainRPM, yawRPM, yawAngleRelativeWorld = 0.0, imuOffset;
+    float driveTrainAngularVelocity, yawAngularVelocity, yawAngleRelativeWorld = 0.0, imuOffset;
     float yawEncoderCache = 0;
     float desiredYawAngleWorld, desiredYawAngleWorld2, driveTrainEncoder = 0.0;
     float stickAccumulator = 0, targetYawAngleWorld = PI,
@@ -71,7 +71,7 @@ public:  // Public Methods
     void updateMotors(float* changeInTargetYaw, float* targetPitch);
 
     /*
-     * Call this function to set all Turret motors to 0 desired RPM, calculate the voltage level in
+     * Call this function to set all Turret motors to stop, calculate the voltage level in
      * which to achieve this quickly and packages this information for the motors TO BE SENT over
      * CanBus
      */
@@ -94,6 +94,6 @@ public:  // Public Methods
 
 private:  // Private Methods
     int getPitchVoltage(float targetAngle, float dt);
-    int getYawVoltage(float driveTrainRPM, float yawAngleRelativeWorld, float yawRPM, float desiredAngleWorld, float inputVel, float dt);
+    int getYawVoltage(float driveTrainAngularVelocity, float yawAngleRelativeWorld, float yawAngularVelocity, float desiredAngleWorld, float inputVel, float dt);
 };
 }  // namespace subsystems

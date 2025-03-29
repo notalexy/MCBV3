@@ -19,6 +19,8 @@ class UISubsystem : public tap::control::Subsystem, ::modm::pt::Protothread
 public:
     static constexpr uint16_t SCREEN_WIDTH = 1920; //pixels. x=0 is left
     static constexpr uint16_t SCREEN_HEIGHT = 1080; //pixels. y=0 is bottom
+    static constexpr uint16_t HALF_SCREEN_WIDTH = SCREEN_WIDTH/2; //pixels
+    static constexpr uint16_t HALF_SCREEN_HEIGHT = SCREEN_HEIGHT/2; //pixels
 
 private:  // Private Variables
     tap::Drivers* drivers;
