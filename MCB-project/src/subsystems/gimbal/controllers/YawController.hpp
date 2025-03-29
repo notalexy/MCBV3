@@ -18,6 +18,8 @@ private:
     float pastOutput = 0;
     int signum(float num) { return (num > 0) ? 1 : ((num < 0) ? -1 : 0); }
 
+    float decelProfile(float poserror, float thetadot, float thetadotinput);
+
 public:
     // Physical constants
  };
