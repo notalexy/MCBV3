@@ -69,6 +69,10 @@ void DrivetrainSubsystem::setTargetTranslation(Pose2d drive) {
     motor2Vel = motorVel[1];
     motor3Vel = motorVel[2];
     motor4Vel = motorVel[3];
+#elif defined(yaw_sysid)
+
+    for (int i = 0; i < 4; i++) motorCurrent[i] = 0;
+
 #else
     controller.calculate(lastDrive, powerLimit, imuAngle, motorVel, motorCurrent);
 

@@ -14,12 +14,12 @@ void DrivetrainDriveCommand::execute() {
     float referenceAngle = gimbal->getYawEncoderValue();
 
     if (controlMode == ControlMode::KEYBOARD) {
-        x = drivers->remote.keyPressed(Remote::Key::A) ? -1.5 : (drivers->remote.keyPressed(Remote::Key::D) ? 1.5 : 0);
-        y = drivers->remote.keyPressed(Remote::Key::W) ? 1.5 : (drivers->remote.keyPressed(Remote::Key::S) ? -1.5 : 0);
+        x = (drivers->remote.keyPressed(Remote::Key::D) - drivers->remote.keyPressed(Remote::Key::A)) * 1.5;
+        y = (drivers->remote.keyPressed(Remote::Key::W) - drivers->remote.keyPressed(Remote::Key::S)) * 1.5;
 
     } else if (controlMode == ControlMode::CONTROLLER) {
-        x = 1.75*drivers->remote.getChannel(Remote::Channel::LEFT_HORIZONTAL);
-        y = 1.75*drivers->remote.getChannel(Remote::Channel::LEFT_VERTICAL);
+        x = 1.75 * drivers->remote.getChannel(Remote::Channel::LEFT_HORIZONTAL);
+        y = 1.75 * drivers->remote.getChannel(Remote::Channel::LEFT_VERTICAL);
     } else {
         drivetrain->stopMotors();
         return;

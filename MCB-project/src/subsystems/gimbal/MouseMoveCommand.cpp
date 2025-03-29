@@ -16,5 +16,5 @@ void MouseMoveCommand::execute() {
 
 void MouseMoveCommand::end(bool) { pitch = 0; }
 
-bool MouseMoveCommand::isFinished() const { return false; }
+bool MouseMoveCommand::isFinished() const { return !drivers->remote.isConnected(); }
 }  // namespace commands

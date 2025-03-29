@@ -11,6 +11,7 @@ UIDrawCommand::UIDrawCommand(UISubsystem* ui, GimbalSubsystem* gimbal, FlywheelS
       drivetrain(drivetrain),
       laneAssistLines(gimbal) {
     addSubsystemRequirement(ui);
+    
     // addGraphicsObject(&testGraphics);
     // addGraphicsObject(&testFill);
     addGraphicsObject(&laneAssistLines);

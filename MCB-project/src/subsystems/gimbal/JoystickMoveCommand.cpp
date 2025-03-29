@@ -19,5 +19,5 @@ void JoystickMoveCommand::execute()
 
 void JoystickMoveCommand::end(bool) {}
 
-bool JoystickMoveCommand::isFinished(void) const { return false; }
+bool JoystickMoveCommand::isFinished(void) const { return !drivers->remote.isConnected(); }
 }  // namespace commands

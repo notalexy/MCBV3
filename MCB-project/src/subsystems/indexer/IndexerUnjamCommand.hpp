@@ -28,7 +28,7 @@ public:
 
     void end(bool interrupted) override {};
 
-    bool isFinished() const override {return false;}
+    bool isFinished() const override {return !drivers->remote.isConnected(); }
 
     const char* getName() const override { return "indexer unjam command"; }
 

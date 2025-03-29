@@ -110,8 +110,8 @@ bool UISubsystem::run() {
             }
         }
 
-        drivers->leds.set(tap::gpio::Leds::Red, graphicsIndex == 1);
-        drivers->leds.set(tap::gpio::Leds::Green, graphicsIndex == 7);
+        // drivers->leds.set(tap::gpio::Leds::Red, graphicsIndex == 1);
+        // drivers->leds.set(tap::gpio::Leds::Green, graphicsIndex == 7);
 
         // so we have up to 7 objects to update. Would do a switch case but might confict with protothread's switch case
         if (graphicsIndex == 1) {
@@ -187,7 +187,7 @@ void UISubsystem::setTopLevelContainer(GraphicsContainer* container) {
     
     if (container) {
         topLevelContainer->resetIteration();
-        drivers->leds.set(tap::gpio::Leds::Blue, true);
+        // drivers->leds.set(tap::gpio::Leds::Blue, true);
     } else {
         restarting=true;
     }

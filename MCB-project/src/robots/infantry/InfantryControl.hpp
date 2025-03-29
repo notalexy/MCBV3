@@ -82,6 +82,7 @@ public:
         for (Trigger* trigger : triggers) {
             trigger->update();
         }
+
     }
 
     src::Drivers *drivers;

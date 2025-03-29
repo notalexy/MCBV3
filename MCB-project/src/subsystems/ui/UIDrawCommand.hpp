@@ -10,6 +10,7 @@
 #include "util/ui/GraphicsContainer.hpp"
 
 #include "LaneAssistLines.hpp"
+#include "Reticle.hpp"
 #include "TestGraphics.hpp"
 #include "TestFill.hpp"
 #include "drivers.hpp"
