@@ -25,7 +25,7 @@ void GimbalSubsystem::initialize()
 void GimbalSubsystem::refresh()
 {
     yawAngularVelocity = PI / 180 * drivers->bmi088.getGz();
-    driveTrainAngularVelocity = 0.0f;// getYawVel() - yawAngularVelocity;
+    driveTrainAngularVelocity = yawAngularVelocity - getYawVel();
     yawAngleRelativeWorld = fmod(PI / 180 * drivers->bmi088.getYaw() - imuOffset, 2 * PI);
 
     motorPitch->setDesiredOutput(pitchMotorVoltage);

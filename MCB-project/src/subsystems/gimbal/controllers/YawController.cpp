@@ -69,10 +69,8 @@ float YawController::decelProfile(float poserror, float thetadot, float thetadot
     float o = 0, o2 = 0; //offsets
     float t2 = thetadotinput * thetadotinput;
     float v1 = 0, v2 = 0, v3 = 0, v4 = 0;
-    // if(std::fabs(thetadotinput) > THETA_DOT_BREAK) {
-        // o = (thetadotinput - thetadotbreak)/kp + (thetadotbreak*thetadotbreak - t2) / (2*adecel);
-        // o2 = (thetadotinput + thetadotbreak)/kp + (t2 - thetadotbreak*thetadotbreak) / (2*adecel);
-    // }
+    o = (thetadotinput - THETA_DOT_BREAK)/KP + (THETA_DOT_BREAK*THETA_DOT_BREAK - t2) / (2*A_DECEL);
+    o2 = (thetadotinput + THETA_DOT_BREAK)/KP + (t2 - THETA_DOT_BREAK*THETA_DOT_BREAK) / (2*A_DECEL);
     if (t2 - 2*A_DECEL*(-poserror - o) >= 0) {
         v1 = std::sqrt(t2 - 2*A_DECEL*(-poserror - o)); //Positive left
         v2 = -std::sqrt(t2 - 2*A_DECEL*(-poserror - o)); //Negative left
@@ -81,7 +79,7 @@ float YawController::decelProfile(float poserror, float thetadot, float thetadot
         v3 = std::sqrt(t2 - 2*A_DECEL*(poserror + o2)); //Positive right
         v4 = -std::sqrt(t2 - 2*A_DECEL*(poserror + o2)); //Negative right
     }
-    if (std::fabs(thetadot - thetadotinput) < THETA_DOT_BREAK)
+    if (std::fabs(thetadot) < THETA_DOT_BREAK/KP)
         return KP*poserror + thetadotinput;
     else if (v3 != 0 && poserror > 0 && thetadot <= 0)
         return v3;

@@ -52,9 +52,7 @@ static constexpr int YAW_DIST_RANGE = 18000;
 constexpr static int YAW_MOTOR_MAX_SPEED = 1000;  // TODO: Make this value relevent
                                                   // //TODO: Check the datasheets
 
-// standard looks down 17 degrees, 15 is safe
-static constexpr float MAX_PITCH_UP = PI_CONST / 180 * 15;
-// looks up 20, 18 is safe
+static constexpr float MAX_PITCH_UP = PI_CONST / 180 * 14;
 static constexpr float MAX_PITCH_DOWN = PI_CONST / 180 * 18;
 
 static constexpr float YAW_OFFSET = 0;  // 3 * PI_CONST / 4;
