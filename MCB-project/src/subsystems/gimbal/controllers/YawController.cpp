@@ -85,7 +85,7 @@ float YawController::decelProfile(float poserror, float thetadot, float thetadot
         return v3;
     else if (v2 != 0 && poserror < 0 && thetadot >= 0)
         return v2;
-    else if (thetadot > 0 || thetadot == 0 && poserror > 0)
+    else if (poserror > 0)
         return v1;
     else
         return v4;
