@@ -19,7 +19,7 @@ static void initializeIo(src::Drivers *drivers)
     drivers->remote.initialize();
     drivers->refSerial.initialize();
     // drivers->cvBoard.initialize();
-    drivers->terminalSerial.initialize();
+    // drivers->terminalSerial.initialize();
     drivers->schedulerTerminalHandler.init();
     drivers->djiMotorTerminalSerialHandler.init();
     drivers->bmi088.initialize(500, 0.1f, 0.0f);

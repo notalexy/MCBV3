@@ -41,7 +41,7 @@ private:
     DrivetrainSubsystem* drivetrain;
 
     // add top level graphics objects here and in the constructor
-    TestGraphics testGraphics{};
+    // TestGraphics testGraphics{};
     // TestFill testFill{};
     LaneAssistLines laneAssistLines;
 };
