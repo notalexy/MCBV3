@@ -76,11 +76,11 @@ constexpr float UK_MOTOR =  .15 *.02299;           // motor dry friction N-m
 constexpr float COF_WHEEL = 0.9;           // unitless COF
 
 constexpr float GEAR_RATIO = 19.2;  // gear ratio
-constexpr float P_IDLE = 3;         // W, idle power
+constexpr float P_IDLE = 2.6;         // W, idle power
 constexpr float P_FOS = 0.82;       // unitless, power factor of safety
 
 // Tunable Parameters
-constexpr float KP_V_XY = 3000;  // proportional gain for velocity
+constexpr float KP_V_XY = 1150;  // proportional gain for velocity
 constexpr float KP_V_ROT = 40;   // proportional gain for rotational velocity
 
 constexpr float KI_V = 0;  // integral gain for velocity
