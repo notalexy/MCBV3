@@ -29,7 +29,7 @@ float YawController::calculate(float currentPosition, float currentVelocity, flo
     float choiceKDT = currentDrivetrainVelocity * positionError > 0 ? KDT : KDT_REV;  // check if turret is fighting drivetrain;
     inputVelocity = std::clamp(inputVelocity, -VELO_MAX / 2, VELO_MAX / 2);
     //float targetVelocity = (KP + signum(currentDrivetrainVelocity) * choiceKDT) * positionError + inputVelocity;
-    float targetVelocity = decelProfile(positionError, currentVelocity, inputVelocity);
+    float targetVelocity = decelProfile(positionError, currentVelocity, inputVelocity, currentDrivetrainVelocity);
     //experimental
     // targetVelocity = signum(positionError)*sqrt(currentVelocity*currentVelocity + 2 * A_DECEL * abs(positionError));
 
@@ -64,7 +64,7 @@ float YawController::calculate(float currentPosition, float currentVelocity, flo
     #endif
 }
 
-float YawController::decelProfile(float poserror, float thetadot, float thetadotinput){
+float YawController::decelProfile(float poserror, float thetadot, float thetadotinput, float currentDrivetrainVelocity){
     float o = 0, o2 = 0; //offsets
     float t2 = thetadotinput * thetadotinput;
     float v1 = 0, v2 = 0, v3 = 0, v4 = 0;
@@ -80,8 +80,15 @@ float YawController::decelProfile(float poserror, float thetadot, float thetadot
         v3 = std::sqrt(t2 - 2*A_DECEL*(poserror + o2)); //Positive right
         v4 = -std::sqrt(t2 - 2*A_DECEL*(poserror + o2)); //Negative right
     }
+
+
+    //    // check if turret is fighting drivetrain;
+   // inputVelocity = std::clamp(inputVelocity, -VELO_MAX / 2, VELO_MAX / 2);
+    //float targetVelocity = (KP + signum(currentDrivetrainVelocity) * choiceKDT) * positionError + inputVelocity;
+    
     if (std::fabs(poserror) < THETA_DOT_BREAK / KP)// std::fabs(thetadot - thetadotinput) < THETA_DOT_BREAK)
-       return KP*poserror + thetadotinput;
+       //float choiceKDT = currentDrivetrainVelocity * poserror > 0 ? KDT : KDT_REV;
+       return (KP + signum(currentDrivetrainVelocity) * currentDrivetrainVelocity * poserror > 0 ? KDT : KDT_REV)*poserror + thetadotinput;
     if (v3 != 0 && poserror > 0 && thetadot <= 0)
         return v3;
     else if (v2 != 0 && poserror < 0 && thetadot >= 0)
