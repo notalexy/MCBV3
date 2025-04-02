@@ -24,7 +24,7 @@ public:
 
     void initialize() override {};
 
-    void execute() override {    indexer->stopIndex();}
+    void execute() override {    indexer->indexAtRate(0);}
 
     void end(bool interrupted) override {};
 
