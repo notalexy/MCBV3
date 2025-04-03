@@ -4,6 +4,7 @@ constexpr float lat = .008;
 constexpr float DT = .002;
 constexpr int Q_SIZE = lat/DT; //make this fancy later
 
+
 #if defined(HERO)
 constexpr float C = 0.005;                                         // kg-s/m^2
 constexpr float J = 0.028;                                         // kg-m^2
@@ -62,6 +63,7 @@ constexpr float TAKEBACK = 0.01;               // unitless
 constexpr float C = 0.12;              // kg-s/m^2
 constexpr float J = 0.03;            // kg-m^2
 constexpr float UK = 0.0;            // N-m
+
 constexpr float KB = 0.4538;            // V-rad/s
 constexpr float KT = 0.4414;            // N-m/A
 constexpr float RA = .5592;            // ohm
@@ -70,6 +72,7 @@ constexpr float RATIO = 54.0 / 24.0;  // unitless
 constexpr float KP = 15;                                           // 10.5;  // sec^-1
 constexpr float THETA_DOT_BREAK = 10;                             // rad/s
 constexpr float A_DECEL = 0.3 * VOLT_MAX * KT * RATIO / (J * RA);  // experimental per Alex_Y
+
 
 // Feedforward  constexprants
 constexpr float A_SCALE = 0.9;  // 0.8            // unitless
@@ -82,6 +85,7 @@ constexpr float KDT_REV = -0.1;  // unitless
 constexpr float KPV = 3.5;                     // A-s/rad
 constexpr float KIV = .1;                      // A/rad
 constexpr float IV_MAX = 3; //.2 / KIV;              // units TBD
+
 constexpr float INT_THRESH = VOLT_MAX * 0.85;  // V
 constexpr float TAKEBACK = 0.1;
 #else

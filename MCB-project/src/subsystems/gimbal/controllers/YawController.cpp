@@ -15,8 +15,9 @@ namespace subsystems {
 YawController::YawController() {}
 
 float YawController::calculate(float currentPosition, float currentVelocity, float currentDrivetrainVelocity, float targetPosition, float inputVelocity, float deltaT) {
-    
+
     estimateState(&currentPosition, &currentVelocity, pastTorque, currentDrivetrainVelocity);
+
     float positionError = targetPosition - currentPosition;
     while (positionError > static_cast<float>(M_PI)) {
         positionError -= static_cast<float>(M_TWOPI);
@@ -29,6 +30,7 @@ float YawController::calculate(float currentPosition, float currentVelocity, flo
     inputVelocity = std::clamp(inputVelocity, -VELO_MAX / 2, VELO_MAX / 2);
     // float targetVelocity = (KP + signum(currentDrivetrainVelocity) * choiceKDT) * positionError + inputVelocity;
     float targetVelocity = decelProfile(positionError, currentVelocity, inputVelocity, currentDrivetrainVelocity);
+
     // experimental
     //  targetVelocity = signum(positionError)*sqrt(currentVelocity*currentVelocity + 2 * A_DECEL * abs(positionError));
 
@@ -57,6 +59,7 @@ float YawController::calculate(float currentPosition, float currentVelocity, flo
 
     pastOutput = RA * targetCurrent + KV * targetRelativeVelocity;
     pastTorque = targetCurrent*KT;
+
 #if defined(OLDINFANTRY)
     return std::clamp(pastOutput, -VOLT_MAX, VOLT_MAX);
 #else
@@ -98,6 +101,7 @@ float YawController::decelProfile(float poserror, float thetadot, float thetadot
     }
     if (std::fabs(poserror) < THETA_DOT_BREAK / KP)  // std::fabs(thetadot - thetadotinput) < THETA_DOT_BREAK)
         return (KP + (drivetrainVelocity * poserror > 0 ? KDT : KDT_REV)*drivetrainVelocity) * poserror + thetadotinput;
+
     if (v3 != 0 && poserror > 0 && thetadot <= 0)
         return v3;
     else if (v2 != 0 && poserror < 0 && thetadot >= 0)
