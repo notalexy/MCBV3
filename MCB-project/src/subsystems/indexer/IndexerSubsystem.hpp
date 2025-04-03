@@ -25,6 +25,8 @@ tap::motor::DjiMotor* motorIndexer;//{drivers, tap::motor::MotorId::MOTOR4, tap:
 tap::algorithms::SmoothPid indexPIDController;
 
 float ballsPerSecond = 0.0f;
+static constexpr float HEAT_PER_BALL = 10.0f;
+static constexpr float LATENCY = 0.6f; //expected ref system latency for barrel heat limiting
 int32_t indexerVoltage = 0;
 int64_t numTicksAtInit = 0;
 

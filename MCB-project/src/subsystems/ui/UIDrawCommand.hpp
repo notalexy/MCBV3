@@ -12,6 +12,7 @@
 #include "LaneAssistLines.hpp"
 #include "Reticle.hpp"
 #include "SupercapChargeIndicator.hpp"
+#include "ChassisOrientationIndicator.hpp"
 #include "TestGraphics.hpp"
 #include "TestFill.hpp"
 #include "drivers.hpp"
@@ -41,8 +42,11 @@ private:
     DrivetrainSubsystem* drivetrain;
 
     // add top level graphics objects here and in the constructor
-    TestGraphics testGraphics{};
+    // TestGraphics testGraphics{};
     // TestFill testFill{};
+
     LaneAssistLines laneAssistLines;
+    SupercapChargeIndicator supercapChargeIndicator;
+    ChassisOrientationIndicator chassisOrientationIndicator;
 };
 }  // namespace commands
