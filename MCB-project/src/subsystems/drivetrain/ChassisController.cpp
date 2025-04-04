@@ -4,7 +4,6 @@
 #include <cmath>
 #include <iostream>
 #include <string>
-
 // TODO: Calculate function that takes in target x, y velocities as well as a target angle as inputs, outputs 4 motor current summations
 
 float test1;
@@ -54,15 +53,15 @@ void ChassisController::estimateState(Pose2d inputForces, Pose2d* estVelLocal, P
     *estVelLocal = estVelWorld->rotate(-estPosWorld->getRotation());
 }
 
-float ChassisController::calculateBeybladeVelocity(float bb_freq, float bb_amp) {
+float ChassisController::calculateBeybladeVelocity(float bb_freq, float bb_amp, Pose2d TargetVelocity) {
     // Get the target velocity commands (or position commands) from the controller
     // This part would integrate the user input or other controller logic to set target velocity
-
-    float velmagMax = 0;
-    for (int i = 0; i < Q_SIZE; i++) {
+        float velmagMax = 0;
+    for (int i = 0; i < BBQ_SIZE; i++) {
+        targetVelocityMagnitudeHistory[i] = (i > 0) ? targetVelocityMagnitudeHistory[i - 1] : sqrt(TargetVelocity.getX() * TargetVelocity.getX()  + TargetVelocity.getY() * TargetVelocity.getY());
         velmagMax = std::max(velmagMax, targetVelocityHistory[i]);  // Find max velocity magnitude in the last bb_delay seconds
     }
-
+    if (TargetVelocity.getRotation() < BBterm1 - 2) return TargetVelocity.getRotation(); //prevent any actual changes if the thing is slow (aka a PID controller or something is controlling positoin)
     // If fixed-speed beyblade or variable-speed beyblade with velocity != 0
     // Variable-speed beyblade behavior when velmagMax == 0
     // if (BEYBLADE_FIXED_SPEED || velmagMax != 0)
@@ -77,8 +76,7 @@ float ChassisController::calculateBeybladeVelocity(float bb_freq, float bb_amp) 
     // if (targetVelocityQueue.size() > BEYBLADE_DELAY / DT) {
     //     targetVelocityQueue.pop_front();
     // }
-
-    return dotThetaBeyblade;  // Return the required angular velocity (dot_theta_req)
+    return std::min(std::clamp(BBterm1 + BBterm2 * velmagMax + BBterm3 * velmagMax * velmagMax, 0.0f, BBterm1), TargetVelocity.getRotation());  // Return the required angular velocity (dot_theta_req)
 }
 
 // Function to estimate input errors in inertial frame
@@ -95,7 +93,7 @@ void ChassisController::velocityControl(Pose2d inputVelLocal, Vector2d estVelWor
     accumForceLocal = accumForceLocal.clamp(MIN_FORCE, MAX_FORCE);
 
     // update the required local force (for all 3 elements)
-    *reqForceLocal = (inputVelLocal - estVelLocal) * KP_V + accumForceLocal;
+    *reqForceLocal = (inputVelLocal - estVelLocal) * KP_V;// + accumForceLocal;
 
     // Store current forces for the next iteration
     lastVelWorld = estVelWorld;
@@ -111,8 +109,7 @@ void ChassisController::calculateFeedForward(float estimatedMotorVelocity[4], fl
     }
 }
 float motorTorque[4], forceArr[3], F_lat[4];
-void ChassisController::calculateTractionLimiting(Pose2d localForce, Pose2d* limitedForce) {
-    float beybladeCommand = 0;  // calculateBeybladeVelocity(0.0f, 0.0f);  // not sure what I should pass into here
+void ChassisController::calculateTractionLimiting(Pose2d localForce, Pose2d* limitedForce, float thetaDotDes) {
 
     multiplyMatrices(4, 3, forceInverseKinematics, localForce.toArray(forceArr), motorTorque);
 
@@ -120,16 +117,16 @@ void ChassisController::calculateTractionLimiting(Pose2d localForce, Pose2d* lim
 
     // Manipulate F_largest based on whether the beyblade torque command is positive or negative
     for (int i = 1; i < 4; i++) {  // if beybladeCommand > 0, find smallest, vice versa
-        if ((beybladeCommand > 0) ^ (motorTorque[i] > largest)) {
+        if ((thetaDotDes > 0) ^ (motorTorque[i] > largest)) {
             largest = motorTorque[i];
         }
     }
 
-    float F_too_much = std::max(std::fabs(largest) - F_MAX / 4, 0.0f);  // clamp between 0 and infinity
+    float F_too_much = std::max(std::fabs(largest) - F_MAX / 4  , 0.0f);  // clamp between 0 and infinity
 
     float T_req = localForce.getRotation();
 
-    float T_req_throttled = signum(T_req) * std::min(std::fabs(T_req), 2 * TRACKWIDTH * std::max(T_req / (2 * TRACKWIDTH) - F_too_much, F_MIN_T));
+    float T_req_throttled = signum(T_req) * std::min(std::fabs(T_req) * (2*TRACKWIDTH), 2 * TRACKWIDTH * std::max(std::abs(T_req) / (2 * TRACKWIDTH) - F_too_much, F_MIN_T));
 
     // 2 rows to not do torque
     multiplyMatrices(4, 2, forceInverseKinematics, forceArr, F_lat);
@@ -151,7 +148,7 @@ void ChassisController::calculateTractionLimiting(Pose2d localForce, Pose2d* lim
 }
 
 // Calculates scaling factor based on the equations in the notion
-void ChassisController::calculatePowerLimiting(float powerLimit, float V_m_FF[4], float I_m_FF[4], float T_req_m[4], float T_req_m2[4]) {
+void ChassisController::calculatePowerLimiting(float powerLimit, float V_m_FF[4], float I_m_FF[4], float T_req_m[4], float T_req_m2[4], float thetaDotEst, float thetaDotDes) {
     // // Get all the summations out of the way first
     float aSum = 0, bSumFirst = 0, bSumSecond = 0, cSumFirst = 0, cSumSecond = 0;
     for (int i = 0; i < 4; i++) {
@@ -165,7 +162,7 @@ void ChassisController::calculatePowerLimiting(float powerLimit, float V_m_FF[4]
     // Then get a, b, c to calculate the scaling factor with
     float a = (RA / (KT * KT)) * aSum;                              // KT^-2 T^2
     float b = ((2 * RA) / KT) * bSumFirst + (1 / KT) * bSumSecond;  // KT^-1 T^1 IV^1
-    float c = RA * cSumFirst + cSumSecond - powerLimit*P_FOS + P_IDLE;                  // IV^2
+    float c = RA * cSumFirst + cSumSecond - powerLimit*(P_FOS + (1 - P_FOS)*std::clamp((1 - thetaDotEst / 8.5f), 0.0f, 1.0f)) + P_IDLE;                  // IV^2
 
     float s_scaling = 1.0f;
     if(a > 0 && b * b - 4 * a * c > 0) s_scaling =  clamp((-b + std::sqrt(b * b - 4 * a * c)) / (2 * a), 0.0f, 1.0f);
@@ -196,20 +193,21 @@ void ChassisController::calculate(Pose2d targetVelLocal, float powerLimit, float
     // inverse kinematics
     multiplyMatrices(4, 3, inverseKinematics, estVelArr, estMotorArr);
 
-    // calculateBeybladeVelocity(0.0f, 0.0f);  // should be changed
     float V_m_FF[4], I_m_FF[4];  // motor feedforwards
 
-    calculateFeedForward(estMotorArr, V_m_FF, I_m_FF);
+    calculateFeedForward(estMotorArr, V_m_FF, I_m_FF); //technically inverse dynamics
 
     // get last inertial force too
     Pose2d lastForceWorld = lastForceLocal.rotate(estPosWorld.getRotation());
 
     //new force local
     Pose2d forceLocal;
+
+    targetVelLocal = Pose2d(targetVelLocal.getX(), targetVelLocal.getY(), calculateBeybladeVelocity(0, 0, targetVelLocal));
     // // First, estimate the input errors then do velocity PI control
     velocityControl(targetVelLocal, estVelWorld, estVelLocal, lastForceWorld, &forceLocal);
 
-    // calculateTractionLimiting(forceLocal, &forceLocal);
+    //calculateTractionLimiting(forceLocal, &forceLocal, targetVelLocal.getRotation());
 
     Pose2d forceTimes = forceLocal * (R_WHEEL / GEAR_RATIO);
     
@@ -217,13 +215,14 @@ void ChassisController::calculate(Pose2d targetVelLocal, float powerLimit, float
 
     multiplyMatrices(4, 3, forceInverseKinematics, forceArr, estMotorArr);
 
-    calculatePowerLimiting(powerLimit, V_m_FF, I_m_FF, estMotorArr, estMotorArr);
+    calculatePowerLimiting(powerLimit, V_m_FF, I_m_FF, estMotorArr, estMotorArr, estVelLocal.getRotation(), targetVelLocal.getRotation());
 
     //have to reassign bc of how this works. Hopefully this gets garbage collected correctly
     lastForceLocal = Pose2d(multiplyMatrices(3, 4, forceKinematics, estMotorArr, forceArr));
 
     // set motor currents
     for (int i = 0; i < 4; i++) {
+        
         motorCurrent[i] = estMotorArr[i] / KT + I_m_FF[i];
     }
 }

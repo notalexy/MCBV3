@@ -26,9 +26,11 @@ void DrivetrainDriveCommand::execute() {
     }
 
     if (driveMode == DriveMode::BEYBLADE) {
-        r = 0.4;
+        r = .5;
+        x *= 1.75;
+        y *= 1.75;
     } else if (driveMode == DriveMode::BEYBLADE2) {
-        r = 0.8;
+        r = 10.5;
     } else if (driveMode == DriveMode::NO_SPIN) {
         r = 0;
 
@@ -36,9 +38,15 @@ void DrivetrainDriveCommand::execute() {
         float targetAngle = 0.0f;
         if (driveMode == DriveMode::PEEK_LEFT) {
             targetAngle = PEEK_LEFT_AMT;
+            x /= 2.5;
+            y /= 2.5;
         } else if (driveMode == DriveMode::PEEK_RIGHT) {
             targetAngle = PEEK_RIGHT_AMT;
+            x /= 2.5;
+            y /= 2.5;
         }
+        x *= 2.5;
+        y *= 2.5;
         r = drivetrain->calculateRotationPID(targetAngle + referenceAngle);  // + M_PI));
     }
 
