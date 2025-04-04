@@ -19,8 +19,8 @@ constexpr float PEEK_RIGHT_AMT = -0.65;  // amount to peek right
 #elif defined(INFANTRY)
 constexpr tap::algorithms::SmoothPidConfig drivetrainPIDConfig{6.0, 0, -0, 0, 6.0, 1.0f, 0.0f, 1.0f, 0.0f, 0.05};
 
-constexpr float PEEK_LEFT_AMT = 0.65;    // amount to peek left
-constexpr float PEEK_RIGHT_AMT = -0.65;  // amount to peek right
+constexpr float PEEK_LEFT_AMT = -0.45;    // amount to peek left
+constexpr float PEEK_RIGHT_AMT = 0.45;  // amount to peek right
 #else
 constexpr tap::algorithms::SmoothPidConfig drivetrainPIDConfig{1.5, 0, -0.3, 0, 2.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.05};
 

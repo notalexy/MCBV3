@@ -94,6 +94,8 @@ constexpr float BEYBLADE_DELAY = .25;  // delay for beyblade mode/
 constexpr float BBterm1 = 10.7717; //constant term
 constexpr float BBterm2 = -2.0342; //linear term
 constexpr float BBterm3 = -.5660; //quadratic term
+constexpr float BBmax = 10.5; //constant term
+constexpr float maxTorqueZ = 30;
 #else// START getters and setters
 constexpr float TRACKWIDTH = 0.49739;      // in m. We need to measure
 constexpr float M = 14.0;                  // robot mass kg
@@ -133,7 +135,7 @@ constexpr float K_VIS = C_MOTOR / KT;  // Viscous damping feedforward gain
 constexpr float K_S = UK_MOTOR / KT;   // Static friction feedforward g
 
 constexpr float F_MAX = M * 9.81f * COF_WHEEL;    // maximum force allowed across all 4 wheels
-constexpr float F_MIN_T = 10 / (2 * TRACKWIDTH);  // minimum force per wheel in the torque direction that the traction limiter is allowed to throttle to
+constexpr float F_MIN_T = 5 / (2 * TRACKWIDTH);  // minimum force per wheel in the torque direction that the traction limiter is allowed to throttle to
 
 const float M_EFFECTIVE = M + 4 * J_WHEEL * std::pow(GEAR_RATIO / R_WHEEL, 2.0f);
 const float J_EFFECTIVE = J + 4 * J_WHEEL * std::pow((TRACKWIDTH / 2.0f) * (GEAR_RATIO / R_WHEEL), 2.0f);

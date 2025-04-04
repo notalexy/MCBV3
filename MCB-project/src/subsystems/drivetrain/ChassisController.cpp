@@ -78,7 +78,7 @@ float ChassisController::calculateBeybladeVelocity(float bb_freq, float bb_amp, 
     // if (targetVelocityQueue.size() > BEYBLADE_DELAY / DT) {
     //     targetVelocityQueue.pop_front();
     // }
-    return std::min(std::clamp(BBterm1 + BBterm2 * velmagMax + BBterm3 * velmagMax * velmagMax, 0.0f, BBterm1), TargetVelocity.getRotation());  // Return the required angular velocity (dot_theta_req)
+    return std::min(std::clamp(BBterm1 + BBterm2 * velmagMax + BBterm3 * velmagMax * velmagMax, 0.0f, BBmax), TargetVelocity.getRotation());  // Return the required angular velocity (dot_theta_req)
 }
 
 // Function to estimate input errors in inertial frame
@@ -95,7 +95,7 @@ void ChassisController::velocityControl(Pose2d inputVelLocal, Vector2d estVelWor
     accumForceLocal = accumForceLocal.clamp(MIN_FORCE, MAX_FORCE);
 
     // update the required local force (for all 3 elements)
-    *reqForceLocal = Pose2d((inputVelLocal .getX() - estVelLocal.getX()) * KP_V_XY, (inputVelLocal .getY() - estVelLocal.getY()) * KP_V_XY,  (inputVelLocal .getRotation() - estVelLocal.getRotation()) * KP_V_ROT);//(inputVelLocal - estVelLocal) * KP_V;// + accumForceLocal;
+    *reqForceLocal = Pose2d((inputVelLocal .getX() - estVelLocal.getX()) * KP_V_XY, (inputVelLocal .getY() - estVelLocal.getY()) * KP_V_XY,  std::clamp((inputVelLocal .getRotation() - estVelLocal.getRotation()) * KP_V_ROT, -maxTorqueZ, maxTorqueZ));//(inputVelLocal - estVelLocal) * KP_V;// + accumForceLocal;
 
     // Store current forces for the next iteration
     lastVelWorld = estVelWorld;
@@ -119,19 +119,24 @@ void ChassisController::calculateTractionLimiting(Pose2d localForce, Pose2d* lim
 
     // Manipulate F_largest based on whether the beyblade torque command is positive or negative
     for (int i = 1; i < 4; i++) {  // if beybladeCommand > 0, find smallest, vice versa
-        if ((thetaDotDes > 0) ^ (motorTorque[i] > largest)) {
-            largest = motorTorque[i];
+        if (thetaDotDes > 0) {
+            largest = std::max(largest, motorTorque[i]);
+        } else {
+            largest = std::min(largest, motorTorque[i]);
         }
     }
+
+    largest = std::fabs(largest);
 
     float F_too_much = std::max(std::fabs(largest) - F_MAX / 4  , 0.0f);  // clamp between 0 and infinity
 
     float T_req = localForce.getRotation();
 
-    float T_req_throttled = signum(T_req) * std::min(std::fabs(T_req) * (2*TRACKWIDTH), 2 * TRACKWIDTH * std::max(std::abs(T_req) / (2 * TRACKWIDTH) - F_too_much, F_MIN_T));
+    float T_req_throttled = signum(T_req) * std::min(std::fabs(T_req), 2 * TRACKWIDTH * std::max(std::abs(T_req) / (2 * TRACKWIDTH) - F_too_much, F_MIN_T));
 
     // 2 rows to not do torque
-    multiplyMatrices(4, 2, forceInverseKinematics, forceArr, F_lat);
+    forceArr[2] = 0;
+    multiplyMatrices(4, 3, forceInverseKinematics, forceArr, F_lat);
 
     largest = std::fabs(F_lat[0]);
 
@@ -146,7 +151,8 @@ void ChassisController::calculateTractionLimiting(Pose2d localForce, Pose2d* lim
 
     // set the limited force to the force, then multiply just the vector by the scaling factor
     // since 1/0 is inf, 1/0.00000000000001 is inf. so onlt set if not zero. its also never negative
-    if (largest > 0) limitedForce->vec() *= clamp((F_MAX / 4 - T_req_throttled / (2 * TRACKWIDTH)) * 1 / largest, 0.0f, 1.0f);
+    //if (largest > 0) limitedForce->vec() *= clamp((F_MAX / 4 - T_req_throttled / (2 * TRACKWIDTH)) * 1 / largest, 0.0f, 1.0f);
+    *limitedForce = Pose2d(limitedForce->getX(), limitedForce->getY(), T_req_throttled);
 }
 
 // Calculates scaling factor based on the equations in the notion
