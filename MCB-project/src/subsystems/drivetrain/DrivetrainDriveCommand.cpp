@@ -18,15 +18,15 @@ void DrivetrainDriveCommand::execute() {
         y = drivers->remote.keyPressed(Remote::Key::W) - drivers->remote.keyPressed(Remote::Key::S);
 
     } else if (controlMode == ControlMode::CONTROLLER) {
-        x = 1.75 * drivers->remote.getChannel(Remote::Channel::LEFT_HORIZONTAL);
-        y = 1.75 * drivers->remote.getChannel(Remote::Channel::LEFT_VERTICAL);
+        x = drivers->remote.getChannel(Remote::Channel::LEFT_HORIZONTAL);
+        y = drivers->remote.getChannel(Remote::Channel::LEFT_VERTICAL);
     } else {
         drivetrain->stopMotors();
         return;
     }
 
     if (driveMode == DriveMode::BEYBLADE) {
-        r = .5;
+        r = 10.5;
         x *= 1.75;
         y *= 1.75;
     } else if (driveMode == DriveMode::BEYBLADE2) {

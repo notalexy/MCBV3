@@ -74,7 +74,7 @@ constexpr float J = 0.4223;                  // measured from sys id kg-m^2
 constexpr float R_WHEEL = 0.06;  // wheel radius m
 constexpr float J_WHEEL = 0.000048223;          // wheel moment of inertia kg-m^2
 constexpr float C_MOTOR = 3.5e-4 * .02299;          // motor damping kg-s/m^2`
-constexpr float UK_MOTOR =  .15 *.02299;           // motor dry friction N-m
+constexpr float UK_MOTOR =  .25 *.02299;           // motor dry friction N-m
 constexpr float COF_WHEEL = 0.9;           // unitless COF
 
 constexpr float GEAR_RATIO = 3591.0f/187.0f;  // gear ratio
@@ -129,8 +129,8 @@ constexpr float DT = 0.002;       // DT in s
 
 //  Feedforward gains from fundamental system  constexprants
 constexpr float K_V = KB;              // Velocity feedforward gain (back EMF  constexprant)
-constexpr float K_VIS = C_MOTOR * KT;  // Viscous damping feedforward gain
-constexpr float K_S = UK_MOTOR * KT;   // Static friction feedforward g
+constexpr float K_VIS = C_MOTOR / KT;  // Viscous damping feedforward gain
+constexpr float K_S = UK_MOTOR / KT;   // Static friction feedforward g
 
 constexpr float F_MAX = M * 9.81f * COF_WHEEL;    // maximum force allowed across all 4 wheels
 constexpr float F_MIN_T = 10 / (2 * TRACKWIDTH);  // minimum force per wheel in the torque direction that the traction limiter is allowed to throttle to

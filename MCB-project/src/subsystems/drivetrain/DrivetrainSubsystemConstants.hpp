@@ -17,7 +17,7 @@ constexpr float ERR_DEADZONE_ROT = 0.05;  // error deadzone for drivetrain rad/s
 constexpr float PEEK_LEFT_AMT = 0.65;    // amount to peek left
 constexpr float PEEK_RIGHT_AMT = -0.65;  // amount to peek right
 #elif defined(INFANTRY)
-constexpr tap::algorithms::SmoothPidConfig drivetrainPIDConfig{1.0, 0, -0.2, 0, 2.0, 1.0f, 0.0f, 1.0f, 0.0f, 0.05};
+constexpr tap::algorithms::SmoothPidConfig drivetrainPIDConfig{6.0, 0, -0, 0, 6.0, 1.0f, 0.0f, 1.0f, 0.0f, 0.05};
 
 constexpr float PEEK_LEFT_AMT = 0.65;    // amount to peek left
 constexpr float PEEK_RIGHT_AMT = -0.65;  // amount to peek right

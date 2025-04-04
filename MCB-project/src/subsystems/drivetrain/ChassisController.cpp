@@ -20,11 +20,13 @@ namespace subsystems {
 ChassisController::ChassisController() {
     targetVelocityHistory = new float[Q_SIZE];
     forceHistory = new Pose2d[Q_SIZE];
+    targetVelocityMagnitudeHistory = new float[BBQ_SIZE];
 }
 
 ChassisController::~ChassisController() {
     delete[] targetVelocityHistory;
     delete[] forceHistory;
+    delete[] targetVelocityMagnitudeHistory;
 }
 
 
@@ -58,7 +60,7 @@ float ChassisController::calculateBeybladeVelocity(float bb_freq, float bb_amp, 
     // This part would integrate the user input or other controller logic to set target velocity
         float velmagMax = 0;
     for (int i = 0; i < BBQ_SIZE; i++) {
-        targetVelocityMagnitudeHistory[i] = (i > 0) ? targetVelocityMagnitudeHistory[i - 1] : sqrt(TargetVelocity.getX() * TargetVelocity.getX()  + TargetVelocity.getY() * TargetVelocity.getY());
+        targetVelocityMagnitudeHistory[i] = (i > 0) ? targetVelocityMagnitudeHistory[i - 1] :TargetVelocity.magnitude();
         velmagMax = std::max(velmagMax, targetVelocityHistory[i]);  // Find max velocity magnitude in the last bb_delay seconds
     }
     if (TargetVelocity.getRotation() < BBterm1 - 2) return TargetVelocity.getRotation(); //prevent any actual changes if the thing is slow (aka a PID controller or something is controlling positoin)
@@ -93,7 +95,7 @@ void ChassisController::velocityControl(Pose2d inputVelLocal, Vector2d estVelWor
     accumForceLocal = accumForceLocal.clamp(MIN_FORCE, MAX_FORCE);
 
     // update the required local force (for all 3 elements)
-    *reqForceLocal = (inputVelLocal - estVelLocal) * KP_V;// + accumForceLocal;
+    *reqForceLocal = Pose2d((inputVelLocal .getX() - estVelLocal.getX()) * KP_V_XY, (inputVelLocal .getY() - estVelLocal.getY()) * KP_V_XY,  (inputVelLocal .getRotation() - estVelLocal.getRotation()) * KP_V_ROT);//(inputVelLocal - estVelLocal) * KP_V;// + accumForceLocal;
 
     // Store current forces for the next iteration
     lastVelWorld = estVelWorld;
@@ -175,7 +177,6 @@ void ChassisController::calculatePowerLimiting(float powerLimit, float V_m_FF[4]
 
 float estVelArr[3], estMotorArr[4];
 void ChassisController::calculate(Pose2d targetVelLocal, float powerLimit, float angle, float motorVelocity[4], float motorCurrent[4]) {
-    // multiplyMatrices(4, 3, inverseKinematics, targetVelLocal.rotate(angle) * (0.01), motorCurrent);
     multiplyMatrices(3, 4, forwardKinematics, motorVelocity, estVelArr);
     // return;
     Pose2d estVelLocal(estVelArr);

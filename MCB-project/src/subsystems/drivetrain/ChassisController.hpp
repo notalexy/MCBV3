@@ -27,7 +27,7 @@ private:
         // states to store, current position, curent velocity, and also the lastForce
     Pose2d estPosWorld{}, estVelWorld{}, lastForceLocal{};
 
-    Vector2d lastVelWorld{}, accumForceLocal{};
+    Pose2d lastVelWorld{}, accumForceLocal{};
 
 public:
     float *targetVelocityHistory;  // For storing target velocity magnitudes
