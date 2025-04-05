@@ -8,8 +8,8 @@ static constexpr float dt = 0.002f;
 // for sysid
 static constexpr int PITCH_DIST_RANGE = 0;
 
-static constexpr float MOUSE_YAW_PROPORTIONAL = -0.00008;
-static constexpr float MOUSE_PITCH_PROPORTIONAL = 0.00005;
+static constexpr float MOUSE_YAW_PROPORTIONAL = -0.00002;
+static constexpr float MOUSE_PITCH_PROPORTIONAL = 0.00001;
 
 static constexpr float CONTROLLER_YAW_PROPORTIONAL = -0.02;
 
@@ -41,7 +41,7 @@ static constexpr float MAX_PITCH_DOWN = PI_CONST / 180 * 12*2;
 
 static constexpr float YAW_OFFSET = 0;
 
-static constexpr float PITCH_OFFSET = 0.1f * PI_CONST;  // to make gimbal horizontal when told to go to 0
+static constexpr float PITCH_OFFSET = 1.75f * PI_CONST;  // to make gimbal horizontal when told to go to 0
 
 static constexpr float YAW_TOTAL_RATIO = 54.0f/27.0f * 3591.0f / 187.0f;  // unitless, ratio of encoder counts to degrees of rotation
 
@@ -58,9 +58,9 @@ static constexpr float MAX_PITCH_UP = PI_CONST / 180 * 15;
 // looks up 20, 18 is safe
 static constexpr float MAX_PITCH_DOWN = PI_CONST / 180 * 14;
 
-static constexpr float YAW_OFFSET = 0;  // 3 * PI_CONST / 4;
+static constexpr float YAW_OFFSET = 0;
 
-static constexpr float PITCH_OFFSET = -1 * PI_CONST;  // to make gimbal horizontal when told to go to 0
+static constexpr float PITCH_OFFSET = 1 * PI_CONST - 4*PI_CONST / 180.f;  // to make gimbal horizontal when told to go to 0
 
 static constexpr float YAW_TOTAL_RATIO = 32319.0f / 748.0f;  // unitless, ratio of encoder counts to degrees of rotation
 
