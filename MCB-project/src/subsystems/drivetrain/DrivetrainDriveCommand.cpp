@@ -16,6 +16,7 @@ void DrivetrainDriveCommand::execute() {
     if (controlMode == ControlMode::KEYBOARD) {
         x = drivers->remote.keyPressed(Remote::Key::D) - drivers->remote.keyPressed(Remote::Key::A);
         y = drivers->remote.keyPressed(Remote::Key::W) - drivers->remote.keyPressed(Remote::Key::S);
+        boost = drivers->remote.keyPressed(Remote::Key::SHIFT);
 
     } else if (controlMode == ControlMode::CONTROLLER) {
         x = drivers->remote.getChannel(Remote::Channel::LEFT_HORIZONTAL);
@@ -52,7 +53,7 @@ void DrivetrainDriveCommand::execute() {
 
     Pose2d drive(x, y, r);
 
-    drivetrain->setTargetTranslation(drive.rotate(referenceAngle));
+    drivetrain->setTargetTranslation(drive.rotate(referenceAngle), (bool)boost);
 }
 
 bool DrivetrainDriveCommand::isFinished() const { return !drivers->remote.isConnected(); }
